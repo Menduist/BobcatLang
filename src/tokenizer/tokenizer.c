@@ -33,7 +33,7 @@ static int try_tokenize_string(const char *code, struct SimpleToken *token) {
 }
 
 static int __always_inline is_operator(char c) {
-	return c == '+' || c == '-' || c == '*' || c == '/' || c == '%';
+	return c == '+' || c == '-' || c == '*' || c == '/' || c == '%' || c == '=';
 }
 
 static int try_tokenize_operator(const char *code, struct SimpleToken *token) {
@@ -88,6 +88,7 @@ void tokenize(const char *code, struct SimpleToken *tokens) {
 
 #define HANDLE_OTHER(name) if ((tmp = name(code + i, tokens + tokenid)) > 0) { \
 			i += tmp; \
+			tokens[tokenid].line = line; tokens[tokenid].col = (i - linestart); \
 			tokenid++; \
 			continue; \
 		}

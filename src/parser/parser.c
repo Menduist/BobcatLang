@@ -113,22 +113,42 @@ struct ast_node *parse_prefix_operator(struct parser *parser) {
 	result->type = PREFIX_OPERATOR;
 	result->childs[0] = (struct ast_node *)parser->tokens++;
 	result->childs[1] = parse_primary(parser);
+	return result;
+}
+
+struct ast_node *parse_postfix_operator(struct parser *parser, struct ast_node *child) {
+	struct ast_node *result;
+
+	result = calloc(sizeof(struct ast_node), 1);
+	result->type = POSTFIX_OPERATOR;
+	result->childs[0] = (struct ast_node *)parser->tokens++;
+	result->childs[1] = child; 
+	return result;
 }
 
 struct ast_node *parse_primary(struct parser *parser) {
+	struct ast_node *result;
 	switch (parser->tokens->type) {
 		case TOKEN_IDENTIFIER:
-			return parse_identifier(parser);
+			result = parse_identifier(parser);
+			break;
 		case TOKEN_STRING_LITERAL:
-			return parser->tokens++;
+			result = parser->tokens++;
+			break;
 		case TOKEN_PARENTHESE_START:
-			return parse_parentheses_expression(parser);
+			result = parse_parentheses_expression(parser);
+			break;
 		case TOKEN_OPERATOR:
-			return parse_prefix_operator(parser);
+			result = parse_prefix_operator(parser);
+			break;
 		default:
 			unexcepted("identifier,string_literal,(,operator", parser->tokens);
 			return 0;
 	}
+	if (parser->tokens->type == TOKEN_OPERATOR && parser->tokens[1].type == TOKEN_PARENTHESE_END) {
+		result = parse_postfix_operator(parser, result);
+	}
+	return result;
 }
 
 int get_token_precedence(struct SimpleToken *tok) {
@@ -142,7 +162,7 @@ int get_token_precedence(struct SimpleToken *tok) {
 		return 30;
 	if (strlen(tok->value) == 2)
 		return 10;
-	return 0;
+	return 2;
 }
 
 struct ast_node *parse_expression_1(struct parser *parser, struct ast_node *lhs, int min_precedence) {
@@ -152,6 +172,10 @@ struct ast_node *parse_expression_1(struct parser *parser, struct ast_node *lhs,
 
 	while (1) {
 		tokprec = get_token_precedence(parser->tokens);
+
+		if (parser->tokens[-1].line != parser->tokens->line) {
+			return lhs;
+		}
 
 		if (tokprec < min_precedence)
 			return lhs;
@@ -177,14 +201,11 @@ struct ast_node *parse_expression_1(struct parser *parser, struct ast_node *lhs,
 
 struct ast_node *parse_expression(struct parser *parser) {
 	struct ast_node *result = parse_expression_1(parser, parse_primary(parser), 0);
-
-	printf("returning %d\n", result->type);
 	return result;
 }
 
 struct ast_node *parse_statement(struct parser *parser) {
-	//struct ast_node *result = calloc(sizeof(struct ast_node), 1);
-	return parse_primary(parser);
+	return parse_expression(parser);
 }
 
 struct ast_node *parse_compound_statement(struct parser *parser) {
@@ -274,7 +295,8 @@ char *lol[] = {
 	"DECLARATOR",
 	"COMPOUND_STATEMENT",
 	"OPERATOR",
-	"PREFIX_OPERATOR"
+	"PREFIX_OPERATOR",
+	"POSTFIX_OPERATOR"
 };
 
 void print_node(struct ast_node *node, int level) {
@@ -298,15 +320,32 @@ void print_node(struct ast_node *node, int level) {
 	}
 }
 
-int main() {
-	struct SimpleToken tokens[30];
+char *readfile(char *path) {
+	char *target;
+	FILE *source;
+	int size;
+	
+	source = fopen(path, "r");
+	fseek(source, 0, SEEK_END);
+	size = ftell(source);
+	target = malloc(sizeof(char) * (size + 1));
+	fseek(source, 0, SEEK_SET);
+	fread(target, 1, size, source);
+	target[size] = '\0';
+	return target;
+}
+
+int main(int argc, char **argv) {
+	struct SimpleToken tokens[100];
+	char *source;
 	struct ast_node *node;
 	int i;
 	
-	memset(tokens, 0, sizeof(struct SimpleToken) * 30);
-	tokenize("func main() { echo((++14 + 123 * 2) * 4 + lol()) }", tokens);
-	for (i = 0; i < 30; i++) {
-		printf("%s (%d): %s\n", lol[tokens[i].type], tokens[i].type, tokens[i].value);
+	source = readfile(argv[1]);
+	memset(tokens, 0, sizeof(struct SimpleToken) * 100);
+	tokenize(source, tokens);
+	for (i = 0; i < 30 && tokens[i].type; i++) {
+		printf("%s (%d): %s (%d)\n", lol[tokens[i].type], tokens[i].type, tokens[i].value, tokens[i].line);
 	}
 	node = parse(tokens);
 	print_node(node, 0);
