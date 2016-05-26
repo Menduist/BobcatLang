@@ -9,7 +9,7 @@ enum nonterminal_node {
 	FUNCTION_CALL,
 	DECLARATOR,
 	COMPOUND_STATEMENT,
-
+	OPERATOR,
 	PREFIX_OPERATOR,
 };
 

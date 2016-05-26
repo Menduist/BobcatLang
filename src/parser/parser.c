@@ -131,18 +131,60 @@ struct ast_node *parse_primary(struct parser *parser) {
 	}
 }
 
-struct ast_node *parse_expression_1(struct parser *parser, int min_precedence) {
+int get_token_precedence(struct SimpleToken *tok) {
+	if (tok->type != TOKEN_OPERATOR)
+		return -1;
+	if (tok->value[0] == '*' || tok->value[0] == '/')
+		return 3000;
+	if (tok->value[0] == '+' || tok->value[0] == '-')
+		return 2000;
+	if (strchr("&|^", tok->value[0]) != 0)
+		return 30;
+	if (strlen(tok->value) == 2)
+		return 10;
+	return 0;
+}
 
+struct ast_node *parse_expression_1(struct parser *parser, struct ast_node *lhs, int min_precedence) {
+	int tokprec;
+	struct ast_node *operator;
+	struct ast_node *rhs;
+
+	while (1) {
+		tokprec = get_token_precedence(parser->tokens);
+
+		if (tokprec < min_precedence)
+			return lhs;
+
+		operator = calloc(sizeof(struct ast_node), 1);
+		operator->type = OPERATOR;
+		operator->childs[0] = (struct ast_node *)parser->tokens;
+
+		parser->tokens++;
+
+		rhs = parse_primary(parser);
+
+		if (tokprec < get_token_precedence(parser->tokens)) {
+			rhs = parse_expression_1(parser, rhs, tokprec + 1);
+		}
+
+		operator->childs[1] = lhs;
+		operator->childs[2] = rhs;
+		lhs = operator;
+	}
+	return 0;
 }
 
 struct ast_node *parse_expression(struct parser *parser) {
-	return parse_primary(parser);
+	struct ast_node *result = parse_expression_1(parser, parse_primary(parser), 0);
+
+	printf("returning %d\n", result->type);
+	return result;
 }
 
 struct ast_node *parse_statement(struct parser *parser) {
 	//struct ast_node *result = calloc(sizeof(struct ast_node), 1);
 	return parse_primary(parser);
-	return 0;
 }
 
 struct ast_node *parse_compound_statement(struct parser *parser) {
@@ -231,7 +273,7 @@ char *lol[] = {
 	"FUNCTION_CALL",
 	"DECLARATOR",
 	"COMPOUND_STATEMENT",
-
+	"OPERATOR",
 	"PREFIX_OPERATOR"
 };
 
@@ -262,9 +304,9 @@ int main() {
 	int i;
 	
 	memset(tokens, 0, sizeof(struct SimpleToken) * 30);
-	tokenize("func main() { echo(++\"Hello World!\"++) }", tokens);
+	tokenize("func main() { echo((++14 + 123 * 2) * 4 + lol()) }", tokens);
 	for (i = 0; i < 30; i++) {
-		printf("%s: %s\n", lol[tokens[i].type], tokens[i].value);
+		printf("%s (%d): %s\n", lol[tokens[i].type], tokens[i].type, tokens[i].value);
 	}
 	node = parse(tokens);
 	print_node(node, 0);
