@@ -32,6 +32,25 @@ static int try_tokenize_string(const char *code, struct SimpleToken *token) {
 	return length;
 }
 
+static int __always_inline is_operator(char c) {
+	return c == '+' || c == '-' || c == '*' || c == '/' || c == '%';
+}
+
+static int try_tokenize_operator(const char *code, struct SimpleToken *token) {
+	int length;
+
+	length = 0;
+	while (is_operator(code[length]) && length <= 3) {
+		length++;
+	}
+
+	if (length > 0) {
+		token->type = TOKEN_OPERATOR;
+		strncpy(token->value, code, length);
+	}
+	return length;
+}
+
 
 static int checkkeyword(const char *code, const char *keyword, int size) {
 	return strncmp(code, keyword, size) || !isspace(code[size]);
@@ -60,24 +79,24 @@ void tokenize(const char *code, struct SimpleToken *tokens) {
 		HANDLE_SINGLE_CHAR('(', TOKEN_PARENTHESE_START);
 		HANDLE_SINGLE_CHAR(')', TOKEN_PARENTHESE_END);
 		HANDLE_SINGLE_CHAR(':', TOKEN_COLON);
+		HANDLE_SINGLE_CHAR(',', TOKEN_COMMA);
 #define HANDLE_KEYWORD(keyword, size, etype) if (checkkeyword(code + i, keyword, size) == 0) {\
 	SET_TOKEN(etype, size); \
 	i += size; continue; }
 		HANDLE_KEYWORD("func", 4, TOKEN_FUNC);
 		HANDLE_KEYWORD("int", 3, TOKEN_INT);
 
-		if ((tmp = try_tokenize_string(code + i, tokens + tokenid)) > 0) {
-			i += tmp;
-			tokenid++;
-			continue;
+#define HANDLE_OTHER(name) if ((tmp = name(code + i, tokens + tokenid)) > 0) { \
+			i += tmp; \
+			tokenid++; \
+			continue; \
 		}
 
-		if ((tmp = try_tokenize_identifier(code + i, tokens + tokenid)) > 0) {
-			i += tmp;
-			tokenid++;
-			continue;
-		}
+		HANDLE_OTHER(try_tokenize_string);
+		HANDLE_OTHER(try_tokenize_operator);
+		HANDLE_OTHER(try_tokenize_identifier);
 
+		printf("warning, unhandled %c\n", code[i]);
 		i++;
 	}
 }
