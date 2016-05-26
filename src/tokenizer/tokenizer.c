@@ -12,7 +12,7 @@ static int try_tokenize_identifier(const char *code, struct SimpleToken *token) 
 	length = 1;
 	while (isalnum(code[length]) || code[length] == '_')
 		length++;
-	token->type = IDENTIFIER;
+	token->type = TOKEN_IDENTIFIER;
 	strncpy(token->value, code, length);
 	return length;
 }
@@ -27,7 +27,7 @@ static int try_tokenize_string(const char *code, struct SimpleToken *token) {
 		length++;
 	}
 	length++;
-	token->type = STRING_LITERAL;
+	token->type = TOKEN_STRING_LITERAL;
 	strncpy(token->value, code, length);
 	return length;
 }
@@ -39,24 +39,32 @@ static int checkkeyword(const char *code, const char *keyword, int size) {
 
 void tokenize(const char *code, struct SimpleToken *tokens) {
 	int i, tokenid, tmp;
+	int line, linestart;
 
-	i = tokenid = 0;
+	i = tokenid = line = linestart = 0;
 	while (code[i]) {
+		if (code[i] == '\n') {
+			line++;
+			linestart = i;
+			i++;
+			continue;
+		}
 		if (isspace(code[i])) {
 			i++;
 			continue;
 		}
-#define HANDLE_SINGLE_CHAR(val, etype) if (code[i] == val) {tokens[tokenid++].type = etype; i++; continue;}
-		HANDLE_SINGLE_CHAR('{', BLOCK_START);
-		HANDLE_SINGLE_CHAR('}', BLOCK_END);
-		HANDLE_SINGLE_CHAR('(', PARENTHESE_START);
-		HANDLE_SINGLE_CHAR(')', PARENTHESE_END);
-		HANDLE_SINGLE_CHAR(':', COLON);
+#define SET_TOKEN(etype, size) { tokens[tokenid].type = etype; tokens[tokenid].line = line; tokens[tokenid].col = (i - linestart); strncpy(tokens[tokenid].value, code + i, size); tokenid++;}
+#define HANDLE_SINGLE_CHAR(val, etype) if (code[i] == val) {SET_TOKEN(etype, 1); i++; continue;}
+		HANDLE_SINGLE_CHAR('{', TOKEN_BLOCK_START);
+		HANDLE_SINGLE_CHAR('}', TOKEN_BLOCK_END);
+		HANDLE_SINGLE_CHAR('(', TOKEN_PARENTHESE_START);
+		HANDLE_SINGLE_CHAR(')', TOKEN_PARENTHESE_END);
+		HANDLE_SINGLE_CHAR(':', TOKEN_COLON);
 #define HANDLE_KEYWORD(keyword, size, etype) if (checkkeyword(code + i, keyword, size) == 0) {\
-	tokens[tokenid++].type = etype; \
+	SET_TOKEN(etype, size); \
 	i += size; continue; }
-		HANDLE_KEYWORD("func", 4, FUNC);
-		HANDLE_KEYWORD("int", 3, INT);
+		HANDLE_KEYWORD("func", 4, TOKEN_FUNC);
+		HANDLE_KEYWORD("int", 3, TOKEN_INT);
 
 		if ((tmp = try_tokenize_string(code + i, tokens + tokenid)) > 0) {
 			i += tmp;
@@ -74,7 +82,6 @@ void tokenize(const char *code, struct SimpleToken *tokens) {
 	}
 }
 
-#define TEST_TOKENIZER
 #ifdef TEST_TOKENIZER
 
 char *readfile(char *path) {
@@ -99,10 +106,7 @@ int main(int argc, char **argv) {
 	tokenize(source, tokens);
 	int i;
 	for (i = 0; i < 30; i++) {
-		printf("%d", tokens[i].type);
-		if (tokens[i].type == IDENTIFIER) printf(": %s", tokens[i].value);
-		if (tokens[i].type == STRING_LITERAL) printf(": '%s'", tokens[i].value);
-		printf("\n");
+		printf("%d: %s\n", tokens[i].type, tokens[i].value);
 	}
 	return 0;
 }
