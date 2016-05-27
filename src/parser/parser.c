@@ -41,10 +41,12 @@ translation_unit
 
 void unexcepted(char *excepted, struct SimpleToken *got) {
 	printf("Excepted %s, got '%s' at %d:%d\n", excepted, got->value, got->line, got->col);
+	exit(-1);
 }
 
 struct ast_node *parse_expression(struct parser *parser);
 struct ast_node *parse_primary(struct parser *parser);
+struct ast_node *parse_statement(struct parser *parser);
 
 struct ast_node *parse_parentheses_expression(struct parser *parser) {
 	struct ast_node *result;
@@ -145,7 +147,7 @@ struct ast_node *parse_primary(struct parser *parser) {
 			unexcepted("identifier,string_literal,(,operator", parser->tokens);
 			return 0;
 	}
-	if (parser->tokens->type == TOKEN_OPERATOR && parser->tokens[1].type == TOKEN_PARENTHESE_END) {
+	if (parser->tokens->type == TOKEN_OPERATOR && parser->tokens[1].type != TOKEN_IDENTIFIER) {
 		result = parse_postfix_operator(parser, result);
 	}
 	return result;
@@ -204,8 +206,29 @@ struct ast_node *parse_expression(struct parser *parser) {
 	return result;
 }
 
-struct ast_node *parse_statement(struct parser *parser) {
-	return parse_expression(parser);
+struct ast_node *parse_iteration_statement(struct parser *parser) {
+	struct ast_node *result = calloc(sizeof(struct ast_node), 1);
+
+	result->type = WHILE_STATEMENT;
+	result->childs[0] = (struct ast_node *)parser->tokens++;
+	result->childs[1] = parse_expression(parser);
+	result->childs[2] = parse_statement(parser);
+	return result;
+}
+
+struct ast_node *parse_selection_statement(struct parser *parser) {
+	struct ast_node *result = calloc(sizeof(struct ast_node), 1);
+
+	result->type = IF_STATEMENT;
+	result->childs[0] = (struct ast_node *)parser->tokens++;
+	result->childs[1] = parse_expression(parser);
+	result->childs[2] = parse_statement(parser);
+
+	if (parser->tokens->type == TOKEN_ELSE) {
+		parser->tokens++;
+		result->childs[3] = parse_statement(parser);
+	}
+	return result;
 }
 
 struct ast_node *parse_compound_statement(struct parser *parser) {
@@ -222,6 +245,18 @@ struct ast_node *parse_compound_statement(struct parser *parser) {
 	}
 	parser->tokens++;
 	return result;
+}
+
+struct ast_node *parse_statement(struct parser *parser) {
+	switch (parser->tokens->type) {
+	case TOKEN_IF:
+		return parse_selection_statement(parser);
+	case TOKEN_WHILE:
+		return parse_iteration_statement(parser);
+	case TOKEN_BLOCK_START:
+		return parse_compound_statement(parser);
+	}
+	return parse_expression(parser);
 }
 
 struct ast_node *parse_declarator(struct parser *parser) {
@@ -279,7 +314,9 @@ char *lol[] = {
 	"TOKEN_FUNC",
 	"TOKEN_IDENTIFIER",
 	"TOKEN_OPERATOR",
-	"TOKEN_INT",
+	"TOKEN_IF",
+	"TOKEN_ELSE",
+	"TOKEN_WHILE",
 	"TOKEN_BLOCK_START",
 	"TOKEN_BLOCK_END",
 	"TOKEN_PARENTHESE_START",
@@ -296,7 +333,9 @@ char *lol[] = {
 	"COMPOUND_STATEMENT",
 	"OPERATOR",
 	"PREFIX_OPERATOR",
-	"POSTFIX_OPERATOR"
+	"POSTFIX_OPERATOR",
+	"IF_STATEMENT",
+	"WHILE_STATEMENT"
 };
 
 void print_node(struct ast_node *node, int level) {
@@ -336,7 +375,7 @@ char *readfile(char *path) {
 }
 
 int main(int argc, char **argv) {
-	struct SimpleToken tokens[100];
+	struct SimpleToken tokens[300];
 	char *source;
 	struct ast_node *node;
 	int i;
@@ -344,7 +383,7 @@ int main(int argc, char **argv) {
 	source = readfile(argv[1]);
 	memset(tokens, 0, sizeof(struct SimpleToken) * 100);
 	tokenize(source, tokens);
-	for (i = 0; i < 30 && tokens[i].type; i++) {
+	for (i = 0; i < 100 && tokens[i].type; i++) {
 		printf("%s (%d): %s (%d)\n", lol[tokens[i].type], tokens[i].type, tokens[i].value, tokens[i].line);
 	}
 	node = parse(tokens);

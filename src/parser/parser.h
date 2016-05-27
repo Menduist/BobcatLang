@@ -12,11 +12,13 @@ enum nonterminal_node {
 	OPERATOR,
 	PREFIX_OPERATOR,
 	POSTFIX_OPERATOR,
+	IF_STATEMENT,
+	WHILE_STATEMENT
 };
 
 struct ast_node {
 	int type;
-	struct ast_node *childs[6];
+	struct ast_node *childs[20];
 };
 
 struct parser {

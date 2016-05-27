@@ -1,0 +1,39 @@
+func testif() {
+	if a == 5 {
+		x++
+	}
+	if a == 5 x = 2 else pouet = 3
+	if (a == 5) {
+		x++
+	}
+	if a == 5
+		x++
+	if a == 5 { x++ }
+}
+
+func testelse() {
+	if a == 5 {
+		x++
+	}
+	else
+		x--
+
+	if (a == 5) {
+		x++
+	} else { x *= 42 }
+	if a == 5
+		x++ else pouet
+	if a == 5 { x++ }
+	else 42
+}
+
+func testelseif() {
+	if a == 5
+		x++
+	else if b == 3
+		x--
+	else if b == 2
+		coucou()
+	else
+		lol()
+}

@@ -1,0 +1,6 @@
+func testwhile() {
+	while (x < 5) {
+		x++;
+	}
+	while x < 5 x++
+}

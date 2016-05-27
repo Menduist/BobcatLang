@@ -33,7 +33,8 @@ static int try_tokenize_string(const char *code, struct SimpleToken *token) {
 }
 
 static int __always_inline is_operator(char c) {
-	return c == '+' || c == '-' || c == '*' || c == '/' || c == '%' || c == '=';
+	return c == '+' || c == '-' || c == '*' || c == '/' || c == '%' || c == '=' ||
+		c == '<' || c == '>';
 }
 
 static int try_tokenize_operator(const char *code, struct SimpleToken *token) {
@@ -60,7 +61,8 @@ void tokenize(const char *code, struct SimpleToken *tokens) {
 	int i, tokenid, tmp;
 	int line, linestart;
 
-	i = tokenid = line = linestart = 0;
+	i = tokenid = linestart = 0;
+	line = 1;
 	while (code[i]) {
 		if (code[i] == '\n') {
 			line++;
@@ -84,7 +86,9 @@ void tokenize(const char *code, struct SimpleToken *tokens) {
 	SET_TOKEN(etype, size); \
 	i += size; continue; }
 		HANDLE_KEYWORD("func", 4, TOKEN_FUNC);
-		HANDLE_KEYWORD("int", 3, TOKEN_INT);
+		HANDLE_KEYWORD("if", 2, TOKEN_IF);
+		HANDLE_KEYWORD("else", 4, TOKEN_ELSE);
+		HANDLE_KEYWORD("while", 5, TOKEN_WHILE);
 
 #define HANDLE_OTHER(name) if ((tmp = name(code + i, tokens + tokenid)) > 0) { \
 			i += tmp; \
