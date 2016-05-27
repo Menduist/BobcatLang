@@ -15,7 +15,8 @@ enum nonterminal_node {
 	PREFIX_OPERATOR,
 	POSTFIX_OPERATOR,
 	IF_STATEMENT,
-	WHILE_STATEMENT
+	WHILE_STATEMENT,
+	NODES_END
 };
 
 struct ast_node {
@@ -31,5 +32,7 @@ struct parser {
 };
 
 struct ast_node *parse(struct SimpleToken *tokens);
+
+extern char *all_names[];
 
 #endif

@@ -394,10 +394,7 @@ struct ast_node *parse(struct SimpleToken *tokens) {
 	return parser.root;
 }
 
-#define TEST_PARSER
-#ifdef TEST_PARSER
-
-char *lol[] = {
+char *all_names[] = {
 	"TOKEN_NONE",
 	"TOKEN_FUNC",
 	"TOKEN_IDENTIFIER",
@@ -429,13 +426,16 @@ char *lol[] = {
 	"WHILE_STATEMENT"
 };
 
+
+#ifdef TEST_PARSER
+
 void print_node(struct ast_node *node, int level) {
 	int i;
 
 	for (i = 0; i < level; i++)
 		printf("\t");
 	if (node->type >= TOKEN_LAST) {
-		printf("[%s,\n", lol[node->type]);
+		printf("[%s,\n", all_names[node->type]);
 		i = 0;
 		while (node->childs[i] && i < node->childcount) {
 			print_node(node->childs[i], level + 1);
@@ -446,7 +446,7 @@ void print_node(struct ast_node *node, int level) {
 		printf("]\n");
 	}
 	else {
-		printf("[%s, '%s']\n", lol[node->type], ((struct SimpleToken *)node)->value);
+		printf("[%s, '%s']\n", all_names[node->type], ((struct SimpleToken *)node)->value);
 	}
 }
 
@@ -475,7 +475,7 @@ int main(int argc, char **argv) {
 	memset(tokens, 0, sizeof(struct SimpleToken) * 100);
 	tokenize(source, tokens);
 	for (i = 0; i < 100 && tokens[i].type; i++) {
-		printf("%s (%d): %s (%d)\n", lol[tokens[i].type], tokens[i].type, tokens[i].value, tokens[i].line);
+		printf("%s (%d): %s (%d)\n", all_names[tokens[i].type], tokens[i].type, tokens[i].value, tokens[i].line);
 	}
 	node = parse(tokens);
 	print_node(node, 0);
