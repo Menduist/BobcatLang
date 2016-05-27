@@ -82,6 +82,7 @@ void tokenize(const char *code, struct SimpleToken *tokens) {
 		HANDLE_SINGLE_CHAR(')', TOKEN_PARENTHESE_END);
 		HANDLE_SINGLE_CHAR(':', TOKEN_COLON);
 		HANDLE_SINGLE_CHAR(',', TOKEN_COMMA);
+		HANDLE_SINGLE_CHAR(';', TOKEN_SEMICOLON);
 #define HANDLE_KEYWORD(keyword, size, etype) if (checkkeyword(code + i, keyword, size) == 0) {\
 	SET_TOKEN(etype, size); \
 	i += size; continue; }

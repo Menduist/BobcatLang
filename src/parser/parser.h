@@ -7,7 +7,9 @@ enum nonterminal_node {
 	EXTERN_DECLARATION,
 	FUNCTION_DEFINITION,
 	FUNCTION_CALL,
+	VARIABLE_DECLARATION,
 	DECLARATOR,
+	EXPRESSION_LIST,
 	COMPOUND_STATEMENT,
 	OPERATOR,
 	PREFIX_OPERATOR,
@@ -18,7 +20,9 @@ enum nonterminal_node {
 
 struct ast_node {
 	int type;
-	struct ast_node *childs[20];
+	int childcount;
+	int childsize;
+	struct ast_node *childs[];
 };
 
 struct parser {

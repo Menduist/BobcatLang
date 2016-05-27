@@ -1,5 +1,7 @@
 func testwhile() {
+	int x
 	while (x < 5) {
+		int w
 		x++;
 	}
 	while x < 5 x++
