@@ -40,6 +40,13 @@ struct interpreter_data *get_rvalue(struct interpreter_data *data) {
 	return data;
 }
 
+struct interpreter_variable *get_lvalue(struct interpreter_data *data) {
+	if (data->type == INTER_VAR) {
+		return (struct interpreter_variable *)data->data;
+	}
+	return 0;
+}
+
 struct interpreter_data *interpret_function_print(struct interpreter *inter, struct ast_node *node) {
 	switch (inter->args[0]->type) {
 		case INTER_STRING:
@@ -80,12 +87,13 @@ struct interpreter_data *interpret_compound_statement(struct interpreter *inter,
 }
 
 struct interpreter_data *interpret_expression_list(struct interpreter *inter, struct ast_node *node) {
+	struct interpreter_data *result;
 	int i;
 
 	for (i = 0; i < node->childcount; i++) {
-		execute_node(inter, node->childs[i]);
+		result = execute_node(inter, node->childs[i]);
 	}
-	return 0;
+	return result;
 }
 
 struct interpreter_data *interpret_string_literal(struct interpreter *inter, struct ast_node *node) {
@@ -166,10 +174,37 @@ struct interpreter_data *interpret_operator(struct interpreter *inter, struct as
 		result = calloc(sizeof(struct interpreter_data *), 1);
 		result->type = INTER_INT;
 		result->data = malloc(sizeof(int));
-		*(int *)result->data =  *(int *)left->data / *(int *)right->data;
+		*(int *)result->data = *(int *)left->data / *(int *)right->data;
+	}
+	else if (strcmp(operator, "==") == 0) {
+		struct interpreter_data *right = get_rvalue(execute_node(inter, node->childs[2]));
+		struct interpreter_data *left = get_rvalue(execute_node(inter, node->childs[1]));
+
+		result = calloc(sizeof(struct interpreter_data *), 1);
+		result->type = INTER_INT;
+		result->data = malloc(sizeof(int));
+		*(int *)result->data = *(int *)left->data == *(int *)right->data;
 	}
 	else {
 		printf("unhandled operator %s\n", operator);
+		return 0;
+	}
+	return result;
+}
+
+struct interpreter_data *interpret_prefix_operator(struct interpreter *inter, struct ast_node *node) {
+	char *operator = ((struct SimpleToken *)node->childs[0])->value;
+	struct interpreter_data *result;
+	
+	if (strcmp(operator, "++") == 0) {
+		struct interpreter_data *right = execute_node(inter, node->childs[1]);
+		struct interpreter_variable *right_val = get_lvalue(right);
+
+		(*(int *)right_val->value)++;
+		return right;
+	}
+	else {
+		printf("unhandled prefix operator %s\n", operator);
 		return 0;
 	}
 	return result;
@@ -185,6 +220,17 @@ struct interpreter_data *interpret_call_function(struct interpreter *inter, stru
 	return call_function(inter, ((struct SimpleToken *)node->childs[0])->value);
 }
 
+struct interpreter_data *interpret_if_statement(struct interpreter *inter, struct ast_node *node) {
+	struct interpreter_data *condition;
+
+	condition = get_rvalue(execute_node(inter, node->childs[1]));
+	if (*(int *)condition->data)
+		execute_node(inter, node->childs[2]);
+	else if (node->childs[3])
+		execute_node(inter, node->childs[3]);
+	return 0;
+}
+
 void init_interpreter_nodes(void) {
 	memset(nodes_interpretor, 0, sizeof(nodes_interpretor));
 
@@ -195,5 +241,7 @@ void init_interpreter_nodes(void) {
 	nodes_interpretor[TOKEN_STRING_LITERAL] = interpret_string_literal;
 	nodes_interpretor[TOKEN_IDENTIFIER] = interpret_identifier;
 	nodes_interpretor[OPERATOR] = interpret_operator;
+	nodes_interpretor[PREFIX_OPERATOR] = interpret_prefix_operator;
 	nodes_interpretor[VARIABLE_DECLARATION] = interpret_variable_declaration;
+	nodes_interpretor[IF_STATEMENT] = interpret_if_statement;
 }

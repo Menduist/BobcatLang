@@ -1,39 +1,43 @@
-func testif() {
+func main() {
+	a = 3
 	if a == 5 {
-		x++
+		++x
 	}
-	if a == 5 x = 2 else pouet = 3
+	if a == 3 x = 20 else x = 3
 	if (a == 5) {
-		x++
+		++x
 	}
-	if a == 5
-		x++
-	if a == 5 { x++ }
+	if a == 3
+		++x
+	if a == 5 { ++x }
+	print(x)
+	testelse()
 }
 
 func testelse() {
-	if a == 5 {
-		x++
+	x = 0
+	if 5 == 5 {
+		++x
 	}
 	else
-		x--
+		x = 2
 
-	if (a == 5) {
-		x++
-	} else { x *= 42 }
+	if (b == 6) {
+		++x
+	} else { x = x * 42 }
 	if a == 5
 		x++ else pouet
 	if a == 5 { x++ }
-	else 42
+	else 42;
+	print(x)
+	testelseif()
 }
 
 func testelseif() {
-	if a == 5
-		x++
-	else if b == 3
-		x--
-	else if b == 2
-		coucou()
+	if 3 == 5
+		print(2)
+	else if 3 == 3
+		print(3)
 	else
-		lol()
+		print(4)
 }
