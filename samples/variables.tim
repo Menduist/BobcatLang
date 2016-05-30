@@ -1,0 +1,8 @@
+func main()
+{
+	x = 3
+	int y
+
+	y = x
+	print(x)
+}

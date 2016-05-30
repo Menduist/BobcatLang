@@ -54,6 +54,50 @@ void register_all_functions(struct interpreter *inter) {
 	}
 }
 
+void create_global_scope(struct interpreter *inter) {
+	inter->global_scope = calloc(sizeof(struct interpreter_scope), 1);
+	inter->scope = inter->global_scope;
+}
+
+struct interpreter_variable *get_var(struct interpreter *inter, char *name) {
+	struct interpreter_scope *scope = inter->scope;
+	int i;
+
+	while (scope) {
+		i = 0;
+		while (scope->variables[i].name) {
+			if (strcmp(name, scope->variables[i].name) == 0)
+				return &scope->variables[i];
+			i++;
+		}
+		scope = scope->parent;
+	}
+	return 0;
+}
+
+struct interpreter_variable *create_var(struct interpreter *inter, char *name, enum interpreter_data_type type) {
+	struct interpreter_variable *result;
+	int i = 0;
+
+	while (inter->scope->variables[i].name)
+		i++;
+	result = inter->scope->variables + i;
+	result->type = type;
+	result->name = name;
+	switch (type) {
+		case INTER_INT:
+			result->value = calloc(sizeof(int), 1);
+	}
+	return result;
+}
+
+struct interpreter_variable *get_or_create_var(struct interpreter *inter, char *name, enum interpreter_data_type type) {
+	struct interpreter_variable *result = get_var(inter, name);
+	if (result)
+		return result;
+	return create_var(inter, name, type);
+}
+
 void interpret(struct ast_node *program) {
 	struct interpreter inter;
 
