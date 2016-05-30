@@ -150,6 +150,24 @@ struct interpreter_data *interpret_operator(struct interpreter *inter, struct as
 		memcpy(((struct interpreter_variable *)left->data)->value, right->data, 4);
 		result = right->data;
 	}
+	else if(strcmp(operator, "*") == 0) {
+		struct interpreter_data *right = get_rvalue(execute_node(inter, node->childs[2]));
+		struct interpreter_data *left = get_rvalue(execute_node(inter, node->childs[1]));
+
+		result = calloc(sizeof(struct interpreter_data *), 1);
+		result->type = INTER_INT;
+		result->data = malloc(sizeof(int));
+		*(int *)result->data = *(int *)right->data * *(int *)left->data;
+	}
+	else if(strcmp(operator, "/") == 0) {
+		struct interpreter_data *right = get_rvalue(execute_node(inter, node->childs[2]));
+		struct interpreter_data *left = get_rvalue(execute_node(inter, node->childs[1]));
+
+		result = calloc(sizeof(struct interpreter_data *), 1);
+		result->type = INTER_INT;
+		result->data = malloc(sizeof(int));
+		*(int *)result->data =  *(int *)left->data / *(int *)right->data;
+	}
 	else {
 		printf("unhandled operator %s\n", operator);
 		return 0;

@@ -3,6 +3,8 @@ func main()
 	x = 3
 	int y
 
-	y = x
-	print(x)
+	y = 12
+	x = y * x
+	y = x / 2
+	print(y)
 }
