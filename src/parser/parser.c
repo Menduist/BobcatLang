@@ -153,23 +153,15 @@ struct ast_node *parse_identifier(struct parser *parser) {
 	return result;
 }
 
+struct ast_node *parse_expression_1(struct parser *parser, struct ast_node *lhs, int min_precedence);
+
 struct ast_node *parse_prefix_operator(struct parser *parser) {
 	struct ast_node *result;
 
 	result = new_node();
 	result->type = PREFIX_OPERATOR;
 	result = add_child(result, (struct ast_node *)parser->tokens++);
-	result = add_child(result, parse_primary(parser));
-	return result;
-}
-
-struct ast_node *parse_postfix_operator(struct parser *parser, struct ast_node *child) {
-	struct ast_node *result;
-
-	result = new_node();
-	result->type = POSTFIX_OPERATOR;
-	result = add_child(result, (struct ast_node *)parser->tokens++);
-	result = add_child(result, child);
+	result = add_child(result, parse_expression_1(parser, parse_primary(parser), 3001));
 	return result;
 }
 
@@ -192,15 +184,14 @@ struct ast_node *parse_primary(struct parser *parser) {
 			unexcepted("identifier,string_literal,(,operator", parser->tokens);
 			return 0;
 	}
-	if (parser->tokens->type == TOKEN_OPERATOR && parser->tokens[1].type != TOKEN_IDENTIFIER) {
-		result = parse_postfix_operator(parser, result);
-	}
 	return result;
 }
 
 int get_token_precedence(struct SimpleToken *tok) {
 	if (tok->type != TOKEN_OPERATOR)
 		return -1;
+	if (tok->value[0] == '.')
+		return 4000;
 	if (tok->value[0] == '*' || tok->value[0] == '/')
 		return 3000;
 	if (tok->value[0] == '+' || tok->value[0] == '-')
