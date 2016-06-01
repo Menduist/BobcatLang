@@ -26,8 +26,8 @@ func testelse() {
 		++x
 	} else { x = x * 42 }
 	if a == 5
-		x++ else pouet
-	if a == 5 { x++ }
+		++x else pouet
+	if a == 5 { ++x }
 	else 42;
 	print(x)
 	testelseif()

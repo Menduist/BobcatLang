@@ -95,21 +95,11 @@ struct ast_node *parse_parentheses_expression(struct parser *parser) {
 	return result;
 }
 
-struct ast_node *parse_function_call(struct parser *parser) {
+struct ast_node *parse_function_arguments(struct parser *parser) {
 	struct ast_node *result;
 
 	result = new_node();
-	result->type = FUNCTION_CALL;
-	if (parser->tokens->type != TOKEN_IDENTIFIER) {
-		unexcepted("identifier", parser->tokens);
-	}
-
-	result = add_child(result, (struct ast_node *)parser->tokens++);
-	if (parser->tokens->type != TOKEN_PARENTHESE_START) {
-		unexcepted("'('", parser->tokens);
-	}
-
-	parser->tokens++;
+	result->type = FUNCTION_ARG_LIST;
 
 	while (parser->tokens->type != TOKEN_PARENTHESE_END) {
 		result = add_child(result, parse_expression(parser));
@@ -143,9 +133,7 @@ struct ast_node *parse_identifier(struct parser *parser) {
 
 	if (parser->tokens->type != TOKEN_IDENTIFIER) {
 		unexcepted("identifier", parser->tokens);
-	}
-	if (parser->tokens[1].type == TOKEN_PARENTHESE_START) {
-		return parse_function_call(parser);
+		result = 0;
 	}
 	else {
 		result = (struct ast_node *)parser->tokens++;
@@ -163,6 +151,46 @@ struct ast_node *parse_prefix_operator(struct parser *parser) {
 	result = add_child(result, (struct ast_node *)parser->tokens++);
 	result = add_child(result, parse_expression_1(parser, parse_primary(parser), 3001));
 	return result;
+}
+
+struct ast_node *parse_suffix_operator(struct parser *parser, struct ast_node *lhs) {
+	struct ast_node *result;
+	struct SimpleToken *op;
+
+	result = new_node();
+	op = parser->tokens++;
+	
+	result = add_child(result, (struct ast_node *)op);
+	result = add_child(result, lhs);
+	switch (op->value[0]) {
+		case '.':
+			result->type = OPERATOR;
+			result = add_child(result, parse_primary(parser));
+			break;
+		case '(':
+			result->type = FUNCTION_CALL;
+			result = add_child(result, parse_function_arguments(parser));
+			break;
+		case '[':
+			result->type = OPERATOR;
+			result = add_child(result, parse_expression(parser));
+			if (parser->tokens->value[0] != ']')
+				unexcepted("]", parser->tokens);
+			else
+				parser->tokens++;
+			break;
+		default:
+			unexcepted(".([", parser->tokens);
+			break;
+	}
+	return result;
+}
+
+int is_suffix_operator(struct SimpleToken *tok) {
+	if (strcmp(tok->value, "[") == 0) return 1;
+	if (strcmp(tok->value, "(") == 0) return 1;
+	if (strcmp(tok->value, ".") == 0) return 1;
+	return 0;
 }
 
 struct ast_node *parse_primary(struct parser *parser) {
@@ -184,6 +212,8 @@ struct ast_node *parse_primary(struct parser *parser) {
 			unexcepted("identifier,string_literal,(,operator", parser->tokens);
 			return 0;
 	}
+	while (is_suffix_operator(parser->tokens))
+		result = parse_suffix_operator(parser, result);
 	return result;
 }
 
@@ -227,7 +257,6 @@ struct ast_node *parse_expression_1(struct parser *parser, struct ast_node *lhs,
 				printf("excepted ']'\n");
 			}
 			parser->tokens++;
-			printf("lol %s\n", parser->tokens->value);
 		}
 		else
 			rhs = parse_primary(parser);
@@ -412,6 +441,7 @@ char *all_names[] = {
 	"EXTERN_DECLARATION",
 	"FUNCTION_DEFINITION",
 	"FUNCTION_CALL",
+	"FUNCTION_ARG_LIST",
 	"VARIABLE_DECLARATION",
 	"DECLARATOR",
 	"EXPRESSION_LIST",
