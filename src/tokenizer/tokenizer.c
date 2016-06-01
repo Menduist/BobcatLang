@@ -34,15 +34,17 @@ static int try_tokenize_string(const char *code, struct SimpleToken *token) {
 
 static int __always_inline is_operator(char c) {
 	return c == '+' || c == '-' || c == '*' || c == '/' || c == '%' || c == '=' ||
-		c == '<' || c == '>' || c == '.';
+		c == '<' || c == '>' || c == '.' || c == '[' || c == ']';
 }
 
 static int try_tokenize_operator(const char *code, struct SimpleToken *token) {
 	int length;
 
 	length = 0;
-	while (is_operator(code[length]) && length <= 3) {
+	while (is_operator(code[length]) && length <= 2) {
 		length++;
+		if (code[length - 1] == ']')
+			break;
 	}
 
 	if (length > 0) {

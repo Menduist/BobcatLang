@@ -188,9 +188,9 @@ struct ast_node *parse_primary(struct parser *parser) {
 }
 
 int get_token_precedence(struct SimpleToken *tok) {
-	if (tok->type != TOKEN_OPERATOR)
+	if (tok->type != TOKEN_OPERATOR || tok->value[0] == ']')
 		return -1;
-	if (tok->value[0] == '.')
+	if (tok->value[0] == '.' || tok->value[0] == '[')
 		return 4000;
 	if (tok->value[0] == '*' || tok->value[0] == '/')
 		return 3000;
@@ -211,9 +211,8 @@ struct ast_node *parse_expression_1(struct parser *parser, struct ast_node *lhs,
 	while (1) {
 		tokprec = get_token_precedence(parser->tokens);
 
-		if (parser->tokens[-1].line != parser->tokens->line) {
+		if (parser->tokens[-1].line != parser->tokens->line)
 			return lhs;
-		}
 
 		if (tokprec < min_precedence)
 			return lhs;
@@ -222,9 +221,16 @@ struct ast_node *parse_expression_1(struct parser *parser, struct ast_node *lhs,
 		operator->type = OPERATOR;
 		operator = add_child(operator, (struct ast_node *)parser->tokens);
 
-		parser->tokens++;
-
-		rhs = parse_primary(parser);
+		if (parser->tokens++->value[0] == '[') {
+			rhs = parse_expression(parser);
+			if (parser->tokens->value[0] != ']') {
+				printf("excepted ']'\n");
+			}
+			parser->tokens++;
+			printf("lol %s\n", parser->tokens->value);
+		}
+		else
+			rhs = parse_primary(parser);
 
 		if (tokprec < get_token_precedence(parser->tokens)) {
 			rhs = parse_expression_1(parser, rhs, tokprec + 1);
