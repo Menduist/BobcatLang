@@ -2,9 +2,9 @@
 
 error=0
 
-totest=(if.tim helloworld.tim comments.tim)
+totest="if.tim helloworld.tim comments.tim"
 
-for file_to_test in "${totest[@]}"; do
+for file_to_test in $totest; do
 	echo testing $file_to_test
 	../tim ../samples/$file_to_test > /tmp/$file_to_test.output
 	diff /tmp/$file_to_test.output $file_to_test.output
