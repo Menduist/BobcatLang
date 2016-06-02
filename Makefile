@@ -16,5 +16,5 @@ clean:
 fclean: clean
 	rm $(NAME)
 
-tests:
+tests: all
 	cd tests; ./tests.sh
