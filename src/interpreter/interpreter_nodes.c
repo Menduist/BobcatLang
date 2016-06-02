@@ -103,15 +103,15 @@ struct interpreter_data *interpret_string_literal(struct interpreter *inter, str
 	int y;
 
 	y = 0;
-	for (i = 0; string[y]; i++, y++) {
+	for (i = 0; string[y] != '\"'; i++, y++) {
 		if (string[y] == '\\' && string[y + 1] == 'n') {
 			string[i] = '\n';
-			y += 2;
+			y += 1;
 			continue;
 		}
 		string[i] = string[y];
 	}
-	string[i] = string[y];
+	string[i] = '\0';
 
 	result->type = INTER_STRING;
 	result->data = string;
