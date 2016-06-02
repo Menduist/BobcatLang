@@ -8,13 +8,19 @@ src/interpreter/interpreter.c
 .PHONY: all fclean clean tests re
 all: $(NAME)
 
-$(NAME):
+$(NAME): $(SRCS) timinterpreter timparser
 	gcc $(SRCS) -g -D TEST_INTERPRETER -o $(NAME) -Wall -Wextra
+
+timinterpreter: $(SRCS)
+	gcc $(SRCS) -g -D TEST_INTERPRETER -o timinterpreter -Wall -Wextra
+
+timparser: $(SRCS)
+	gcc $(SRCS) -g -D TEST_PARSER -o timparser -Wall -Wextra
 
 clean:
 
 fclean: clean
-	rm $(NAME)
+	rm $(NAME) timinterpreter timparser
 
 re: fclean all
 

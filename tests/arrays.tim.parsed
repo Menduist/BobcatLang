@@ -1,0 +1,106 @@
+TOKEN_FUNC (2): func (1)
+TOKEN_IDENTIFIER (4): main (1)
+TOKEN_PARENTHESE_START (11): ( (1)
+TOKEN_PARENTHESE_END (12): ) (1)
+TOKEN_BLOCK_START (9): { (1)
+TOKEN_IDENTIFIER (4): b (2)
+TOKEN_OPERATOR (5): [ (2)
+TOKEN_IDENTIFIER (4): 3 (2)
+TOKEN_OPERATOR (5): ] (2)
+TOKEN_OPERATOR (5): [ (2)
+TOKEN_IDENTIFIER (4): 4 (2)
+TOKEN_OPERATOR (5): ] (2)
+TOKEN_OPERATOR (5): . (2)
+TOKEN_IDENTIFIER (4): test (2)
+TOKEN_PARENTHESE_START (11): ( (2)
+TOKEN_IDENTIFIER (4): c (2)
+TOKEN_OPERATOR (5): [ (2)
+TOKEN_IDENTIFIER (4): p (2)
+TOKEN_OPERATOR (5): - (2)
+TOKEN_IDENTIFIER (4): 5 (2)
+TOKEN_OPERATOR (5): ] (2)
+TOKEN_PARENTHESE_END (12): ) (2)
+TOKEN_OPERATOR (5): . (2)
+TOKEN_IDENTIFIER (4): a (2)
+TOKEN_OPERATOR (5): [ (2)
+TOKEN_IDENTIFIER (4): 4 (2)
+TOKEN_OPERATOR (5): ] (2)
+TOKEN_OPERATOR (5): = (2)
+TOKEN_IDENTIFIER (4): 5 (2)
+TOKEN_IDENTIFIER (4): print (3)
+TOKEN_PARENTHESE_START (11): ( (3)
+TOKEN_IDENTIFIER (4): a (3)
+TOKEN_OPERATOR (5): [ (3)
+TOKEN_IDENTIFIER (4): 4 (3)
+TOKEN_OPERATOR (5): + (3)
+TOKEN_IDENTIFIER (4): 5 (3)
+TOKEN_OPERATOR (5): ] (3)
+TOKEN_PARENTHESE_END (12): ) (3)
+TOKEN_BLOCK_END (10): } (4)
+[TRANSLATION_UNIT,
+	[FUNCTION_DEFINITION,
+		[DECLARATOR,
+			[TOKEN_IDENTIFIER, 'main']
+		]
+		[COMPOUND_STATEMENT,
+			[EXPRESSION_LIST,
+				[OPERATOR,
+					[TOKEN_OPERATOR, '=']
+					[OPERATOR,
+						[TOKEN_OPERATOR, '.']
+						[OPERATOR,
+							[TOKEN_OPERATOR, '[']
+							[OPERATOR,
+								[TOKEN_OPERATOR, '[']
+								[TOKEN_IDENTIFIER, 'b']
+								[TOKEN_IDENTIFIER, '3']
+							]
+							[TOKEN_IDENTIFIER, '4']
+						]
+						[OPERATOR,
+							[TOKEN_OPERATOR, '.']
+							[FUNCTION_CALL,
+								[TOKEN_PARENTHESE_START, '(']
+								[TOKEN_IDENTIFIER, 'test']
+								[FUNCTION_ARG_LIST,
+									[OPERATOR,
+										[TOKEN_OPERATOR, '[']
+										[TOKEN_IDENTIFIER, 'c']
+										[OPERATOR,
+											[TOKEN_OPERATOR, '-']
+											[TOKEN_IDENTIFIER, 'p']
+											[TOKEN_IDENTIFIER, '5']
+										]
+									]
+								]
+							]
+							[OPERATOR,
+								[TOKEN_OPERATOR, '[']
+								[TOKEN_IDENTIFIER, 'a']
+								[TOKEN_IDENTIFIER, '4']
+							]
+						]
+					]
+					[TOKEN_IDENTIFIER, '5']
+				]
+			]
+			[EXPRESSION_LIST,
+				[FUNCTION_CALL,
+					[TOKEN_PARENTHESE_START, '(']
+					[TOKEN_IDENTIFIER, 'print']
+					[FUNCTION_ARG_LIST,
+						[OPERATOR,
+							[TOKEN_OPERATOR, '[']
+							[TOKEN_IDENTIFIER, 'a']
+							[OPERATOR,
+								[TOKEN_OPERATOR, '+']
+								[TOKEN_IDENTIFIER, '4']
+								[TOKEN_IDENTIFIER, '5']
+							]
+						]
+					]
+				]
+			]
+		]
+	]
+]
