@@ -352,7 +352,7 @@ struct ast_node *parse_statement(struct parser *parser) {
 		return parse_compound_statement(parser);
 	case TOKEN_IDENTIFIER:
 		if (parser->tokens[1].type == TOKEN_IDENTIFIER)
-				return parse_variable_declaration(parser);
+			return parse_variable_declaration(parser);
 	}
 	return parse_expression_statement(parser);
 }
@@ -422,6 +422,7 @@ struct ast_node *parse(struct SimpleToken *tokens) {
 
 char *all_names[] = {
 	"TOKEN_NONE",
+	"TOKEN_COMMENT",
 	"TOKEN_FUNC",
 	"TOKEN_IDENTIFIER",
 	"TOKEN_OPERATOR",

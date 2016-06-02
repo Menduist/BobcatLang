@@ -17,6 +17,25 @@ static int try_tokenize_identifier(const char *code, struct SimpleToken *token) 
 	return length;
 }
 
+static int try_discard_comment(const char *code) {
+	int length;
+
+	if (code[0] != '/')
+		return 0;
+	length = 1;
+	if (code[1] == '*') {
+		while (code[length + 1] &&
+				(code[length] != '*' || code[length + 1] != '/'))
+			length++;
+		length += 2;
+	}
+	else if (code[1] == '/') {
+		while (code[length] && code[length] != '\n')
+			length++;
+	}
+	return length;
+}
+
 static int try_tokenize_string(const char *code, struct SimpleToken *token) {
 	int length;
 
@@ -74,6 +93,11 @@ void tokenize(const char *code, struct SimpleToken *tokens) {
 		}
 		if (isspace(code[i])) {
 			i++;
+			continue;
+		}
+		tmp = try_discard_comment(code + i);
+		if (tmp > 0) {
+			i += tmp;
 			continue;
 		}
 #define SET_TOKEN(etype, size) { tokens[tokenid].type = etype; tokens[tokenid].line = line; tokens[tokenid].col = (i - linestart); strncpy(tokens[tokenid].value, code + i, size); tokenid++;}

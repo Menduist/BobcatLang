@@ -1,0 +1,9 @@
+//one line comment
+
+// useless backslash-> \
+func main() {
+	/* Multi line comment
+	Yey !
+	End of comment */
+	print/* inlinecomment */("Coucou\n")
+}
