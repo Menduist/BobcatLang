@@ -32,6 +32,7 @@ struct ast_node *get_function(struct interpreter *inter, char *funcname) {
 	return 0;
 }
 
+struct interpreter_data *interpret_function_print(struct interpreter *inter, struct ast_node *node);
 struct interpreter_data *call_function(struct interpreter *inter, char *funcname) {
 	struct ast_node *function;
 
@@ -89,6 +90,11 @@ struct interpreter_variable *create_var(struct interpreter *inter, char *name, e
 	switch (type) {
 		case INTER_INT:
 			result->value = calloc(sizeof(int), 1);
+			break;
+		case INTER_STRING:
+		case INTER_VAR:
+			result->value = 0;
+			break;
 	}
 	return result;
 }
@@ -131,6 +137,10 @@ int main(int argc, char **argv) {
 	char *source;
 	struct ast_node *node;
 	
+	if (argc < 2) {
+		printf("usage %s [file]\n", argv[0]);
+		return 1;
+	}
 	source = readfile(argv[1]);
 	memset(tokens, 0, sizeof(struct SimpleToken) * 100);
 	tokenize(source, tokens);

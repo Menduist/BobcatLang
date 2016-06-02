@@ -64,8 +64,9 @@ void bt(void) {
 	strings = backtrace_symbols(addresses,c);
 	printf("backtrace returned: %dn", c);
 	for(i = 0; i < c; i++) {
-		printf("%d: %X ", i, (int)addresses[i]);
-		printf("%sn\n", strings[i]); }
+		printf("%d: %p ", i, addresses[i]);
+		printf("%sn\n", strings[i]);
+	}
 }
 
 void unexcepted(char *excepted, struct SimpleToken *got) {

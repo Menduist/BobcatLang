@@ -5,16 +5,18 @@ src/tokenizer/tokenizer.c \
 src/interpreter/interpreter_nodes.c \
 src/interpreter/interpreter.c 
 
-.PHONY: all fclean clean tests
+.PHONY: all fclean clean tests re
 all: $(NAME)
 
 $(NAME):
-	gcc $(SRCS) -D TEST_INTERPRETER -o $(NAME) -Wall -Wextra
+	gcc $(SRCS) -g -D TEST_INTERPRETER -o $(NAME) -Wall -Wextra
 
 clean:
 
 fclean: clean
 	rm $(NAME)
 
-tests: all
+re: fclean all
+
+tests: re
 	cd tests; ./tests.sh

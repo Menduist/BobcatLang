@@ -22,7 +22,7 @@ void dump_data(enum interpreter_data_type type, void *data) {
 			printf("%d\n", *(int *)data);
 			break;
 		case INTER_STRING:
-			printf("%s\n", data);
+			printf("%s\n", (char *)data);
 			break;
 		case INTER_VAR:
 			printf("var '%s':\n", ((struct interpreter_variable *)data)->name);
@@ -50,7 +50,7 @@ struct interpreter_variable *get_lvalue(struct interpreter_data *data) {
 struct interpreter_data *interpret_function_print(struct interpreter *inter, struct ast_node *node) {
 	switch (inter->args[0]->type) {
 		case INTER_STRING:
-			printf("%s", inter->args[0]->data);
+			printf("%s", (char *)inter->args[0]->data);
 			break;
 		case INTER_INT:
 			printf("%d\n", *(int *)inter->args[0]->data);
@@ -59,6 +59,7 @@ struct interpreter_data *interpret_function_print(struct interpreter *inter, str
 			printf("print: unhandled %d\n", inter->args[0]->type);
 			break;
 	}
+	(void) node;
 	return 0;
 }
 
@@ -102,6 +103,7 @@ struct interpreter_data *interpret_string_literal(struct interpreter *inter, str
 	int i;
 	int y;
 
+	(void) inter;
 	y = 0;
 	for (i = 0; string[y] != '\"'; i++, y++) {
 		if (string[y] == '\\' && string[y + 1] == 'n') {

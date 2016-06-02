@@ -51,7 +51,7 @@ static int try_tokenize_string(const char *code, struct SimpleToken *token) {
 	return length;
 }
 
-static int __always_inline is_operator(char c) {
+__always_inline static int is_operator(char c) {
 	return c == '+' || c == '-' || c == '*' || c == '/' || c == '%' || c == '=' ||
 		c == '<' || c == '>' || c == '.' || c == '[' || c == ']';
 }
