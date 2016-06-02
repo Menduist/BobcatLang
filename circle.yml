@@ -1,0 +1,6 @@
+test:
+    pre:
+        - make
+    override:
+        - make tests
+
