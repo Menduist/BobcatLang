@@ -211,13 +211,13 @@ struct interpreter_data *interpret_prefix_operator(struct interpreter *inter, st
 }
 
 struct interpreter_data *interpret_call_function(struct interpreter *inter, struct ast_node *node) {
-	int i = 1;
+	int i = 0;
 	
-	for(; i < node->childcount; i++) {
-		inter->args[i - 1] = get_rvalue(execute_node(inter, node->childs[i]));
+	for(; i < node->childs[2]->childcount; i++) {
+		inter->args[i] = get_rvalue(execute_node(inter, node->childs[2]->childs[i]));
 	}
 	inter->argcount = node->childcount - 1;
-	return call_function(inter, ((struct SimpleToken *)node->childs[0])->value);
+	return call_function(inter, ((struct SimpleToken *)node->childs[1])->value);
 }
 
 struct interpreter_data *interpret_if_statement(struct interpreter *inter, struct ast_node *node) {

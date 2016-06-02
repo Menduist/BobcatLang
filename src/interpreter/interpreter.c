@@ -39,6 +39,8 @@ struct interpreter_data *call_function(struct interpreter *inter, char *funcname
 		return interpret_function_print(inter, 0);
 	}
 	function = get_function(inter, funcname);
+	if (function == 0)
+		printf("function not found '%s'\n", funcname);
 	return execute_node(inter, function);
 }
 
