@@ -387,6 +387,30 @@ struct ast_node *parse_declarator(struct parser *parser) {
 	return result;
 }
 
+struct ast_node *parse_struct_declaration(struct parser *parser) {
+	struct ast_node *result = new_node();
+
+	result->type = STRUCT_DEFINITION;
+	parser->tokens++;
+
+	if (parser->tokens->type != TOKEN_IDENTIFIER) {
+		unexcepted("identifier", parser->tokens);
+	}
+	result = add_child(result, (struct ast_node *)parser->tokens++);
+	if (parser->tokens->type != TOKEN_BLOCK_START) {
+		unexcepted("{", parser->tokens);
+	}
+	parser->tokens++;
+	while (parser->tokens->type != TOKEN_BLOCK_END && parser->tokens->type) {
+		result = add_child(result, parse_variable_declaration(parser));
+	}
+	if (parser->tokens->type != TOKEN_BLOCK_END) {
+		unexcepted("}", parser->tokens);
+	}
+	parser->tokens++;
+	return result;
+}
+
 struct ast_node *parse_function_declaration(struct parser *parser) {
 	struct ast_node *result = new_node();
 
@@ -404,8 +428,17 @@ struct ast_node *parse_translation_unit(struct parser *parser) {
 
 	result->type = TRANSLATION_UNIT;
 	parser->root = result;
-	while (parser->tokens->type == TOKEN_FUNC) {
-		add_child(result, parse_function_declaration(parser));
+	while (parser->tokens->type != TOKEN_NONE) {
+		switch (parser->tokens->type) {
+			case TOKEN_FUNC:
+				result = add_child(result, parse_function_declaration(parser));
+				break;
+			case TOKEN_STRUCT:
+				result = add_child(result, parse_struct_declaration(parser));
+				break;
+			default:
+				unexcepted("func, struct", parser->tokens);
+		}
 	}
 	if (parser->tokens->type != TOKEN_NONE) {
 		unexcepted("EOF", parser->tokens);		
@@ -425,6 +458,7 @@ char *all_names[] = {
 	"TOKEN_NONE",
 	"TOKEN_COMMENT",
 	"TOKEN_FUNC",
+	"TOKEN_STRUCT",
 	"TOKEN_IDENTIFIER",
 	"TOKEN_OPERATOR",
 	"TOKEN_IF",
@@ -441,6 +475,7 @@ char *all_names[] = {
 	"TOKEN_EXPRESSION_END",
 	"TRANSLATION_UNIT",
 	"EXTERN_DECLARATION",
+	"STRUCT_DEFINITION",
 	"FUNCTION_DEFINITION",
 	"FUNCTION_CALL",
 	"FUNCTION_ARG_LIST",

@@ -113,6 +113,7 @@ void tokenize(const char *code, struct SimpleToken *tokens) {
 	SET_TOKEN(etype, size); \
 	i += size; continue; }
 		HANDLE_KEYWORD("func", 4, TOKEN_FUNC);
+		HANDLE_KEYWORD("struct", 6, TOKEN_STRUCT);
 		HANDLE_KEYWORD("if", 2, TOKEN_IF);
 		HANDLE_KEYWORD("else", 4, TOKEN_ELSE);
 		HANDLE_KEYWORD("while", 5, TOKEN_WHILE);
