@@ -34,6 +34,9 @@ static int try_discard_comment(const char *code) {
 		while (code[length] != '\0' && code[length] != '\n')
 			length++;
 	}
+	else {
+		return 0;
+	}
 	return length;
 }
 
