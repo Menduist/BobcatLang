@@ -4,9 +4,9 @@
 #include "../parser/parser.h"
 #include "../vector.h"
 
-DECLAREVECTOR(sem_var, struct sem_variable);
-DECLAREVECTOR(sem_func, struct sem_function);
-DECLAREVECTOR(sem_data_types, struct sem_type);
+DECLAREVECTOR(sem_var, struct sem_variable *);
+DECLAREVECTOR(sem_func, struct sem_function *);
+DECLAREVECTOR(sem_data_types, struct sem_type *);
 
 enum sem_types {
 	SEM_SCOPE,

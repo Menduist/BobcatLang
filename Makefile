@@ -5,6 +5,7 @@ src/tokenizer/tokenizer.c \
 src/interpreter/interpreter_nodes.c \
 src/interpreter/interpreter.c \
 src/utils.c \
+src/vector.c \
 src/semantics/semantics.c
 
 .PHONY: all fclean clean tests re
