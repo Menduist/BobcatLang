@@ -25,6 +25,7 @@ struct ast_node {
 	int type;
 	int childcount;
 	int childsize;
+	void *sem_val;
 	struct ast_node *childs[];
 };
 

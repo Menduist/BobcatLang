@@ -17,7 +17,7 @@ timinterpreter: $(SRCS)
 	gcc $(SRCS) -g -D TEST_INTERPRETER -o timinterpreter -Wall -Wextra
 
 timparser: $(SRCS)
-	gcc $(SRCS) -g -D TEST_PARSER -o timparser -Wall -Wextra
+	gcc $(SRCS) -g -D TEST_SEM -o timparser -Wall -Wextra
 
 clean:
 

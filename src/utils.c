@@ -22,4 +22,19 @@ void *allocfailed(size_t nmemb, size_t size) {
 	exit(-1);
 }
 
+char *readfile(char *path) {
+	char *target;
+	FILE *source;
+	int size;
+	
+	source = fopen(path, "r");
+	fseek(source, 0, SEEK_END);
+	size = ftell(source);
+	target = malloc(sizeof(char) * (size + 1));
+	fseek(source, 0, SEEK_SET);
+	fread(target, 1, size, source);
+	target[size] = '\0';
+	return target;
+}
+
 extern inline void *memalloc_(size_t nmemb, size_t size);

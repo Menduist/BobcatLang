@@ -14,5 +14,8 @@ static inline void *memalloc_(size_t nmemb, size_t size) {
 	return result;
 }
 
+
+char *readfile(char *path);
+
 #define memalloc(type, count) (type *)memalloc_(sizeof(type), count)
 #endif

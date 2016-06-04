@@ -122,20 +122,6 @@ void interpret(struct ast_node *program) {
 }
 
 #ifdef TEST_INTERPRETER
-char *readfile(char *path) {
-	char *target;
-	FILE *source;
-	int size;
-	
-	source = fopen(path, "r");
-	fseek(source, 0, SEEK_END);
-	size = ftell(source);
-	target = malloc(sizeof(char) * (size + 1));
-	fseek(source, 0, SEEK_SET);
-	fread(target, 1, size, source);
-	target[size] = '\0';
-	return target;
-}
 
 int main(int argc, char **argv) {
 	struct SimpleToken tokens[300];
