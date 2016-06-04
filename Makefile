@@ -4,7 +4,8 @@ SRCS=src/parser/parser.c \
 src/tokenizer/tokenizer.c \
 src/interpreter/interpreter_nodes.c \
 src/interpreter/interpreter.c \
-src/utils.c
+src/utils.c \
+src/semantics/semantics.c
 
 .PHONY: all fclean clean tests re
 all: $(NAME)
