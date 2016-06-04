@@ -7,13 +7,14 @@
 
 static int try_tokenize_identifier(const char *code, struct SimpleToken *token) {
 	int length;
+
 	if (!isalnum(code[0]))
 		return 0;
 	length = 1;
 	while (isalnum(code[length]) || code[length] == '_')
 		length++;
 	token->type = TOKEN_IDENTIFIER;
-	strncpy(token->value, code, length);
+	strncpy(token->value, code, (size_t) length);
 	return length;
 }
 
@@ -24,13 +25,13 @@ static int try_discard_comment(const char *code) {
 		return 0;
 	length = 1;
 	if (code[1] == '*') {
-		while (code[length + 1] &&
+		while (code[length + 1] != '\0' &&
 				(code[length] != '*' || code[length + 1] != '/'))
 			length++;
 		length += 2;
 	}
 	else if (code[1] == '/') {
-		while (code[length] && code[length] != '\n')
+		while (code[length] != '\0' && code[length] != '\n')
 			length++;
 	}
 	return length;
@@ -47,11 +48,11 @@ static int try_tokenize_string(const char *code, struct SimpleToken *token) {
 	}
 	length++;
 	token->type = TOKEN_STRING_LITERAL;
-	strncpy(token->value, code, length);
+	strncpy(token->value, code, (size_t) length);
 	return length;
 }
 
-__always_inline static int is_operator(char c) {
+inline static int is_operator(char c) {
 	return c == '+' || c == '-' || c == '*' || c == '/' || c == '%' || c == '=' ||
 		c == '<' || c == '>' || c == '.' || c == '[' || c == ']';
 }
@@ -68,14 +69,14 @@ static int try_tokenize_operator(const char *code, struct SimpleToken *token) {
 
 	if (length > 0) {
 		token->type = TOKEN_OPERATOR;
-		strncpy(token->value, code, length);
+		strncpy(token->value, code, (size_t) length);
 	}
 	return length;
 }
 
 
 static int checkkeyword(const char *code, const char *keyword, int size) {
-	return strncmp(code, keyword, size) || !isspace(code[size]);
+	return strncmp(code, keyword, (size_t) size) || !isspace(code[size]);
 }
 
 void tokenize(const char *code, struct SimpleToken *tokens) {
@@ -84,7 +85,7 @@ void tokenize(const char *code, struct SimpleToken *tokens) {
 
 	i = tokenid = linestart = 0;
 	line = 1;
-	while (code[i]) {
+	while (code[i] != '\0') {
 		if (code[i] == '\n') {
 			line++;
 			linestart = i;

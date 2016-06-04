@@ -3,7 +3,8 @@ NAME=tim
 SRCS=src/parser/parser.c \
 src/tokenizer/tokenizer.c \
 src/interpreter/interpreter_nodes.c \
-src/interpreter/interpreter.c 
+src/interpreter/interpreter.c \
+src/utils.c
 
 .PHONY: all fclean clean tests re
 all: $(NAME)
@@ -20,7 +21,7 @@ timparser: $(SRCS)
 clean:
 
 fclean: clean
-	rm $(NAME) timinterpreter timparser
+	rm -f $(NAME) timinterpreter timparser
 
 re: fclean all
 

@@ -2,8 +2,10 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "../utils.h"
 
 void init_interpreter_nodes(void);
+
 void init_interpreter(void) {
 	init_interpreter_nodes();
 }
@@ -15,6 +17,7 @@ struct interpreter_data *execute_node(struct interpreter *inter, struct ast_node
 	node_inter = nodes_interpretor[node->type];
 	if (!node_inter) {
 		printf("error ! not implemented %s\n", all_names[node->type]);
+		return NULL;
 	}
 	return node_inter(inter, node);
 }
@@ -40,8 +43,10 @@ struct interpreter_data *call_function(struct interpreter *inter, char *funcname
 		return interpret_function_print(inter, 0);
 	}
 	function = get_function(inter, funcname);
-	if (function == 0)
+	if (function == 0) {
 		printf("function not found '%s'\n", funcname);
+		return NULL;
+	}
 	return execute_node(inter, function);
 }
 
@@ -58,7 +63,7 @@ void register_all_functions(struct interpreter *inter) {
 }
 
 void create_global_scope(struct interpreter *inter) {
-	inter->global_scope = calloc(sizeof(struct interpreter_scope), 1);
+	inter->global_scope = memalloc(struct interpreter_scope, 1);
 	inter->scope = inter->global_scope;
 }
 
@@ -89,7 +94,7 @@ struct interpreter_variable *create_var(struct interpreter *inter, char *name, e
 	result->name = name;
 	switch (type) {
 		case INTER_INT:
-			result->value = calloc(sizeof(int), 1);
+			result->value = memalloc(int, 1);
 			break;
 		case INTER_STRING:
 		case INTER_VAR:
