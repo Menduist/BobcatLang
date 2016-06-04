@@ -276,7 +276,13 @@ static struct ast_node *parse_iteration_statement(struct parser *parser) {
 
 	result->type = WHILE_STATEMENT;
 	add_child(&result, (struct ast_node *)parser->tokens++);
+
+	if (parser->tokens->type == TOKEN_PARENTHESE_START)
+		parser->tokens++;
 	add_child(&result, parse_expression_list(parser));
+	if (parser->tokens->type == TOKEN_PARENTHESE_END)
+		parser->tokens++;
+
 	add_child(&result, parse_statement(parser));
 	return result;
 }

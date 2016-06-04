@@ -4,5 +4,5 @@ func testwhile() {
 		int w
 		++x
 	}
-	while x < 5 { ++x }
+	while (x < 5) ++x
 }

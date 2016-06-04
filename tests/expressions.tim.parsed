@@ -45,17 +45,15 @@ TOKEN_BLOCK_END (10): } (6)
 			[WHILE_STATEMENT,
 				[TOKEN_WHILE, 'while']
 				[EXPRESSION_LIST,
-					[EXPRESSION_LIST,
-						[OPERATOR,
-							[TOKEN_OPERATOR, '=']
-							[TOKEN_IDENTIFIER, 'x']
-							[TOKEN_IDENTIFIER, '0']
-						]
-						[OPERATOR,
-							[TOKEN_OPERATOR, '<']
-							[TOKEN_IDENTIFIER, 'x']
-							[TOKEN_IDENTIFIER, '2']
-						]
+					[OPERATOR,
+						[TOKEN_OPERATOR, '=']
+						[TOKEN_IDENTIFIER, 'x']
+						[TOKEN_IDENTIFIER, '0']
+					]
+					[OPERATOR,
+						[TOKEN_OPERATOR, '<']
+						[TOKEN_IDENTIFIER, 'x']
+						[TOKEN_IDENTIFIER, '2']
 					]
 				]
 				[COMPOUND_STATEMENT,
