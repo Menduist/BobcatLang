@@ -36,5 +36,18 @@ TOKEN_BLOCK_END (10): } (8)
 				[TOKEN_IDENTIFIER, 'var']
 			]
 		]
+		{ SCOPE main (parent global_scope):
+			Vars: { VAR "var" }
+		}
 	]
+	{ SCOPE global_scope (parent (null)):
+		Types:
+		{ TYPE "int" INTEGER (size 4) }
+		{ TYPE "char" INTEGER (size 1) }
+	
+		Functions:
+		{ FUNC "main" RETURNTYPE "(null)" }
+		
+		Vars: { VAR "i" TYPE "int" }, { VAR "v" TYPE "int" }
+	}
 ]

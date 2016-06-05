@@ -41,5 +41,18 @@ TOKEN_BLOCK_END (10): } (3)
 				]
 			]
 		]
+		{ SCOPE main (parent global_scope):
+		}
 	]
+	{ SCOPE global_scope (parent (null)):
+		Types:
+		{ TYPE "int" INTEGER (size 4) }
+		{ TYPE "char" INTEGER (size 1) }
+	
+		Functions:
+		{ FUNC "main" RETURNTYPE "(null)"
+			Args: { VAR "argc" TYPE "int" }, { VAR "argv" TYPE "char" }
+		}
+		
+	}
 ]

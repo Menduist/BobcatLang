@@ -8,17 +8,43 @@ node_semanticalizer passes[NODES_END];
 
 static int sem_pass(struct semantics *sem, struct ast_node *node, int pass) {
 	int i;
+	struct sem_scope *scopebackup = sem->current_scope;
 
 	if (passes[node->type] != NULL) {
 		if (passes[node->type](sem, node, pass) != 0) {
-			return 0;
+			goto end;
 		}
 	}
 	if (node->type < TOKEN_LAST)
-		return 0;
+		goto end;
 
 	for (i = 0; i < node->childcount; i++) {
 		sem_pass(sem, node->childs[i], pass);
+	}
+end:
+	sem->current_scope = scopebackup;
+	return 0;
+}
+
+static struct sem_type *get_type(struct semantics *sem, char *name) {
+	struct sem_scope *scope = sem->current_scope;
+	struct sem_type *result = 0;
+	int i;
+
+	while (scope) {
+		for (i = 0; i < scope->types.count; i++) {
+			if (strcmp(name, scope->types.data[i]->name) == 0) {
+				if (result) {
+					printf("conflict\n");
+				}
+				result = scope->types.data[i];
+			}
+
+		}
+		if (result)
+			return result;
+
+		scope = scope->parent_scope;
 	}
 	return 0;
 }
@@ -28,12 +54,14 @@ static struct sem_variable *generate_variable(struct semantics *sem, char *name,
 
 	result->type = SEM_VARIABLE;
 	result->name = name;
+	result->datatype = get_type(sem, type);
 	return result;
 }
 
 static struct sem_function *generate_function(struct semantics *sem, struct ast_node *func) {
 	struct sem_function *result = memalloc(struct sem_function, 1);
 	char *argname;
+	char *argtype;
 	int i;
 
 	result->type = SEM_FUNCTION;
@@ -44,10 +72,22 @@ static struct sem_function *generate_function(struct semantics *sem, struct ast_
 
 	for (i = 1; i < func->childs[0]->childcount; i++) {
 		argname = ((struct SimpleToken *)func->childs[0]->childs[i]->childs[1])->value;
-		*vector_append(&result->args, 0) = generate_variable(sem, argname, 0);
+		argtype = ((struct SimpleToken *)func->childs[0]->childs[i]->childs[0])->value;
+		*vector_append(&result->args, 0) = generate_variable(sem, argname, argtype);
 	}
 
 	vector_append(&sem->current_scope->functions, &result);
+	return result;
+}
+
+static struct sem_type *generate_basic_type(enum sem_data_types type, char *name, int size) {
+	struct sem_type *result = memalloc(struct sem_type, 1);
+
+	result->type = SEM_TYPE;
+	result->datatype = type;
+	result->name = name;
+	result->size = size;
+	result->fields.count = 0;
 	return result;
 }
 
@@ -74,6 +114,7 @@ static int sem_fp_function_definition(struct semantics *sem, struct ast_node *no
 		node->sem_val = generate_scope(sem,
 				((struct SimpleToken *)node->childs[0]->childs[0])->value);
 	}
+	sem->current_scope = node->sem_val;
 	for (i = 0; i < node->childs[1]->childcount; i++) {
 		sem_pass(sem, node->childs[1]->childs[i], pass);
 	}
@@ -84,15 +125,23 @@ static int sem_sp_variable_declaration(struct semantics *sem, struct ast_node *n
 	if (pass != 1)
 		return 0;
 
-	char *name = ((struct SimpleToken *)node->childs[0]->childs[0])->value;
+	char *name = ((struct SimpleToken *)node->childs[1])->value;
+	char *type = ((struct SimpleToken *)node->childs[0])->value;
 
-	*vector_append(&sem->current_scope->variables, 0) = generate_variable(sem, name, 0);
+	struct sem_variable *var = generate_variable(sem, name, type);
+	*vector_append(&sem->current_scope->variables, 0) = var;
 	return 0;
 }
 
 static struct sem_scope *generate_global_scope(struct semantics *sem) {
+	struct sem_scope *result;
+
 	sem->current_scope = 0;
-	return generate_scope(sem, "global_scope");
+	result = generate_scope(sem, "global_scope");
+
+	vector_append_value(&result->types, generate_basic_type(SEM_INTEGER, "int", 4));
+	vector_append_value(&result->types, generate_basic_type(SEM_INTEGER, "char", 1));
+	return result;
 }
 
 int run_semantical_analyzer(struct ast_node *ast) {
@@ -120,8 +169,12 @@ void init_semantical_analyzer(void) {
 #include <stdio.h>
 
 static void print_var(struct sem_variable *var) {
-	printf("{ VAR \"%s\" TYPE \"%s\" }", var->name, var->datatype ?
-			var->datatype->name : 0);
+	printf("{ VAR \"%s\"", var->name);
+
+	if (var->datatype != NULL)
+		printf(" TYPE \"%s\" }", var->datatype ? var->datatype->name : 0);
+	else
+		printf(" }");
 }
 
 static void print_var_vector(struct sem_var_vector *v, int level) {
@@ -143,6 +196,19 @@ static void print_var_vector(struct sem_var_vector *v, int level) {
 	}
 }
 
+static void print_type(struct sem_type *type, int level) {
+	static char *types[] = { "INTEGER", "FLOATING", "STRUCT"};
+	int i;
+	
+	printf("\t{ TYPE \"%s\" %s (size %d)",
+			type->name, types[type->datatype], type->size);
+	if (type->datatype == SEM_STRUCT) {
+		print_var_vector(&type->fields, level);
+	}
+	printf(" }\n");
+	for (i = 0; i < level - 1; i++) printf("\t");
+}
+
 static void print_function(struct sem_function *func, int level) {
 	int i;
 
@@ -150,12 +216,15 @@ static void print_function(struct sem_function *func, int level) {
 			func->result_type->name : 0);
 	if (func->args.count) {
 		printf("\n");
-		for (i = 0; i < level; i++) printf("\t");
+		for (i = 0; i < level + 1; i++) printf("\t");
 		printf("Args:");
-		print_var_vector(&func->args, level);
+		print_var_vector(&func->args, level + 1);
 		printf("\n");
+		for (i = 0; i < level; i++) printf("\t");
 	}
-	printf(" }\n");
+	else printf(" ");
+	printf("}\n");
+	for (i = 0; i < level; i++) printf("\t");
 }
 
 static void print_scope(struct sem_scope *scope, int level) {
@@ -169,10 +238,13 @@ static void print_scope(struct sem_scope *scope, int level) {
 	for (i = 0; i < level - 1; i++) printf("\t");
 
 	if (scope->types.count) {
-		printf("\nTypes:\n");
+		printf("\tTypes:\n");
+		for (i = 0; i < level - 1; i++) printf("\t");
 		for (i = 0; i < scope->types.count; i++) {
-			//print_type(scope->types.data[i], level + 1);
+			print_type(scope->types.data[i], level);
 		}
+		printf("\n");
+		for (i = 0; i < level - 1; i++) printf("\t");
 	}
 
 	if (scope->functions.count) {
@@ -181,6 +253,7 @@ static void print_scope(struct sem_scope *scope, int level) {
 		for (i = 0; i < scope->functions.count; i++) {
 			print_function(scope->functions.data[i], level);
 		}
+		printf("\n");
 		for (i = 0; i < level - 1; i++) printf("\t");
 	}
 
@@ -223,7 +296,7 @@ void print_node(struct ast_node *node, int level) {
 			i++;
 		}
 		if (node->sem_val != NULL) {
-			//print_sem(node->sem_val, level + 1);
+			print_sem(node->sem_val, level + 1);
 		}
 		for (i = 0; i < level; i++)
 			printf("\t");

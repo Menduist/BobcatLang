@@ -225,6 +225,8 @@ TOKEN_OPERATOR (5): == (28)
 				]
 			]
 		]
+		{ SCOPE main (parent global_scope):
+		}
 	]
 	[FUNCTION_DEFINITION,
 		[DECLARATOR,
@@ -354,6 +356,8 @@ TOKEN_OPERATOR (5): == (28)
 				]
 			]
 		]
+		{ SCOPE testelse (parent global_scope):
+		}
 	]
 	[FUNCTION_DEFINITION,
 		[DECLARATOR,
@@ -408,5 +412,18 @@ TOKEN_OPERATOR (5): == (28)
 				]
 			]
 		]
+		{ SCOPE testelseif (parent global_scope):
+		}
 	]
+	{ SCOPE global_scope (parent (null)):
+		Types:
+		{ TYPE "int" INTEGER (size 4) }
+		{ TYPE "char" INTEGER (size 1) }
+	
+		Functions:
+		{ FUNC "main" RETURNTYPE "(null)" }
+		{ FUNC "testelse" RETURNTYPE "(null)" }
+		{ FUNC "testelseif" RETURNTYPE "(null)" }
+		
+	}
 ]
