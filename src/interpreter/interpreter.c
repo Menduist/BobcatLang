@@ -62,7 +62,7 @@ void register_all_functions(struct interpreter *inter) {
 	}
 }
 
-void create_global_scope(struct interpreter *inter) {
+static void create_global_scope(struct interpreter *inter) {
 	inter->global_scope = memalloc(struct interpreter_scope, 1);
 	inter->scope = inter->global_scope;
 }
@@ -111,13 +111,26 @@ struct interpreter_variable *get_or_create_var(struct interpreter *inter, char *
 	return create_var(inter, name, type);
 }
 
+void execute_top_level(struct interpreter *inter) {
+	int i;
+
+	for (i = 0; i < inter->program->childcount; i++) {
+		if (inter->program->childs[i]->type != FUNCTION_DEFINITION &&
+			inter->program->childs[i]->type != STRUCT_DEFINITION) {
+			execute_node(inter, inter->program->childs[i]);
+		}
+	}
+}
+
 void interpret(struct ast_node *program) {
 	struct interpreter inter;
 
 	init_interpreter_nodes();
 	memset(&inter, 0, sizeof(struct interpreter));
 	inter.program = program;
+	create_global_scope(&inter);
 	register_all_functions(&inter);
+	execute_top_level(&inter);
 	call_function(&inter, "main");
 }
 
