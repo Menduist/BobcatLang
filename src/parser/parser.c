@@ -436,8 +436,9 @@ static struct ast_node *parse_translation_unit(struct parser *parser) {
 				add_child(&result, parse_struct_declaration(parser));
 				break;
 			default:
-				unexcepted("func, struct", parser->tokens);
+				add_child(&result, parse_statement(parser));
 		}
+		parser->root = result;
 	}
 	if (parser->tokens->type != TOKEN_NONE) {
 		unexcepted("EOF", parser->tokens);		

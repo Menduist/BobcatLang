@@ -52,6 +52,8 @@ static int try_tokenize_string(const char *code, struct SimpleToken *token) {
 	length++;
 	token->type = TOKEN_STRING_LITERAL;
 	strncpy(token->value, code, (size_t) length);
+
+	token->value[length] = '\0';
 	return length;
 }
 

@@ -341,7 +341,7 @@ void print_node(struct ast_node *node, int level) {
 	if (node->type >= TOKEN_LAST) {
 		printf("[%s,\n", all_names[node->type]);
 		i = 0;
-		while (node->childs[i] && i < node->childcount) {
+		while (i < node->childcount) {
 			print_node(node->childs[i], level + 1);
 			i++;
 		}
@@ -364,9 +364,9 @@ int main(int argc, char **argv) {
 	int i;
 	
 	source = readfile(argv[1]);
-	memset(tokens, 0, sizeof(struct SimpleToken) * 100);
+	memset(tokens, 0, sizeof(struct SimpleToken) * 300);
 	tokenize(source, tokens);
-	for (i = 0; i < 100 && tokens[i].type; i++) {
+	for (i = 0; i < 300 && tokens[i].type; i++) {
 		printf("%s (%d): %s (%d)\n", all_names[tokens[i].type], tokens[i].type, tokens[i].value, tokens[i].line);
 	}
 	node = parse(tokens);
