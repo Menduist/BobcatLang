@@ -2,6 +2,14 @@
 #include <string.h>
 #include "../utils.h"
 
+enum passes {
+	PASS_TYPES,
+	PASS_FIELDS,
+	PASS_FUNCS = PASS_FIELDS,
+	PASS_VARS,
+	PASS_END
+};
+
 typedef int (*node_semanticalizer)(struct semantics *, struct ast_node *, int pass);
 
 node_semanticalizer passes[NODES_END];
@@ -109,7 +117,7 @@ static struct sem_scope *generate_scope(struct semantics *sem, char *name) {
 static int sem_fp_function_definition(struct semantics *sem, struct ast_node *node, int pass) {
 	int i;
 
-	if (pass == 0) {
+	if (pass == PASS_FUNCS) {
 		generate_function(sem, node);
 		node->sem_val = generate_scope(sem,
 				((struct SimpleToken *)node->childs[0]->childs[0])->value);
@@ -121,8 +129,40 @@ static int sem_fp_function_definition(struct semantics *sem, struct ast_node *no
 	return 1;
 }
 
+static int sem_fp_struct_definition(struct semantics *sem, struct ast_node *node, int pass) {
+	struct sem_type *type;
+	int i;
+	int size;
+
+	if (pass == PASS_TYPES) {
+		type = generate_basic_type(SEM_STRUCT,
+				((struct SimpleToken *)node->childs[0])->value, -1);
+		vector_init(&type->fields, node->childcount);
+
+		node->sem_val = type;
+		vector_append_value(&sem->current_scope->types, type);
+	}
+	else if (pass == PASS_FIELDS) {
+		type = node->sem_val;
+		size = 0;
+
+		for (i = 1; i < node->childcount; i++) {
+			struct sem_variable *field = generate_variable(sem,
+						((struct SimpleToken *)node->childs[i]->childs[1])->value,
+						((struct SimpleToken *)node->childs[i]->childs[0])->value
+						);
+			vector_append_value(&type->fields, field);
+			if (field->datatype)
+				size += field->datatype->size;
+		}
+
+		type->size = size;
+	}
+	return 1;
+}
+
 static int sem_sp_variable_declaration(struct semantics *sem, struct ast_node *node, int pass) {
-	if (pass != 1)
+	if (pass != PASS_VARS)
 		return 0;
 
 	char *name = ((struct SimpleToken *)node->childs[1])->value;
@@ -146,20 +186,22 @@ static struct sem_scope *generate_global_scope(struct semantics *sem) {
 
 int run_semantical_analyzer(struct ast_node *ast) {
 	struct semantics sem;
+	int i;
 
 	sem.ast = ast;
 	sem.global_scope = generate_global_scope(&sem);
 	sem.current_scope = sem.global_scope;
 	ast->sem_val = sem.global_scope;
 
-	sem_pass(&sem, ast, 0);
-	sem_pass(&sem, ast, 1);
+	for (i = 0; i < PASS_END; i++)
+		sem_pass(&sem, ast, i);
 	return 0;
 }
 
 void init_semantical_analyzer(void) {
 	memset(passes, 0, sizeof(passes));
 	passes[FUNCTION_DEFINITION] = sem_fp_function_definition;
+	passes[STRUCT_DEFINITION] = sem_fp_struct_definition;
 	
 	passes[VARIABLE_DECLARATION] = sem_sp_variable_declaration;
 }
@@ -178,9 +220,13 @@ static void print_var(struct sem_variable *var) {
 }
 
 static void print_var_vector(struct sem_var_vector *v, int level) {
-	int i;
+	int i, y;
 	
 	printf("%c", v->count > 4 ? '\n' : ' ');
+	if (v->count > 4) {
+		for (y = 0; y < level; y++) printf("\t");
+	}
+
 	for (i = 0; i < v->count; i++) {
 		print_var(v->data[i]);
 
@@ -189,10 +235,14 @@ static void print_var_vector(struct sem_var_vector *v, int level) {
 
 		if (v->count > 4) {
 			printf("\n");
-			for (i = 0; i < level; i++) printf("\t");
+			for (y = 0; y < level; y++) printf("\t");
 		} else {
 			printf(", ");
 		}
+	}
+	if (v->count > 4) {
+		printf("\n");
+		for (y = 0; y < level - 1; y++) printf("\t");
 	}
 }
 
@@ -200,12 +250,12 @@ static void print_type(struct sem_type *type, int level) {
 	static char *types[] = { "INTEGER", "FLOATING", "STRUCT"};
 	int i;
 	
-	printf("\t{ TYPE \"%s\" %s (size %d)",
+	printf("\t{ TYPE \"%s\" %s (size %d) ",
 			type->name, types[type->datatype], type->size);
 	if (type->datatype == SEM_STRUCT) {
-		print_var_vector(&type->fields, level);
+		print_var_vector(&type->fields, level + 1);
 	}
-	printf(" }\n");
+	printf("}\n");
 	for (i = 0; i < level - 1; i++) printf("\t");
 }
 
