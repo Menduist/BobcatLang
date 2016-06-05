@@ -37,12 +37,14 @@ struct sem_variable {
 
 struct sem_function {
 	enum sem_types type;
+	char *name;
 	struct sem_var_vector args;
 	struct sem_type *result_type;
 };
 
 struct sem_scope {
 	enum sem_types type;
+	char *name;
 	struct sem_scope *parent_scope;
 	struct sem_func_vector functions;
 	struct sem_var_vector variables;
