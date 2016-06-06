@@ -1,9 +1,10 @@
 #!/bin/sh
 
-case "$TERM" in
-	xterm-color|*-256color) color=yes;;
-	*) color=;;
-esac
+if [ -x /usr/bin/tput ] && tput setaf > /dev/null; then
+	color=yes
+else
+	color=
+fi
 
 if [ "$color" = yes ]; then
 	RED="\033[31;1m"
@@ -16,7 +17,7 @@ error=0
 
 for path_file_to_test in ../samples/*; do
 	file_to_test=$(basename $path_file_to_test)
-	printf ${BLUE}"testing ${file_to_test}\n"${CLEAR}
+	printf ${BLUE}" * testing ${file_to_test}\n"${CLEAR}
 	if [ -f $file_to_test.interpreted ]; then
 		../timinterpreter ../samples/$file_to_test > /tmp/$file_to_test.interpreted
 		printf "%-15.15s: interpreter " ${file_to_test}
@@ -39,7 +40,6 @@ for path_file_to_test in ../samples/*; do
 			printf ${GREEN}"succeed\n"${CLEAR}
 		fi
 	fi
-	echo
 done
 
 exit $error
