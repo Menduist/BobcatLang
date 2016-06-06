@@ -34,26 +34,26 @@ TOKEN_BLOCK_END (10): } (8)
 		[COMPOUND_STATEMENT,
 			[VARIABLE_DECLARATION,
 				[TOKEN_IDENTIFIER, 'int']
-				[TOKEN_IDENTIFIER, 'x']
+				[TOKEN_IDENTIFIER, 'x' { VAR "x" TYPE "int" } ]
 			]
 			[WHILE_STATEMENT,
 				[TOKEN_WHILE, 'while']
 				[EXPRESSION_LIST,
 					[OPERATOR,
 						[TOKEN_OPERATOR, '<']
-						[TOKEN_IDENTIFIER, 'x']
+						[TOKEN_IDENTIFIER, 'x' { VAR "x" TYPE "int" } ]
 						[TOKEN_IDENTIFIER, '5']
 					]
 				]
 				[COMPOUND_STATEMENT,
 					[VARIABLE_DECLARATION,
 						[TOKEN_IDENTIFIER, 'int']
-						[TOKEN_IDENTIFIER, 'w']
+						[TOKEN_IDENTIFIER, 'w' { VAR "w" TYPE "int" } ]
 					]
 					[EXPRESSION_LIST,
 						[PREFIX_OPERATOR,
 							[TOKEN_OPERATOR, '++']
-							[TOKEN_IDENTIFIER, 'x']
+							[TOKEN_IDENTIFIER, 'x' { VAR "x" TYPE "int" } ]
 						]
 					]
 				]
@@ -63,14 +63,14 @@ TOKEN_BLOCK_END (10): } (8)
 				[EXPRESSION_LIST,
 					[OPERATOR,
 						[TOKEN_OPERATOR, '<']
-						[TOKEN_IDENTIFIER, 'x']
+						[TOKEN_IDENTIFIER, 'x' { VAR "x" TYPE "int" } ]
 						[TOKEN_IDENTIFIER, '5']
 					]
 				]
 				[EXPRESSION_LIST,
 					[PREFIX_OPERATOR,
 						[TOKEN_OPERATOR, '++']
-						[TOKEN_IDENTIFIER, 'x']
+						[TOKEN_IDENTIFIER, 'x' { VAR "x" TYPE "int" } ]
 					]
 				]
 			]
@@ -85,6 +85,9 @@ TOKEN_BLOCK_END (10): } (8)
 		{ TYPE "char" INTEGER (size 1) }
 	
 		Functions:
+		{ FUNC "print" RETURNTYPE "(null)"
+			Args: { VAR "i" TYPE "int" }
+		}
 		{ FUNC "testwhile" RETURNTYPE "(null)" }
 		
 	}

@@ -33,7 +33,7 @@ TOKEN_BLOCK_END (10): } (8)
 		[COMPOUND_STATEMENT,
 			[VARIABLE_DECLARATION,
 				[TOKEN_IDENTIFIER, 'Test']
-				[TOKEN_IDENTIFIER, 'var']
+				[TOKEN_IDENTIFIER, 'var' { VAR "var" TYPE "Test" } ]
 			]
 		]
 		{ SCOPE main (parent global_scope):
@@ -47,6 +47,9 @@ TOKEN_BLOCK_END (10): } (8)
 		{ TYPE "Test" STRUCT (size 8)  { VAR "i" TYPE "int" }, { VAR "v" TYPE "int" }}
 	
 		Functions:
+		{ FUNC "print" RETURNTYPE "(null)"
+			Args: { VAR "i" TYPE "int" }
+		}
 		{ FUNC "main" RETURNTYPE "(null)" }
 		
 	}

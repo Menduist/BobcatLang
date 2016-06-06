@@ -32,12 +32,12 @@ TOKEN_BLOCK_END (10): } (11)
 [TRANSLATION_UNIT,
 	[VARIABLE_DECLARATION,
 		[TOKEN_IDENTIFIER, 'int']
-		[TOKEN_IDENTIFIER, 'i']
+		[TOKEN_IDENTIFIER, 'i' { VAR "i" TYPE "int" } ]
 	]
 	[EXPRESSION_LIST,
 		[OPERATOR,
 			[TOKEN_OPERATOR, '=']
-			[TOKEN_IDENTIFIER, 'i']
+			[TOKEN_IDENTIFIER, 'i' { VAR "i" TYPE "int" } ]
 			[TOKEN_IDENTIFIER, '42']
 		]
 	]
@@ -46,8 +46,9 @@ TOKEN_BLOCK_END (10): } (11)
 			[TOKEN_PARENTHESE_START, '(']
 			[TOKEN_IDENTIFIER, 'printer']
 			[FUNCTION_ARG_LIST,
-				[TOKEN_IDENTIFIER, 'i']
+				[TOKEN_IDENTIFIER, 'i' { VAR "i" TYPE "int" } ]
 			]
+			{ FUNCTION "printer" }
 		]
 	]
 	[FUNCTION_DEFINITION,
@@ -64,8 +65,9 @@ TOKEN_BLOCK_END (10): } (11)
 					[TOKEN_PARENTHESE_START, '(']
 					[TOKEN_IDENTIFIER, 'print']
 					[FUNCTION_ARG_LIST,
-						[TOKEN_IDENTIFIER, 'i']
+						[TOKEN_IDENTIFIER, 'i' { VAR "i" TYPE "int" } ]
 					]
+					{ FUNCTION "print" }
 				]
 			]
 		]
@@ -84,6 +86,7 @@ TOKEN_BLOCK_END (10): } (11)
 					[FUNCTION_ARG_LIST,
 						[TOKEN_IDENTIFIER, '52']
 					]
+					{ FUNCTION "print" }
 				]
 			]
 		]
@@ -96,6 +99,9 @@ TOKEN_BLOCK_END (10): } (11)
 		{ TYPE "char" INTEGER (size 1) }
 	
 		Functions:
+		{ FUNC "print" RETURNTYPE "(null)"
+			Args: { VAR "i" TYPE "int" }
+		}
 		{ FUNC "printer" RETURNTYPE "(null)"
 			Args: { VAR "i" TYPE "int" }
 		}

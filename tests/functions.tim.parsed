@@ -38,6 +38,7 @@ TOKEN_BLOCK_END (10): } (3)
 						[TOKEN_IDENTIFIER, 'argc']
 						[TOKEN_IDENTIFIER, 'argv']
 					]
+					{ FUNCTION "main" }
 				]
 			]
 		]
@@ -50,6 +51,9 @@ TOKEN_BLOCK_END (10): } (3)
 		{ TYPE "char" INTEGER (size 1) }
 	
 		Functions:
+		{ FUNC "print" RETURNTYPE "(null)"
+			Args: { VAR "i" TYPE "int" }
+		}
 		{ FUNC "main" RETURNTYPE "(null)"
 			Args: { VAR "argc" TYPE "int" }, { VAR "argv" TYPE "char" }
 		}

@@ -27,6 +27,7 @@ struct SimpleToken {
 	int type;
 	int line;
 	int col;
+	void *sem_val;
 	char value[255];
 };
 

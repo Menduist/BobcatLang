@@ -7,6 +7,8 @@ enum passes {
 	PASS_FIELDS,
 	PASS_FUNCS = PASS_FIELDS,
 	PASS_VARS,
+	PASS_IDENTIFIERS,
+	PASS_ASSIGN,
 	PASS_END
 };
 
@@ -57,12 +59,71 @@ static struct sem_type *get_type(struct semantics *sem, char *name) {
 	return 0;
 }
 
+static struct sem_variable *get_variable(struct semantics *sem, char *name) {
+	struct sem_scope *scope = sem->current_scope;
+	struct sem_variable *result = 0;
+	int i;
+
+	while (scope) {
+		for (i = 0; i < scope->variables.count; i++) {
+			if (strcmp(name, scope->variables.data[i]->name) == 0) {
+				if (result) {
+					printf("conflict\n");
+				}
+				result = scope->variables.data[i];
+			}
+
+		}
+		if (result)
+			return result;
+
+		scope = scope->parent_scope;
+	}
+	return 0;
+}
+
+static struct sem_function *get_function(struct semantics *sem, char *name) {
+	struct sem_scope *scope = sem->current_scope;
+	struct sem_function *result = 0;
+	int i;
+
+	while (scope) {
+		for (i = 0; i < scope->functions.count; i++) {
+			if (strcmp(name, scope->functions.data[i]->name) == 0) {
+				if (result) {
+					printf("conflict\n");
+				}
+				result = scope->functions.data[i];
+			}
+
+		}
+		if (result)
+			return result;
+
+		scope = scope->parent_scope;
+	}
+	return 0;
+}
+
 static struct sem_variable *generate_variable(struct semantics *sem, char *name, char *type) {
 	struct sem_variable *result = memalloc(struct sem_variable, 1);
 
 	result->type = SEM_VARIABLE;
 	result->name = name;
 	result->datatype = get_type(sem, type);
+	return result;
+}
+
+static struct sem_function *generate_simple_function(struct semantics *sem, char *name, char *returntype) {
+	struct sem_function *result = memalloc(struct sem_function, 1);
+
+	result->type = SEM_FUNCTION;
+
+	vector_init(&result->args, 2);
+	result->name = name;
+	result->result_type = 0;
+
+	vector_append(&sem->current_scope->functions, &result);
 	return result;
 }
 
@@ -161,6 +222,13 @@ static int sem_fp_struct_definition(struct semantics *sem, struct ast_node *node
 	return 1;
 }
 
+static int sem_functioncall(struct semantics *sem, struct ast_node *node, int pass) {
+	if (pass == PASS_IDENTIFIERS) {
+		node->sem_val = get_function(sem, ((struct SimpleToken *)node->childs[1])->value);
+	}
+	return 0;
+}
+
 static int sem_sp_variable_declaration(struct semantics *sem, struct ast_node *node, int pass) {
 	if (pass != PASS_VARS)
 		return 0;
@@ -173,6 +241,14 @@ static int sem_sp_variable_declaration(struct semantics *sem, struct ast_node *n
 	return 0;
 }
 
+static int sem_identifier(struct semantics *sem, struct ast_node *node, int pass) {
+	if (pass == PASS_IDENTIFIERS) {
+		struct sem_variable *var = get_variable(sem, ((struct SimpleToken *)node)->value);
+		node->sem_val = var;
+	}
+	return 0;
+}
+
 static struct sem_scope *generate_global_scope(struct semantics *sem) {
 	struct sem_scope *result;
 
@@ -181,6 +257,9 @@ static struct sem_scope *generate_global_scope(struct semantics *sem) {
 
 	vector_append_value(&result->types, generate_basic_type(SEM_INTEGER, "int", 4));
 	vector_append_value(&result->types, generate_basic_type(SEM_INTEGER, "char", 1));
+
+	struct sem_function *print = generate_simple_function(sem, "print", 0);
+	vector_append_value(&print->args, generate_variable(sem, "i", "int"));
 	return result;
 }
 
@@ -200,10 +279,13 @@ int run_semantical_analyzer(struct ast_node *ast) {
 
 void init_semantical_analyzer(void) {
 	memset(passes, 0, sizeof(passes));
+	passes[TOKEN_IDENTIFIER] = sem_identifier;
+
 	passes[FUNCTION_DEFINITION] = sem_fp_function_definition;
 	passes[STRUCT_DEFINITION] = sem_fp_struct_definition;
 	
 	passes[VARIABLE_DECLARATION] = sem_sp_variable_declaration;
+	passes[FUNCTION_CALL] = sem_functioncall;
 }
 
 #ifdef TEST_SEM
@@ -325,8 +407,11 @@ static void print_sem(void *node, int level) {
 			print_scope((struct sem_scope *)node, level);
 			break;
 		case SEM_FUNCTION:
+			while (level--) printf("\t");
+			printf("{ FUNCTION \"%s\" }\n", (((struct sem_function *)node)->name));
 			break;
 		case SEM_VARIABLE:
+			print_var((struct sem_variable *)node);
 			break;
 		case SEM_TYPE:
 			break;
@@ -353,7 +438,13 @@ void print_node(struct ast_node *node, int level) {
 		printf("]\n");
 	}
 	else {
-		printf("[%s, '%s']\n", all_names[node->type], ((struct SimpleToken *)node)->value);
+		printf("[%s, '%s'", all_names[node->type], ((struct SimpleToken *)node)->value);
+		if (node->sem_val) {
+			printf(" ");
+			print_sem(node->sem_val, level + 1);
+			printf(" ");
+		}
+		printf("]\n");
 	}
 }
 

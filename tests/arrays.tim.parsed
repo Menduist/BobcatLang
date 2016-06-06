@@ -99,6 +99,7 @@ TOKEN_BLOCK_END (10): } (4)
 							]
 						]
 					]
+					{ FUNCTION "print" }
 				]
 			]
 		]
@@ -111,6 +112,9 @@ TOKEN_BLOCK_END (10): } (4)
 		{ TYPE "char" INTEGER (size 1) }
 	
 		Functions:
+		{ FUNC "print" RETURNTYPE "(null)"
+			Args: { VAR "i" TYPE "int" }
+		}
 		{ FUNC "main" RETURNTYPE "(null)" }
 		
 	}

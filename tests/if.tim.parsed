@@ -266,6 +266,7 @@ TOKEN_BLOCK_END (10): } (43)
 					[FUNCTION_ARG_LIST,
 						[TOKEN_IDENTIFIER, 'x']
 					]
+					{ FUNCTION "print" }
 				]
 			]
 			[EXPRESSION_LIST,
@@ -274,6 +275,7 @@ TOKEN_BLOCK_END (10): } (43)
 					[TOKEN_IDENTIFIER, 'testelse']
 					[FUNCTION_ARG_LIST,
 					]
+					{ FUNCTION "testelse" }
 				]
 			]
 		]
@@ -397,6 +399,7 @@ TOKEN_BLOCK_END (10): } (43)
 					[FUNCTION_ARG_LIST,
 						[TOKEN_IDENTIFIER, 'x']
 					]
+					{ FUNCTION "print" }
 				]
 			]
 			[EXPRESSION_LIST,
@@ -405,6 +408,7 @@ TOKEN_BLOCK_END (10): } (43)
 					[TOKEN_IDENTIFIER, 'testelseif']
 					[FUNCTION_ARG_LIST,
 					]
+					{ FUNCTION "testelseif" }
 				]
 			]
 		]
@@ -432,6 +436,7 @@ TOKEN_BLOCK_END (10): } (43)
 						[FUNCTION_ARG_LIST,
 							[TOKEN_IDENTIFIER, '2']
 						]
+						{ FUNCTION "print" }
 					]
 				]
 				[IF_STATEMENT,
@@ -450,6 +455,7 @@ TOKEN_BLOCK_END (10): } (43)
 							[FUNCTION_ARG_LIST,
 								[TOKEN_IDENTIFIER, '3']
 							]
+							{ FUNCTION "print" }
 						]
 					]
 					[EXPRESSION_LIST,
@@ -459,6 +465,7 @@ TOKEN_BLOCK_END (10): } (43)
 							[FUNCTION_ARG_LIST,
 								[TOKEN_IDENTIFIER, '4']
 							]
+							{ FUNCTION "print" }
 						]
 					]
 				]
@@ -473,6 +480,9 @@ TOKEN_BLOCK_END (10): } (43)
 		{ TYPE "char" INTEGER (size 1) }
 	
 		Functions:
+		{ FUNC "print" RETURNTYPE "(null)"
+			Args: { VAR "i" TYPE "int" }
+		}
 		{ FUNC "main" RETURNTYPE "(null)" }
 		{ FUNC "testelse" RETURNTYPE "(null)" }
 		{ FUNC "testelseif" RETURNTYPE "(null)" }

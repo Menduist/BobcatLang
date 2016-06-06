@@ -21,6 +21,7 @@ TOKEN_BLOCK_END (10): } (7)
 					[FUNCTION_ARG_LIST,
 						[TOKEN_STRING_LITERAL, '"Coucou\n"']
 					]
+					{ FUNCTION "print" }
 				]
 			]
 		]
@@ -33,6 +34,9 @@ TOKEN_BLOCK_END (10): } (7)
 		{ TYPE "char" INTEGER (size 1) }
 	
 		Functions:
+		{ FUNC "print" RETURNTYPE "(null)"
+			Args: { VAR "i" TYPE "int" }
+		}
 		{ FUNC "main" RETURNTYPE "(null)" }
 		
 	}
