@@ -2,6 +2,7 @@
 #include <string.h>
 #include "../utils.h"
 #include <stdio.h>
+#include <ctype.h>
 
 enum passes {
 	PASS_TYPES,
@@ -228,24 +229,32 @@ static int sem_functioncall(struct semantics *sem, struct ast_node *node, int pa
 	if (pass == PASS_IDENTIFIERS) {
 		node->sem_val = get_function(sem, ((struct SimpleToken *)node->childs[1])->value);
 	}
-	return 0;
+	sem_pass(sem, node->childs[2], pass);
+	return 1;
 }
 
 static int sem_sp_variable_declaration(struct semantics *sem, struct ast_node *node, int pass) {
 	if (pass != PASS_VARS)
-		return 0;
+		return 1;
 
 	char *name = ((struct SimpleToken *)node->childs[1])->value;
 	char *type = ((struct SimpleToken *)node->childs[0])->value;
 
 	struct sem_variable *var = generate_variable(sem, name, type);
 	*vector_append(&sem->current_scope->variables, 0) = var;
-	return 0;
+	return 1;
 }
 
 static int sem_identifier(struct semantics *sem, struct ast_node *node, int pass) {
+	struct SimpleToken *tok = (struct SimpleToken *)node;
 	if (pass == PASS_IDENTIFIERS) {
-		struct sem_variable *var = get_variable(sem, ((struct SimpleToken *)node)->value);
+		struct sem_variable *var = get_variable(sem, tok->value);
+		if (!var && !isdigit(tok->value[0])) {
+			printf("at %d:%d: unknown variable %s, assuming var int\n",
+					tok->line, tok->col, tok->value);
+			var = generate_variable(sem, tok->value, "int");
+			vector_append_value(&sem->current_scope->variables, var);
+		}
 		node->sem_val = var;
 	}
 	return 0;

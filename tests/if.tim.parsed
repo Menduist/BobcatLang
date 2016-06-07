@@ -150,6 +150,12 @@ TOKEN_PARENTHESE_START (11): ( (42)
 TOKEN_IDENTIFIER (4): 4 (42)
 TOKEN_PARENTHESE_END (12): ) (42)
 TOKEN_BLOCK_END (10): } (43)
+at 2:3: unknown variable a, assuming var int
+at 4:6: unknown variable x, assuming var int
+at 18:3: unknown variable x, assuming var int
+at 25:7: unknown variable b, assuming var int
+at 28:6: unknown variable a, assuming var int
+at 29:17: unknown variable pouet, assuming var int
 [TRANSLATION_UNIT,
 	[FUNCTION_DEFINITION,
 		[DECLARATOR,
@@ -159,7 +165,7 @@ TOKEN_BLOCK_END (10): } (43)
 			[EXPRESSION_LIST,
 				[OPERATOR,
 					[TOKEN_OPERATOR, '=']
-					[TOKEN_IDENTIFIER, 'a']
+					[TOKEN_IDENTIFIER, 'a' { VAR "a" TYPE "int" } ]
 					[TOKEN_IDENTIFIER, '3']
 				]
 			]
@@ -168,7 +174,7 @@ TOKEN_BLOCK_END (10): } (43)
 				[EXPRESSION_LIST,
 					[OPERATOR,
 						[TOKEN_OPERATOR, '==']
-						[TOKEN_IDENTIFIER, 'a']
+						[TOKEN_IDENTIFIER, 'a' { VAR "a" TYPE "int" } ]
 						[TOKEN_IDENTIFIER, '5']
 					]
 				]
@@ -176,7 +182,7 @@ TOKEN_BLOCK_END (10): } (43)
 					[EXPRESSION_LIST,
 						[PREFIX_OPERATOR,
 							[TOKEN_OPERATOR, '++']
-							[TOKEN_IDENTIFIER, 'x']
+							[TOKEN_IDENTIFIER, 'x' { VAR "x" TYPE "int" } ]
 						]
 					]
 				]
@@ -186,21 +192,21 @@ TOKEN_BLOCK_END (10): } (43)
 				[EXPRESSION_LIST,
 					[OPERATOR,
 						[TOKEN_OPERATOR, '==']
-						[TOKEN_IDENTIFIER, 'a']
+						[TOKEN_IDENTIFIER, 'a' { VAR "a" TYPE "int" } ]
 						[TOKEN_IDENTIFIER, '3']
 					]
 				]
 				[EXPRESSION_LIST,
 					[OPERATOR,
 						[TOKEN_OPERATOR, '=']
-						[TOKEN_IDENTIFIER, 'x']
+						[TOKEN_IDENTIFIER, 'x' { VAR "x" TYPE "int" } ]
 						[TOKEN_IDENTIFIER, '20']
 					]
 				]
 				[EXPRESSION_LIST,
 					[OPERATOR,
 						[TOKEN_OPERATOR, '=']
-						[TOKEN_IDENTIFIER, 'x']
+						[TOKEN_IDENTIFIER, 'x' { VAR "x" TYPE "int" } ]
 						[TOKEN_IDENTIFIER, '3']
 					]
 				]
@@ -211,7 +217,7 @@ TOKEN_BLOCK_END (10): } (43)
 					[EXPRESSION_LIST,
 						[OPERATOR,
 							[TOKEN_OPERATOR, '==']
-							[TOKEN_IDENTIFIER, 'a']
+							[TOKEN_IDENTIFIER, 'a' { VAR "a" TYPE "int" } ]
 							[TOKEN_IDENTIFIER, '5']
 						]
 					]
@@ -220,7 +226,7 @@ TOKEN_BLOCK_END (10): } (43)
 					[EXPRESSION_LIST,
 						[PREFIX_OPERATOR,
 							[TOKEN_OPERATOR, '++']
-							[TOKEN_IDENTIFIER, 'x']
+							[TOKEN_IDENTIFIER, 'x' { VAR "x" TYPE "int" } ]
 						]
 					]
 				]
@@ -230,14 +236,14 @@ TOKEN_BLOCK_END (10): } (43)
 				[EXPRESSION_LIST,
 					[OPERATOR,
 						[TOKEN_OPERATOR, '==']
-						[TOKEN_IDENTIFIER, 'a']
+						[TOKEN_IDENTIFIER, 'a' { VAR "a" TYPE "int" } ]
 						[TOKEN_IDENTIFIER, '3']
 					]
 				]
 				[EXPRESSION_LIST,
 					[PREFIX_OPERATOR,
 						[TOKEN_OPERATOR, '++']
-						[TOKEN_IDENTIFIER, 'x']
+						[TOKEN_IDENTIFIER, 'x' { VAR "x" TYPE "int" } ]
 					]
 				]
 			]
@@ -246,7 +252,7 @@ TOKEN_BLOCK_END (10): } (43)
 				[EXPRESSION_LIST,
 					[OPERATOR,
 						[TOKEN_OPERATOR, '==']
-						[TOKEN_IDENTIFIER, 'a']
+						[TOKEN_IDENTIFIER, 'a' { VAR "a" TYPE "int" } ]
 						[TOKEN_IDENTIFIER, '5']
 					]
 				]
@@ -254,7 +260,7 @@ TOKEN_BLOCK_END (10): } (43)
 					[EXPRESSION_LIST,
 						[PREFIX_OPERATOR,
 							[TOKEN_OPERATOR, '++']
-							[TOKEN_IDENTIFIER, 'x']
+							[TOKEN_IDENTIFIER, 'x' { VAR "x" TYPE "int" } ]
 						]
 					]
 				]
@@ -264,7 +270,7 @@ TOKEN_BLOCK_END (10): } (43)
 					[TOKEN_PARENTHESE_START, '(']
 					[TOKEN_IDENTIFIER, 'print']
 					[FUNCTION_ARG_LIST,
-						[TOKEN_IDENTIFIER, 'x']
+						[TOKEN_IDENTIFIER, 'x' { VAR "x" TYPE "int" } ]
 					]
 					{ FUNCTION "print" }
 				]
@@ -279,6 +285,7 @@ TOKEN_BLOCK_END (10): } (43)
 				]
 			]
 			{ SCOPE main (parent global_scope):
+				Vars: { VAR "a" TYPE "int" }, { VAR "x" TYPE "int" }
 			}
 		]
 		{ FUNCTION "main" }
@@ -291,7 +298,7 @@ TOKEN_BLOCK_END (10): } (43)
 			[EXPRESSION_LIST,
 				[OPERATOR,
 					[TOKEN_OPERATOR, '=']
-					[TOKEN_IDENTIFIER, 'x']
+					[TOKEN_IDENTIFIER, 'x' { VAR "x" TYPE "int" } ]
 					[TOKEN_IDENTIFIER, '0']
 				]
 			]
@@ -308,14 +315,14 @@ TOKEN_BLOCK_END (10): } (43)
 					[EXPRESSION_LIST,
 						[PREFIX_OPERATOR,
 							[TOKEN_OPERATOR, '++']
-							[TOKEN_IDENTIFIER, 'x']
+							[TOKEN_IDENTIFIER, 'x' { VAR "x" TYPE "int" } ]
 						]
 					]
 				]
 				[EXPRESSION_LIST,
 					[OPERATOR,
 						[TOKEN_OPERATOR, '=']
-						[TOKEN_IDENTIFIER, 'x']
+						[TOKEN_IDENTIFIER, 'x' { VAR "x" TYPE "int" } ]
 						[TOKEN_IDENTIFIER, '2']
 					]
 				]
@@ -326,7 +333,7 @@ TOKEN_BLOCK_END (10): } (43)
 					[EXPRESSION_LIST,
 						[OPERATOR,
 							[TOKEN_OPERATOR, '==']
-							[TOKEN_IDENTIFIER, 'b']
+							[TOKEN_IDENTIFIER, 'b' { VAR "b" TYPE "int" } ]
 							[TOKEN_IDENTIFIER, '6']
 						]
 					]
@@ -335,7 +342,7 @@ TOKEN_BLOCK_END (10): } (43)
 					[EXPRESSION_LIST,
 						[PREFIX_OPERATOR,
 							[TOKEN_OPERATOR, '++']
-							[TOKEN_IDENTIFIER, 'x']
+							[TOKEN_IDENTIFIER, 'x' { VAR "x" TYPE "int" } ]
 						]
 					]
 				]
@@ -343,10 +350,10 @@ TOKEN_BLOCK_END (10): } (43)
 					[EXPRESSION_LIST,
 						[OPERATOR,
 							[TOKEN_OPERATOR, '=']
-							[TOKEN_IDENTIFIER, 'x']
+							[TOKEN_IDENTIFIER, 'x' { VAR "x" TYPE "int" } ]
 							[OPERATOR,
 								[TOKEN_OPERATOR, '*']
-								[TOKEN_IDENTIFIER, 'x']
+								[TOKEN_IDENTIFIER, 'x' { VAR "x" TYPE "int" } ]
 								[TOKEN_IDENTIFIER, '42']
 							]
 						]
@@ -358,18 +365,18 @@ TOKEN_BLOCK_END (10): } (43)
 				[EXPRESSION_LIST,
 					[OPERATOR,
 						[TOKEN_OPERATOR, '==']
-						[TOKEN_IDENTIFIER, 'a']
+						[TOKEN_IDENTIFIER, 'a' { VAR "a" TYPE "int" } ]
 						[TOKEN_IDENTIFIER, '5']
 					]
 				]
 				[EXPRESSION_LIST,
 					[PREFIX_OPERATOR,
 						[TOKEN_OPERATOR, '++']
-						[TOKEN_IDENTIFIER, 'x']
+						[TOKEN_IDENTIFIER, 'x' { VAR "x" TYPE "int" } ]
 					]
 				]
 				[EXPRESSION_LIST,
-					[TOKEN_IDENTIFIER, 'pouet']
+					[TOKEN_IDENTIFIER, 'pouet' { VAR "pouet" TYPE "int" } ]
 				]
 			]
 			[IF_STATEMENT,
@@ -377,7 +384,7 @@ TOKEN_BLOCK_END (10): } (43)
 				[EXPRESSION_LIST,
 					[OPERATOR,
 						[TOKEN_OPERATOR, '==']
-						[TOKEN_IDENTIFIER, 'a']
+						[TOKEN_IDENTIFIER, 'a' { VAR "a" TYPE "int" } ]
 						[TOKEN_IDENTIFIER, '5']
 					]
 				]
@@ -385,7 +392,7 @@ TOKEN_BLOCK_END (10): } (43)
 					[EXPRESSION_LIST,
 						[PREFIX_OPERATOR,
 							[TOKEN_OPERATOR, '++']
-							[TOKEN_IDENTIFIER, 'x']
+							[TOKEN_IDENTIFIER, 'x' { VAR "x" TYPE "int" } ]
 						]
 					]
 				]
@@ -398,7 +405,7 @@ TOKEN_BLOCK_END (10): } (43)
 					[TOKEN_PARENTHESE_START, '(']
 					[TOKEN_IDENTIFIER, 'print']
 					[FUNCTION_ARG_LIST,
-						[TOKEN_IDENTIFIER, 'x']
+						[TOKEN_IDENTIFIER, 'x' { VAR "x" TYPE "int" } ]
 					]
 					{ FUNCTION "print" }
 				]
@@ -413,6 +420,7 @@ TOKEN_BLOCK_END (10): } (43)
 				]
 			]
 			{ SCOPE testelse (parent global_scope):
+				Vars: { VAR "x" TYPE "int" }, { VAR "b" TYPE "int" }, { VAR "a" TYPE "int" }, { VAR "pouet" TYPE "int" }
 			}
 		]
 		{ FUNCTION "testelse" }

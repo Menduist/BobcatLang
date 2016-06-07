@@ -25,6 +25,7 @@ TOKEN_OPERATOR (5): = (4)
 TOKEN_IDENTIFIER (4): 2 (4)
 TOKEN_BLOCK_END (10): } (5)
 TOKEN_BLOCK_END (10): } (6)
+at 2:3: unknown variable x, assuming var int
 [TRANSLATION_UNIT,
 	[FUNCTION_DEFINITION,
 		[DECLARATOR,
@@ -34,12 +35,12 @@ TOKEN_BLOCK_END (10): } (6)
 			[EXPRESSION_LIST,
 				[OPERATOR,
 					[TOKEN_OPERATOR, '=']
-					[TOKEN_IDENTIFIER, 'x']
+					[TOKEN_IDENTIFIER, 'x' { VAR "x" TYPE "int" } ]
 					[TOKEN_IDENTIFIER, '5']
 				]
 				[PREFIX_OPERATOR,
 					[TOKEN_OPERATOR, '--']
-					[TOKEN_IDENTIFIER, 'x']
+					[TOKEN_IDENTIFIER, 'x' { VAR "x" TYPE "int" } ]
 				]
 			]
 			[WHILE_STATEMENT,
@@ -47,12 +48,12 @@ TOKEN_BLOCK_END (10): } (6)
 				[EXPRESSION_LIST,
 					[OPERATOR,
 						[TOKEN_OPERATOR, '=']
-						[TOKEN_IDENTIFIER, 'x']
+						[TOKEN_IDENTIFIER, 'x' { VAR "x" TYPE "int" } ]
 						[TOKEN_IDENTIFIER, '0']
 					]
 					[OPERATOR,
 						[TOKEN_OPERATOR, '<']
-						[TOKEN_IDENTIFIER, 'x']
+						[TOKEN_IDENTIFIER, 'x' { VAR "x" TYPE "int" } ]
 						[TOKEN_IDENTIFIER, '2']
 					]
 				]
@@ -60,13 +61,14 @@ TOKEN_BLOCK_END (10): } (6)
 					[EXPRESSION_LIST,
 						[OPERATOR,
 							[TOKEN_OPERATOR, '=']
-							[TOKEN_IDENTIFIER, 'x']
+							[TOKEN_IDENTIFIER, 'x' { VAR "x" TYPE "int" } ]
 							[TOKEN_IDENTIFIER, '2']
 						]
 					]
 				]
 			]
 			{ SCOPE main (parent global_scope):
+				Vars: { VAR "x" TYPE "int" }
 			}
 		]
 		{ FUNCTION "main" }
