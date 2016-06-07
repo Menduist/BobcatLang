@@ -7,6 +7,7 @@
 struct cgen {
 	struct ast_node *ast;
 	FILE *file;
+	int indentlevel;
 };
 
 void compile(struct ast_node *node);
