@@ -12,7 +12,7 @@ src/cgenerator/cgenerator.c
 .PHONY: all fclean clean tests re
 all: $(NAME)
 
-$(NAME): $(SRCS) timinterpreter timparser
+$(NAME): $(SRCS) timinterpreter timparser timcompiler
 	gcc $(SRCS) -g -D TEST_INTERPRETER -o $(NAME) -Wall -Wextra
 
 timinterpreter: $(SRCS)

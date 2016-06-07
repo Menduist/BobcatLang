@@ -1,6 +1,7 @@
 #include "semantics.h"
 #include <string.h>
 #include "../utils.h"
+#include <stdio.h>
 
 enum passes {
 	PASS_TYPES,
@@ -121,7 +122,8 @@ static struct sem_function *generate_simple_function(struct semantics *sem, char
 
 	vector_init(&result->args, 2);
 	result->name = name;
-	result->result_type = 0;
+	if (returntype)
+		result->result_type = get_type(sem, returntype);
 
 	vector_append(&sem->current_scope->functions, &result);
 	return result;
@@ -454,6 +456,7 @@ int main(int argc, char **argv) {
 	struct ast_node *node;
 	int i;
 	
+	(void) argc;
 	source = readfile(argv[1]);
 	memset(tokens, 0, sizeof(struct SimpleToken) * 300);
 	tokenize(source, tokens);

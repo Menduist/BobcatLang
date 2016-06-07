@@ -1,6 +1,7 @@
 #include "cgenerator.h"
 #include <stdlib.h>
 #include <string.h>
+#include "../utils.h"
 
 enum passes {
 	PASS_ALL,
@@ -53,7 +54,9 @@ static int cgen_expression_list(struct cgen *cgen, struct ast_node *node, int pa
 }
 
 static int cgen_string_literal(struct cgen *cgen, struct ast_node *node, int pass) {
-	fputs(((struct SimpleToken*)node)->value, cgen->file);
+	if (pass == PASS_ALL)
+		fputs(((struct SimpleToken*)node)->value, cgen->file);
+	return 0;
 }
 
 static int cgen_function_declaration(struct cgen *cgen, struct ast_node *node, int pass) {
@@ -71,9 +74,7 @@ static int cgen_function_declaration(struct cgen *cgen, struct ast_node *node, i
 	}
 	fputs(") {\n", cgen->file);
 
-	for (i = 0; i < node->childs[1]->childcount; i++) {
-		cgen_pass(cgen, node->childs[1]->childs[i], pass);
-	}
+	cgen_pass(cgen, node->childs[1], pass);
 	fputs("\n}\n\n", cgen->file);
 	return 1;
 }
