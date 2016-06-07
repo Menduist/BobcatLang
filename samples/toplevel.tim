@@ -1,0 +1,11 @@
+int i
+i = 42
+printer(i)
+
+func printer(int i) {
+	print(i)
+}
+
+func main() {
+	print(52)
+}
