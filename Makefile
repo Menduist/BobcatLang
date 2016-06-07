@@ -6,7 +6,8 @@ src/interpreter/interpreter_nodes.c \
 src/interpreter/interpreter.c \
 src/utils.c \
 src/vector.c \
-src/semantics/semantics.c
+src/semantics/semantics.c \
+src/cgenerator/cgenerator.c
 
 .PHONY: all fclean clean tests re
 all: $(NAME)
@@ -20,10 +21,13 @@ timinterpreter: $(SRCS)
 timparser: $(SRCS)
 	gcc $(SRCS) -g -D TEST_SEM -o timparser -Wall -Wextra
 
+timcompiler: $(SRCS)
+	gcc $(SRCS) -g -D TEST_CGEN -o timcompiler -Wall -Wextra
+
 clean:
 
 fclean: clean
-	rm -f $(NAME) timinterpreter timparser
+	rm -f $(NAME) timinterpreter timparser timcompiler
 
 re: fclean all
 
