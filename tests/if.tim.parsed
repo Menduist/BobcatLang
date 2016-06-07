@@ -278,9 +278,10 @@ TOKEN_BLOCK_END (10): } (43)
 					{ FUNCTION "testelse" }
 				]
 			]
+			{ SCOPE main (parent global_scope):
+			}
 		]
-		{ SCOPE main (parent global_scope):
-		}
+		{ FUNCTION "main" }
 	]
 	[FUNCTION_DEFINITION,
 		[DECLARATOR,
@@ -411,9 +412,10 @@ TOKEN_BLOCK_END (10): } (43)
 					{ FUNCTION "testelseif" }
 				]
 			]
+			{ SCOPE testelse (parent global_scope):
+			}
 		]
-		{ SCOPE testelse (parent global_scope):
-		}
+		{ FUNCTION "testelse" }
 	]
 	[FUNCTION_DEFINITION,
 		[DECLARATOR,
@@ -470,9 +472,10 @@ TOKEN_BLOCK_END (10): } (43)
 					]
 				]
 			]
+			{ SCOPE testelseif (parent global_scope):
+			}
 		]
-		{ SCOPE testelseif (parent global_scope):
-		}
+		{ FUNCTION "testelseif" }
 	]
 	{ SCOPE global_scope (parent (null)):
 		Types:

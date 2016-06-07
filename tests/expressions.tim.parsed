@@ -66,9 +66,10 @@ TOKEN_BLOCK_END (10): } (6)
 					]
 				]
 			]
+			{ SCOPE main (parent global_scope):
+			}
 		]
-		{ SCOPE main (parent global_scope):
-		}
+		{ FUNCTION "main" }
 	]
 	{ SCOPE global_scope (parent (null)):
 		Types:

@@ -179,11 +179,11 @@ static int sem_fp_function_definition(struct semantics *sem, struct ast_node *no
 	int i;
 
 	if (pass == PASS_FUNCS) {
-		generate_function(sem, node);
-		node->sem_val = generate_scope(sem,
+		node->sem_val = generate_function(sem, node);
+		node->childs[1]->sem_val = generate_scope(sem,
 				((struct SimpleToken *)node->childs[0]->childs[0])->value);
 	}
-	sem->current_scope = node->sem_val;
+	sem->current_scope = node->childs[1]->sem_val;
 	for (i = 0; i < node->childs[1]->childcount; i++) {
 		sem_pass(sem, node->childs[1]->childs[i], pass);
 	}

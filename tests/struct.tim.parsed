@@ -35,10 +35,11 @@ TOKEN_BLOCK_END (10): } (8)
 				[TOKEN_IDENTIFIER, 'Test']
 				[TOKEN_IDENTIFIER, 'var' { VAR "var" TYPE "Test" } ]
 			]
+			{ SCOPE main (parent global_scope):
+				Vars: { VAR "var" TYPE "Test" }
+			}
 		]
-		{ SCOPE main (parent global_scope):
-			Vars: { VAR "var" TYPE "Test" }
-		}
+		{ FUNCTION "main" }
 	]
 	{ SCOPE global_scope (parent (null)):
 		Types:

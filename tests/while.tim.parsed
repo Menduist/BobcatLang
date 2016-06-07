@@ -74,10 +74,11 @@ TOKEN_BLOCK_END (10): } (8)
 					]
 				]
 			]
+			{ SCOPE testwhile (parent global_scope):
+				Vars: { VAR "x" TYPE "int" }, { VAR "w" TYPE "int" }
+			}
 		]
-		{ SCOPE testwhile (parent global_scope):
-			Vars: { VAR "x" TYPE "int" }, { VAR "w" TYPE "int" }
-		}
+		{ FUNCTION "testwhile" }
 	]
 	{ SCOPE global_scope (parent (null)):
 		Types:

@@ -70,9 +70,10 @@ TOKEN_BLOCK_END (10): } (11)
 					{ FUNCTION "print" }
 				]
 			]
+			{ SCOPE printer (parent global_scope):
+			}
 		]
-		{ SCOPE printer (parent global_scope):
-		}
+		{ FUNCTION "printer" }
 	]
 	[FUNCTION_DEFINITION,
 		[DECLARATOR,
@@ -89,9 +90,10 @@ TOKEN_BLOCK_END (10): } (11)
 					{ FUNCTION "print" }
 				]
 			]
+			{ SCOPE main (parent global_scope):
+			}
 		]
-		{ SCOPE main (parent global_scope):
-		}
+		{ FUNCTION "main" }
 	]
 	{ SCOPE global_scope (parent (null)):
 		Types:

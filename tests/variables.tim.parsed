@@ -82,10 +82,11 @@ TOKEN_BLOCK_END (10): } (10)
 					{ FUNCTION "print" }
 				]
 			]
+			{ SCOPE main (parent global_scope):
+				Vars: { VAR "y" TYPE "int" }
+			}
 		]
-		{ SCOPE main (parent global_scope):
-			Vars: { VAR "y" TYPE "int" }
-		}
+		{ FUNCTION "main" }
 	]
 	{ SCOPE global_scope (parent (null)):
 		Types:
