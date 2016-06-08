@@ -53,9 +53,9 @@ static int cgen_expression_list(struct cgen *cgen, struct ast_node *node, int pa
 	int i;
 
 	for (i = 0; i < node->childcount; i++) {
-		indent(cgen);
+		if (cgen->is_expression_inline == 0) indent(cgen);
 		cgen_pass(cgen, node->childs[i], pass);
-		fputs(";\n", cgen->file);
+		if (cgen->is_expression_inline == 0) fputs(";\n", cgen->file);
 	}
 	return 1;
 }
@@ -76,8 +76,12 @@ static int cgen_function_declaration(struct cgen *cgen, struct ast_node *node, i
 	fputs(func->name, cgen->file);
 	fputs("(", cgen->file);
 	
-	for (i = 1; i < node->childs[0]->childcount; i++) {
-
+	for (i = 0; i < func->args.count; i++) {
+		fputs(func->args.data[i]->datatype->name, cgen->file);
+		fputs(" ", cgen->file);
+		fputs(func->args.data[i]->name, cgen->file);
+		if (i + 1 != func->args.count)
+			fputs(",", cgen->file);
 	}
 	fputs(") ", cgen->file);
 
@@ -91,6 +95,24 @@ static int cgen_identifier(struct cgen *cgen, struct ast_node *node, int pass) {
 	return 0;
 }
 
+static int cgen_if(struct cgen *cgen, struct ast_node *node, int pass) {
+	indent(cgen);
+	fputs("if (", cgen->file);
+
+	cgen->is_expression_inline = 1;
+	cgen_pass(cgen, node->childs[1], pass);
+	cgen->is_expression_inline = 0;
+	fputs(") ", cgen->file);
+	cgen_pass(cgen, node->childs[2], pass);
+
+	if (node->childcount > 3) {
+		indent(cgen);
+		fputs("else ", cgen->file);
+		cgen_pass(cgen, node->childs[3], pass);
+	}
+	return 1;
+}
+
 static int cgen_operator(struct cgen *cgen, struct ast_node *node, int pass) {
 	cgen_pass(cgen, node->childs[1], pass);
 	fputs(" ", cgen->file);
@@ -98,6 +120,46 @@ static int cgen_operator(struct cgen *cgen, struct ast_node *node, int pass) {
 	fputs(" ", cgen->file);
 	cgen_pass(cgen, node->childs[2], pass);
 	return 1;
+}
+
+static int cgen_prefix_operator(struct cgen *cgen, struct ast_node *node, int pass) {
+	fputs(((struct SimpleToken *)node->childs[0])->value, cgen->file);
+	(void) pass;
+	return 0;
+}
+
+static void init_scope(struct cgen *cgen, struct sem_scope *scope) {
+	int i, y;
+
+	for (i = 0; i < scope->functions.count; i++) {
+		indent(cgen);
+		if (scope->functions.data[i]->result_type == 0)
+			fputs("void", cgen->file);
+		else
+			fputs(scope->functions.data[i]->result_type->name, cgen->file);
+		fputs(" ", cgen->file);
+
+		fputs(scope->functions.data[i]->name, cgen->file);
+		fputs("(", cgen->file);
+
+		for (y = 0; y < scope->functions.data[i]->args.count; y++) {
+			fputs(scope->functions.data[i]->args.data[y]->datatype->name, cgen->file);
+			if (y + 1 != scope->functions.data[i]->args.count)
+				fputs(",", cgen->file);
+		}
+
+		fputs(");\n", cgen->file);
+	}
+
+	for (i = 0; i < scope->variables.count; i++) {
+		indent(cgen);
+		fputs(scope->variables.data[i]->datatype->name, cgen->file);
+		fputs(" ", cgen->file);
+		fputs(scope->variables.data[i]->name, cgen->file);
+		fputs(" = 0;\n", cgen->file);
+	}
+	if (scope->variables.count > 0)
+		fputs("\n", cgen->file);
 }
 
 static int cgen_compound_statement(struct cgen *cgen, struct ast_node *node, int pass) {
@@ -108,21 +170,21 @@ static int cgen_compound_statement(struct cgen *cgen, struct ast_node *node, int
 	cgen->indentlevel++;
 
 	scope = node->sem_val;
-	for (i = 0; i < scope->variables.count; i++) {
-		indent(cgen);
-		fputs(scope->variables.data[i]->datatype->name, cgen->file);
-		fputs(" ", cgen->file);
-		fputs(scope->variables.data[i]->name, cgen->file);
-		fputs(";\n", cgen->file);
-	}
-	fputs("\n", cgen->file);
+	init_scope(cgen, scope);
 
 	for (i = 0; i < node->childcount; i++)
 		cgen_pass(cgen, node->childs[i], pass);
 
 	cgen->indentlevel--;
+	indent(cgen);
 	fputs("}\n", cgen->file);
 	return 1;
+}
+
+static int cgen_translation_unit(struct cgen *cgen, struct ast_node *node, int pass) {
+	init_scope(cgen, node->sem_val);
+	(void) pass;
+	return 0;
 }
 
 static int cgen_nop(struct cgen *cgen, struct ast_node *node, int pass) {
@@ -134,7 +196,8 @@ static int cgen_nop(struct cgen *cgen, struct ast_node *node, int pass) {
 
 static void put_header(struct cgen *gen) {
 	fputs("#include <stdio.h>\n", gen->file);
-	fputs("void print(char *s) {\nprintf(\"%s\", s);\n}\n\n", gen->file);
+	fputs("void prints(char *s) {\nprintf(\"%s\", s);\n}\n\n", gen->file);
+	fputs("void printi(int i) {\nprintf(\"%d\\n\", i);\n}\n\n", gen->file);
 }
 
 void compile(struct ast_node *node) {
@@ -164,8 +227,11 @@ void init_cgenerator(void) {
 	passes[COMPOUND_STATEMENT] = cgen_compound_statement;
 	passes[OPERATOR] = cgen_operator;
 	passes[TOKEN_IDENTIFIER] = cgen_identifier;
+	passes[TRANSLATION_UNIT] = cgen_translation_unit;
+	passes[PREFIX_OPERATOR] = cgen_prefix_operator;
 
 	passes[VARIABLE_DECLARATION] = cgen_nop;
+	passes[IF_STATEMENT] = cgen_if;
 }
 
 #ifdef TEST_CGEN
