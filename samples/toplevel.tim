@@ -3,9 +3,9 @@ i = 42
 printer(i)
 
 func printer(int i) {
-	print(i)
+	printi(i)
 }
 
 func main() {
-	print(52)
+	printi(52)
 }

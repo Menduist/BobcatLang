@@ -14,7 +14,7 @@ TOKEN_IDENTIFIER (4): int (5)
 TOKEN_IDENTIFIER (4): i (5)
 TOKEN_PARENTHESE_END (12): ) (5)
 TOKEN_BLOCK_START (9): { (5)
-TOKEN_IDENTIFIER (4): print (6)
+TOKEN_IDENTIFIER (4): printi (6)
 TOKEN_PARENTHESE_START (11): ( (6)
 TOKEN_IDENTIFIER (4): i (6)
 TOKEN_PARENTHESE_END (12): ) (6)
@@ -24,7 +24,7 @@ TOKEN_IDENTIFIER (4): main (9)
 TOKEN_PARENTHESE_START (11): ( (9)
 TOKEN_PARENTHESE_END (12): ) (9)
 TOKEN_BLOCK_START (9): { (9)
-TOKEN_IDENTIFIER (4): print (10)
+TOKEN_IDENTIFIER (4): printi (10)
 TOKEN_PARENTHESE_START (11): ( (10)
 TOKEN_IDENTIFIER (4): 52 (10)
 TOKEN_PARENTHESE_END (12): ) (10)
@@ -63,11 +63,11 @@ TOKEN_BLOCK_END (10): } (11)
 			[EXPRESSION_LIST,
 				[FUNCTION_CALL,
 					[TOKEN_PARENTHESE_START, '(']
-					[TOKEN_IDENTIFIER, 'print']
+					[TOKEN_IDENTIFIER, 'printi']
 					[FUNCTION_ARG_LIST,
 						[TOKEN_IDENTIFIER, 'i' { VAR "i" TYPE "int" } ]
 					]
-					{ FUNCTION "print" }
+					{ FUNCTION "printi" }
 				]
 			]
 			{ SCOPE printer (parent global_scope):
@@ -83,11 +83,11 @@ TOKEN_BLOCK_END (10): } (11)
 			[EXPRESSION_LIST,
 				[FUNCTION_CALL,
 					[TOKEN_PARENTHESE_START, '(']
-					[TOKEN_IDENTIFIER, 'print']
+					[TOKEN_IDENTIFIER, 'printi']
 					[FUNCTION_ARG_LIST,
 						[TOKEN_IDENTIFIER, '52']
 					]
-					{ FUNCTION "print" }
+					{ FUNCTION "printi" }
 				]
 			]
 			{ SCOPE main (parent global_scope):
@@ -99,10 +99,14 @@ TOKEN_BLOCK_END (10): } (11)
 		Types:
 		{ TYPE "int" INTEGER (size 4) }
 		{ TYPE "char" INTEGER (size 1) }
+		{ TYPE "char *" INTEGER (size 1) }
 	
 		Functions:
-		{ FUNC "print" RETURNTYPE "(null)"
+		{ FUNC "printi" RETURNTYPE "(null)"
 			Args: { VAR "i" TYPE "int" }
+		}
+		{ FUNC "prints" RETURNTYPE "(null)"
+			Args: { VAR "s" TYPE "char *" }
 		}
 		{ FUNC "printer" RETURNTYPE "(null)"
 			Args: { VAR "i" TYPE "int" }

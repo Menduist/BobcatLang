@@ -39,7 +39,7 @@ struct interpreter_data *interpret_function_print(struct interpreter *inter, str
 struct interpreter_data *call_function(struct interpreter *inter, char *funcname) {
 	struct ast_node *function;
 
-	if (strcmp(funcname, "print") == 0) {
+	if (strncmp(funcname, "print", 5) == 0) {
 		return interpret_function_print(inter, 0);
 	}
 	function = get_function(inter, funcname);

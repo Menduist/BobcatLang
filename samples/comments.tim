@@ -5,5 +5,5 @@ func main() {
 	/* Multi line comment
 	Yey !
 	End of comment */
-	print/* inlinecomment */("Coucou\n")
+	prints/* inlinecomment */("Coucou\n")
 }

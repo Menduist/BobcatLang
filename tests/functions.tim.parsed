@@ -53,10 +53,14 @@ at 2:17: unknown variable argv, assuming var int
 		Types:
 		{ TYPE "int" INTEGER (size 4) }
 		{ TYPE "char" INTEGER (size 1) }
+		{ TYPE "char *" INTEGER (size 1) }
 	
 		Functions:
-		{ FUNC "print" RETURNTYPE "(null)"
+		{ FUNC "printi" RETURNTYPE "(null)"
 			Args: { VAR "i" TYPE "int" }
+		}
+		{ FUNC "prints" RETURNTYPE "(null)"
+			Args: { VAR "s" TYPE "char *" }
 		}
 		{ FUNC "main" RETURNTYPE "(null)"
 			Args: { VAR "argc" TYPE "int" }, { VAR "argv" TYPE "char" }

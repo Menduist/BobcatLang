@@ -3,7 +3,7 @@ TOKEN_IDENTIFIER (4): main (4)
 TOKEN_PARENTHESE_START (11): ( (4)
 TOKEN_PARENTHESE_END (12): ) (4)
 TOKEN_BLOCK_START (9): { (4)
-TOKEN_IDENTIFIER (4): print (6)
+TOKEN_IDENTIFIER (4): prints (6)
 TOKEN_PARENTHESE_START (11): ( (6)
 TOKEN_STRING_LITERAL (13): "Coucou\n" (6)
 TOKEN_PARENTHESE_END (12): ) (6)
@@ -17,11 +17,11 @@ TOKEN_BLOCK_END (10): } (7)
 			[EXPRESSION_LIST,
 				[FUNCTION_CALL,
 					[TOKEN_PARENTHESE_START, '(']
-					[TOKEN_IDENTIFIER, 'print']
+					[TOKEN_IDENTIFIER, 'prints']
 					[FUNCTION_ARG_LIST,
 						[TOKEN_STRING_LITERAL, '"Coucou\n"']
 					]
-					{ FUNCTION "print" }
+					{ FUNCTION "prints" }
 				]
 			]
 			{ SCOPE main (parent global_scope):
@@ -33,10 +33,14 @@ TOKEN_BLOCK_END (10): } (7)
 		Types:
 		{ TYPE "int" INTEGER (size 4) }
 		{ TYPE "char" INTEGER (size 1) }
+		{ TYPE "char *" INTEGER (size 1) }
 	
 		Functions:
-		{ FUNC "print" RETURNTYPE "(null)"
+		{ FUNC "printi" RETURNTYPE "(null)"
 			Args: { VAR "i" TYPE "int" }
+		}
+		{ FUNC "prints" RETURNTYPE "(null)"
+			Args: { VAR "s" TYPE "char *" }
 		}
 		{ FUNC "main" RETURNTYPE "(null)" }
 		

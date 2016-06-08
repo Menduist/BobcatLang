@@ -247,6 +247,7 @@ static int sem_sp_variable_declaration(struct semantics *sem, struct ast_node *n
 
 static int sem_identifier(struct semantics *sem, struct ast_node *node, int pass) {
 	struct SimpleToken *tok = (struct SimpleToken *)node;
+
 	if (pass == PASS_IDENTIFIERS) {
 		struct sem_variable *var = get_variable(sem, tok->value);
 		if (!var && !isdigit(tok->value[0])) {
@@ -260,6 +261,13 @@ static int sem_identifier(struct semantics *sem, struct ast_node *node, int pass
 	return 0;
 }
 
+static int sem_compound_statement(struct semantics *sem, struct ast_node *node, int pass) {
+	if (pass == PASS_FUNCS) {
+		node->sem_val = generate_scope(sem, "block");
+	}
+	return 0;
+}
+
 static struct sem_scope *generate_global_scope(struct semantics *sem) {
 	struct sem_scope *result;
 
@@ -268,9 +276,13 @@ static struct sem_scope *generate_global_scope(struct semantics *sem) {
 
 	vector_append_value(&result->types, generate_basic_type(SEM_INTEGER, "int", 4));
 	vector_append_value(&result->types, generate_basic_type(SEM_INTEGER, "char", 1));
+	vector_append_value(&result->types, generate_basic_type(SEM_INTEGER, "char *", 1));
 
-	struct sem_function *print = generate_simple_function(sem, "print", 0);
+	struct sem_function *print = generate_simple_function(sem, "printi", 0);
 	vector_append_value(&print->args, generate_variable(sem, "i", "int"));
+
+	print = generate_simple_function(sem, "prints", 0);
+	vector_append_value(&print->args, generate_variable(sem, "s", "char *"));
 	return result;
 }
 
@@ -297,6 +309,7 @@ void init_semantical_analyzer(void) {
 	
 	passes[VARIABLE_DECLARATION] = sem_sp_variable_declaration;
 	passes[FUNCTION_CALL] = sem_functioncall;
+	passes[COMPOUND_STATEMENT] = sem_compound_statement;
 }
 
 #ifdef TEST_SEM

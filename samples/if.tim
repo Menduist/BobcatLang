@@ -10,7 +10,7 @@ func main() {
 	if a == 3
 		++x
 	if a == 5 { ++x }
-	print(x)
+	printi(x)
 	testelse()
 }
 
@@ -29,15 +29,15 @@ func testelse() {
 		++x else pouet
 	if a == 5 { ++x }
 	else 42;
-	print(x)
+	printi(x)
 	testelseif()
 }
 
 func testelseif() {
 	if 3 == 5
-		print(2)
+		printi(2)
 	else if 3 == 3
-		print(3)
+		printi(3)
 	else
-		print(4)
+		printi(4)
 }

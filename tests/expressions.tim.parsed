@@ -65,6 +65,8 @@ at 2:3: unknown variable x, assuming var int
 							[TOKEN_IDENTIFIER, '2']
 						]
 					]
+					{ SCOPE block (parent main):
+					}
 				]
 			]
 			{ SCOPE main (parent global_scope):
@@ -77,10 +79,14 @@ at 2:3: unknown variable x, assuming var int
 		Types:
 		{ TYPE "int" INTEGER (size 4) }
 		{ TYPE "char" INTEGER (size 1) }
+		{ TYPE "char *" INTEGER (size 1) }
 	
 		Functions:
-		{ FUNC "print" RETURNTYPE "(null)"
+		{ FUNC "printi" RETURNTYPE "(null)"
 			Args: { VAR "i" TYPE "int" }
+		}
+		{ FUNC "prints" RETURNTYPE "(null)"
+			Args: { VAR "s" TYPE "char *" }
 		}
 		{ FUNC "main" RETURNTYPE "(null)" }
 		

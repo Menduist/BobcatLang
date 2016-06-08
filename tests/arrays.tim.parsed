@@ -27,7 +27,7 @@ TOKEN_IDENTIFIER (4): 4 (2)
 TOKEN_OPERATOR (5): ] (2)
 TOKEN_OPERATOR (5): = (2)
 TOKEN_IDENTIFIER (4): 5 (2)
-TOKEN_IDENTIFIER (4): print (3)
+TOKEN_IDENTIFIER (4): printi (3)
 TOKEN_PARENTHESE_START (11): ( (3)
 TOKEN_IDENTIFIER (4): a (3)
 TOKEN_OPERATOR (5): [ (3)
@@ -91,7 +91,7 @@ at 2:26: unknown variable a, assuming var int
 			[EXPRESSION_LIST,
 				[FUNCTION_CALL,
 					[TOKEN_PARENTHESE_START, '(']
-					[TOKEN_IDENTIFIER, 'print']
+					[TOKEN_IDENTIFIER, 'printi']
 					[FUNCTION_ARG_LIST,
 						[OPERATOR,
 							[TOKEN_OPERATOR, '[']
@@ -103,7 +103,7 @@ at 2:26: unknown variable a, assuming var int
 							]
 						]
 					]
-					{ FUNCTION "print" }
+					{ FUNCTION "printi" }
 				]
 			]
 			{ SCOPE main (parent global_scope):
@@ -116,10 +116,14 @@ at 2:26: unknown variable a, assuming var int
 		Types:
 		{ TYPE "int" INTEGER (size 4) }
 		{ TYPE "char" INTEGER (size 1) }
+		{ TYPE "char *" INTEGER (size 1) }
 	
 		Functions:
-		{ FUNC "print" RETURNTYPE "(null)"
+		{ FUNC "printi" RETURNTYPE "(null)"
 			Args: { VAR "i" TYPE "int" }
+		}
+		{ FUNC "prints" RETURNTYPE "(null)"
+			Args: { VAR "s" TYPE "char *" }
 		}
 		{ FUNC "main" RETURNTYPE "(null)" }
 		

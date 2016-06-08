@@ -1,4 +1,4 @@
 func main() {
 	b[3][4].test(c[p - 5]).a[4] = 5
-	print(a[4 + 5])
+	printi(a[4 + 5])
 }

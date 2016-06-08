@@ -56,6 +56,8 @@ TOKEN_BLOCK_END (10): } (8)
 							[TOKEN_IDENTIFIER, 'x' { VAR "x" TYPE "int" } ]
 						]
 					]
+					{ SCOPE block (parent testwhile):
+					}
 				]
 			]
 			[WHILE_STATEMENT,
@@ -84,10 +86,14 @@ TOKEN_BLOCK_END (10): } (8)
 		Types:
 		{ TYPE "int" INTEGER (size 4) }
 		{ TYPE "char" INTEGER (size 1) }
+		{ TYPE "char *" INTEGER (size 1) }
 	
 		Functions:
-		{ FUNC "print" RETURNTYPE "(null)"
+		{ FUNC "printi" RETURNTYPE "(null)"
 			Args: { VAR "i" TYPE "int" }
+		}
+		{ FUNC "prints" RETURNTYPE "(null)"
+			Args: { VAR "s" TYPE "char *" }
 		}
 		{ FUNC "testwhile" RETURNTYPE "(null)" }
 		
