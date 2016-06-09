@@ -1,4 +1,4 @@
-NAME=tim
+NAME=bob
 
 SRCS=src/parser/parser.c \
 src/tokenizer/tokenizer.c \
@@ -12,22 +12,22 @@ src/cgenerator/cgenerator.c
 .PHONY: all fclean clean tests re
 all: $(NAME)
 
-$(NAME): $(SRCS) timinterpreter timparser timcompiler
+$(NAME): $(SRCS) bobinterpreter bobparser bobcompiler
 	gcc $(SRCS) -g -D TEST_INTERPRETER -o $(NAME) -Wall -Wextra
 
-timinterpreter: $(SRCS)
-	gcc $(SRCS) -g -D TEST_INTERPRETER -o timinterpreter -Wall -Wextra
+bobinterpreter: $(SRCS)
+	gcc $(SRCS) -g -D TEST_INTERPRETER -o bobinterpreter -Wall -Wextra
 
-timparser: $(SRCS)
-	gcc $(SRCS) -g -D TEST_SEM -o timparser -Wall -Wextra
+bobparser: $(SRCS)
+	gcc $(SRCS) -g -D TEST_SEM -o bobparser -Wall -Wextra
 
-timcompiler: $(SRCS)
-	gcc $(SRCS) -g -D TEST_CGEN -o timcompiler -Wall -Wextra
+bobcompiler: $(SRCS)
+	gcc $(SRCS) -g -D TEST_CGEN -o bobcompiler -Wall -Wextra
 
 clean:
 
 fclean: clean
-	rm -f $(NAME) timinterpreter timparser timcompiler
+	rm -f $(NAME) bobinterpreter bobparser bobcompiler
 
 re: fclean all
 

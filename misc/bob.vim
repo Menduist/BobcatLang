@@ -1,7 +1,7 @@
 " Vim syntax file
 " " Language: TIM
 " " Maintainer: Tanguy CIZAIN
-" " Latest Revision: 27 May 2016
+" " Latest Revision: 09 Jun 2016
 "
 if exists("b:current_syntax")
 	finish
@@ -21,7 +21,7 @@ syn region  preprocessor	start="#" skip="\\$" end="$" keepend
 syn match parenthesis "("
 syn match function "\(\w*\)(" contains=parenthesis
 
-let b:current_syntax = "tim"
+let b:current_syntax = "bob"
 
 hi def link string String
 hi def link basicLanguageKeywords Statement
