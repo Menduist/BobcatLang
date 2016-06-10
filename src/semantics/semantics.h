@@ -24,6 +24,7 @@ enum sem_data_types {
 struct sem_type {
 	enum sem_types type;
 	char *name;
+	void *gendata;
 	enum sem_data_types datatype;
 	int size;
 	struct sem_var_vector fields;
@@ -32,12 +33,14 @@ struct sem_type {
 struct sem_variable {
 	enum sem_types type;
 	char *name;
+	void *gendata;
 	struct sem_type *datatype;
 };
 
 struct sem_function {
 	enum sem_types type;
 	char *name;
+	void *gendata;
 	struct sem_var_vector args;
 	struct sem_type *result_type;
 };
@@ -45,6 +48,7 @@ struct sem_function {
 struct sem_scope {
 	enum sem_types type;
 	char *name;
+	void *gendata;
 	struct sem_scope *parent_scope;
 	struct sem_func_vector functions;
 	struct sem_var_vector variables;

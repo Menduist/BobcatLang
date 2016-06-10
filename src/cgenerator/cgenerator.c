@@ -40,7 +40,7 @@ static int cgen_function_call(struct cgen *cgen, struct ast_node *node, int pass
 	int i;
 	struct sem_function *func = node->sem_val;
 
-	fputs(func->name, cgen->file);
+	fputs(func->gendata, cgen->file);
 	fputs("(", cgen->file);
 	for (i = 0; i < node->childs[2]->childcount; i++) {
 		cgen_pass(cgen, node->childs[2]->childs[i], pass);
@@ -73,10 +73,7 @@ static int cgen_function_declaration(struct cgen *cgen, struct ast_node *node, i
 	if (func->result_type == NULL) {
 		fputs("void ", cgen->file);
 	}
-	if (strcmp(func->name, "main") == 0)
-		fputs("inner_main", cgen->file);
-	else
-		fputs(func->name, cgen->file);
+	fputs(func->gendata, cgen->file);
 
 	fputs("(", cgen->file);
 	
@@ -96,7 +93,10 @@ static int cgen_function_declaration(struct cgen *cgen, struct ast_node *node, i
 }
 
 static int cgen_identifier(struct cgen *cgen, struct ast_node *node, int pass) {
-	fputs(((struct SimpleToken *)node)->value, cgen->file);
+	if (node->sem_val)
+		fputs((char *)((struct sem_variable *)node->sem_val)->gendata, cgen->file);
+	else
+		fputs(((struct SimpleToken *)node)->value, cgen->file);
 	(void) pass;
 	return 0;
 }
@@ -134,10 +134,28 @@ static int cgen_prefix_operator(struct cgen *cgen, struct ast_node *node, int pa
 	return 0;
 }
 
+static char *mangle_var(struct cgen *cgen, struct sem_variable *tomangle) {
+	(void) cgen;
+	tomangle->gendata = tomangle->name;
+	return tomangle->gendata;
+}
+
+static char *mangle_func(struct cgen *cgen, struct sem_function *tomangle) {
+	(void) cgen;
+	if (strcmp(tomangle->name, "main") == 0)
+		tomangle->gendata = "inner_main";
+	else {
+		tomangle->gendata = tomangle->name;
+	}
+	return tomangle->gendata;
+}
+
 static void init_scope(struct cgen *cgen, struct sem_scope *scope) {
 	int i, y;
 
 	for (i = 0; i < scope->functions.count; i++) {
+		mangle_func(cgen, scope->functions.data[i]);
+
 		indent(cgen);
 		if (scope->functions.data[i]->result_type == 0)
 			fputs("void", cgen->file);
@@ -145,10 +163,7 @@ static void init_scope(struct cgen *cgen, struct sem_scope *scope) {
 			fputs(scope->functions.data[i]->result_type->name, cgen->file);
 		fputs(" ", cgen->file);
 
-		if (strcmp(scope->functions.data[i]->name, "main") == 0)
-			fputs("inner_main", cgen->file);
-		else
-			fputs(scope->functions.data[i]->name, cgen->file);
+		fputs(scope->functions.data[i]->gendata, cgen->file);
 
 		fputs("(", cgen->file);
 
@@ -162,10 +177,12 @@ static void init_scope(struct cgen *cgen, struct sem_scope *scope) {
 	}
 
 	for (i = 0; i < scope->variables.count; i++) {
+		mangle_var(cgen, scope->variables.data[i]);
+
 		indent(cgen);
 		fputs(scope->variables.data[i]->datatype->name, cgen->file);
 		fputs(" ", cgen->file);
-		fputs(scope->variables.data[i]->name, cgen->file);
+		fputs(scope->variables.data[i]->gendata, cgen->file);
 		fputs(" = 0;\n", cgen->file);
 	}
 	if (scope->variables.count > 0)

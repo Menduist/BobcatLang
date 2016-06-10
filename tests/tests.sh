@@ -32,7 +32,7 @@ for path_file_to_test in ../samples/*; do
 
 	if [ -f $file_to_test.interpreted ]; then
 		../bobcompiler ../samples/$file_to_test > /dev/null && ./a.out > /tmp/$file_to_test.interpreted
-		printf "%-15.15s: compiler " ${file_to_test}
+		printf "%-15.15s: compiler    " ${file_to_test}
 		diff /tmp/$file_to_test.interpreted $file_to_test.interpreted
 		if [ "$?" -ne "0" ]; then
 			printf ${RED}"failed\n"${CLEAR}
