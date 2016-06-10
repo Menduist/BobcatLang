@@ -187,6 +187,15 @@ struct interpreter_data *interpret_operator(struct interpreter *inter, struct as
 		result->data = malloc(sizeof(int));
 		*(int *)result->data = *(int *)left->data == *(int *)right->data;
 	}
+	else if (strcmp(operator, "<") == 0) {
+		struct interpreter_data *right = get_rvalue(execute_node(inter, node->childs[2]));
+		struct interpreter_data *left = get_rvalue(execute_node(inter, node->childs[1]));
+
+		result = calloc(sizeof(struct interpreter_data *), 1);
+		result->type = INTER_INT;
+		result->data = malloc(sizeof(int));
+		*(int *)result->data = *(int *)left->data < *(int *)right->data;
+	}
 	else {
 		printf("unhandled operator %s\n", operator);
 		return 0;
@@ -233,6 +242,17 @@ struct interpreter_data *interpret_if_statement(struct interpreter *inter, struc
 	return 0;
 }
 
+struct interpreter_data *interpret_while_statement(struct interpreter *inter, struct ast_node *node) {
+	struct interpreter_data *condition;
+
+	condition = get_rvalue(execute_node(inter, node->childs[1]));
+	while (*(int *)condition->data) {
+		execute_node(inter, node->childs[2]);
+		condition = get_rvalue(execute_node(inter, node->childs[1]));
+	}
+	return 0;
+}
+
 void init_interpreter_nodes(void) {
 	memset(nodes_interpretor, 0, sizeof(nodes_interpretor));
 
@@ -246,4 +266,5 @@ void init_interpreter_nodes(void) {
 	nodes_interpretor[PREFIX_OPERATOR] = interpret_prefix_operator;
 	nodes_interpretor[VARIABLE_DECLARATION] = interpret_variable_declaration;
 	nodes_interpretor[IF_STATEMENT] = interpret_if_statement;
+	nodes_interpretor[WHILE_STATEMENT] = interpret_while_statement;
 }

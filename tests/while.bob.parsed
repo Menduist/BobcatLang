@@ -12,8 +12,10 @@ TOKEN_OPERATOR (5): < (3)
 TOKEN_IDENTIFIER (4): 5 (3)
 TOKEN_PARENTHESE_END (12): ) (3)
 TOKEN_BLOCK_START (9): { (3)
-TOKEN_IDENTIFIER (4): int (4)
-TOKEN_IDENTIFIER (4): w (4)
+TOKEN_IDENTIFIER (4): printi (4)
+TOKEN_PARENTHESE_START (11): ( (4)
+TOKEN_IDENTIFIER (4): x (4)
+TOKEN_PARENTHESE_END (12): ) (4)
 TOKEN_OPERATOR (5): ++ (5)
 TOKEN_IDENTIFIER (4): x (5)
 TOKEN_BLOCK_END (10): } (6)
@@ -26,6 +28,15 @@ TOKEN_PARENTHESE_END (12): ) (7)
 TOKEN_OPERATOR (5): ++ (7)
 TOKEN_IDENTIFIER (4): x (7)
 TOKEN_BLOCK_END (10): } (8)
+TOKEN_FUNC (2): func (10)
+TOKEN_IDENTIFIER (4): main (10)
+TOKEN_PARENTHESE_START (11): ( (10)
+TOKEN_PARENTHESE_END (12): ) (10)
+TOKEN_BLOCK_START (9): { (10)
+TOKEN_IDENTIFIER (4): testwhile (11)
+TOKEN_PARENTHESE_START (11): ( (11)
+TOKEN_PARENTHESE_END (12): ) (11)
+TOKEN_BLOCK_END (10): } (12)
 [TRANSLATION_UNIT,
 	[FUNCTION_DEFINITION,
 		[DECLARATOR,
@@ -46,9 +57,15 @@ TOKEN_BLOCK_END (10): } (8)
 					]
 				]
 				[COMPOUND_STATEMENT,
-					[VARIABLE_DECLARATION,
-						[TOKEN_IDENTIFIER, 'int']
-						[TOKEN_IDENTIFIER, 'w']
+					[EXPRESSION_LIST,
+						[FUNCTION_CALL,
+							[TOKEN_PARENTHESE_START, '(']
+							[TOKEN_IDENTIFIER, 'printi']
+							[FUNCTION_ARG_LIST,
+								[TOKEN_IDENTIFIER, 'x' { VAR "x" TYPE "int" } ]
+							]
+							{ FUNCTION "printi" }
+						]
 					]
 					[EXPRESSION_LIST,
 						[PREFIX_OPERATOR,
@@ -77,10 +94,29 @@ TOKEN_BLOCK_END (10): } (8)
 				]
 			]
 			{ SCOPE testwhile (parent global_scope):
-				Vars: { VAR "x" TYPE "int" }, { VAR "w" TYPE "int" }
+				Vars: { VAR "x" TYPE "int" }
 			}
 		]
 		{ FUNCTION "testwhile" }
+	]
+	[FUNCTION_DEFINITION,
+		[DECLARATOR,
+			[TOKEN_IDENTIFIER, 'main']
+		]
+		[COMPOUND_STATEMENT,
+			[EXPRESSION_LIST,
+				[FUNCTION_CALL,
+					[TOKEN_PARENTHESE_START, '(']
+					[TOKEN_IDENTIFIER, 'testwhile']
+					[FUNCTION_ARG_LIST,
+					]
+					{ FUNCTION "testwhile" }
+				]
+			]
+			{ SCOPE main (parent global_scope):
+			}
+		]
+		{ FUNCTION "main" }
 	]
 	{ SCOPE global_scope (parent (null)):
 		Types:
@@ -96,6 +132,7 @@ TOKEN_BLOCK_END (10): } (8)
 			Args: { VAR "s" TYPE "char *" }
 		}
 		{ FUNC "testwhile" RETURNTYPE "(null)" }
+		{ FUNC "main" RETURNTYPE "(null)" }
 		
 	}
 ]

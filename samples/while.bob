@@ -1,8 +1,12 @@
 func testwhile() {
 	int x
 	while (x < 5) {
-		int w
+		printi(x)
 		++x
 	}
 	while (x < 5) ++x
+}
+
+func main() {
+	testwhile()
 }

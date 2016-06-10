@@ -54,4 +54,7 @@ for path_file_to_test in ../samples/*; do
 	fi
 done
 
+rm -f a.out
+rm -f .generated.c
+
 exit $error

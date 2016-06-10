@@ -119,6 +119,18 @@ static int cgen_if(struct cgen *cgen, struct ast_node *node, int pass) {
 	return 1;
 }
 
+static int cgen_while(struct cgen *cgen, struct ast_node *node, int pass) {
+	indent(cgen);
+	fputs("while (", cgen->file);
+
+	cgen->is_expression_inline = 1;
+	cgen_pass(cgen, node->childs[1], pass);
+	cgen->is_expression_inline = 0;
+	fputs(") ", cgen->file);
+	cgen_pass(cgen, node->childs[2], pass);
+	return 1;
+}
+
 static int cgen_operator(struct cgen *cgen, struct ast_node *node, int pass) {
 	cgen_pass(cgen, node->childs[1], pass);
 	fputs(" ", cgen->file);
@@ -278,6 +290,7 @@ void init_cgenerator(void) {
 
 	passes[VARIABLE_DECLARATION] = cgen_nop;
 	passes[IF_STATEMENT] = cgen_if;
+	passes[WHILE_STATEMENT] = cgen_while;
 }
 
 #ifdef TEST_CGEN
