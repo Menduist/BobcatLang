@@ -150,11 +150,11 @@ TOKEN_PARENTHESE_START (11): ( (42)
 TOKEN_IDENTIFIER (4): 4 (42)
 TOKEN_PARENTHESE_END (12): ) (42)
 TOKEN_BLOCK_END (10): } (43)
-at 2:3: unknown variable a, assuming var int
+guessed type at 2:3: for 'a': 'int'
 at 4:6: unknown variable x, assuming var int
-at 18:3: unknown variable x, assuming var int
-at 25:7: unknown variable b, assuming var int
-at 28:6: unknown variable a, assuming var int
+guessed type at 18:3: for 'x': 'int'
+guessed type at 25:7: for 'b': 'int'
+guessed type at 28:6: for 'a': 'int'
 at 29:17: unknown variable pouet, assuming var int
 [TRANSLATION_UNIT,
 	[FUNCTION_DEFINITION,

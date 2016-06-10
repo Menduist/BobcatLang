@@ -284,6 +284,8 @@ static int sem_operator(struct semantics *sem, struct ast_node *node, int pass) 
 	if (pass == PASS_VAR_INFERENCE) {
 		if (strcmp(((struct SimpleToken *)node->childs[0])->value, "=") == 0 ||
 				strcmp(((struct SimpleToken *)node->childs[0])->value, "==") == 0) {
+			if (node->childs[1]->type != TOKEN_IDENTIFIER)
+				return 0;
 			struct SimpleToken *tok = (struct SimpleToken *)node->childs[1];
 
 			if (node->childs[1]->sem_val == 0 && !isdigit(tok->value[0])) {

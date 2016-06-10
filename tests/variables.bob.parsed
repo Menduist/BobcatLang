@@ -26,7 +26,7 @@ TOKEN_PARENTHESE_START (11): ( (9)
 TOKEN_IDENTIFIER (4): y (9)
 TOKEN_PARENTHESE_END (12): ) (9)
 TOKEN_BLOCK_END (10): } (10)
-at 3:3: unknown variable x, assuming var int
+guessed type at 3:3: for 'x': 'int'
 [TRANSLATION_UNIT,
 	[FUNCTION_DEFINITION,
 		[DECLARATOR,
