@@ -7,6 +7,7 @@ src/interpreter/interpreter.c \
 src/utils.c \
 src/vector.c \
 src/semantics/semantics.c \
+src/semantics/sem_typefinder.c \
 src/cgenerator/cgenerator.c
 
 .PHONY: all fclean clean tests re

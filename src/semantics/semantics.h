@@ -63,6 +63,11 @@ struct semantics {
 
 int run_semantical_analyzer(struct ast_node *ast);
 
+struct sem_type *find_node_type(struct semantics *sem, struct ast_node *node);
+struct sem_type *get_type(struct semantics *sem, char *name);
+struct sem_variable *get_variable(struct semantics *sem, char *name);
+
 void init_semantical_analyzer(void);
+void init_sem_typefinder(void);
 
 #endif

@@ -10,6 +10,8 @@ enum passes {
 	PASS_FUNCS = PASS_FIELDS,
 	PASS_VARS,
 	PASS_IDENTIFIERS,
+	PASS_VAR_INFERENCE,
+	PASS_UNKNOWN_TYPES,
 	PASS_ASSIGN,
 	PASS_END
 };
@@ -38,7 +40,7 @@ end:
 	return 0;
 }
 
-static struct sem_type *get_type(struct semantics *sem, char *name) {
+struct sem_type *get_type(struct semantics *sem, char *name) {
 	struct sem_scope *scope = sem->current_scope;
 	struct sem_type *result = 0;
 	int i;
@@ -61,7 +63,7 @@ static struct sem_type *get_type(struct semantics *sem, char *name) {
 	return 0;
 }
 
-static struct sem_variable *get_variable(struct semantics *sem, char *name) {
+struct sem_variable *get_variable(struct semantics *sem, char *name) {
 	struct sem_scope *scope = sem->current_scope;
 	struct sem_variable *result = 0;
 	int i;
@@ -250,13 +252,23 @@ static int sem_identifier(struct semantics *sem, struct ast_node *node, int pass
 
 	if (pass == PASS_IDENTIFIERS) {
 		struct sem_variable *var = get_variable(sem, tok->value);
+		node->sem_val = var;
+	}
+	if (pass == PASS_VAR_INFERENCE) {
+		struct sem_variable *var = node->sem_val;
 		if (!var && !isdigit(tok->value[0])) {
+			var = get_variable(sem, tok->value);
+			if (var) {
+				node->sem_val = var;
+				return 0;
+			}
 			printf("at %d:%d: unknown variable %s, assuming var int\n",
 					tok->line, tok->col, tok->value);
+
 			var = generate_variable(sem, tok->value, "int");
 			vector_append_value(&sem->current_scope->variables, var);
+			node->sem_val = var;
 		}
-		node->sem_val = var;
 	}
 	return 0;
 }
@@ -268,6 +280,31 @@ static int sem_compound_statement(struct semantics *sem, struct ast_node *node, 
 	return 0;
 }
 
+static int sem_operator(struct semantics *sem, struct ast_node *node, int pass) {
+	if (pass == PASS_VAR_INFERENCE) {
+		if (strcmp(((struct SimpleToken *)node->childs[0])->value, "=") == 0 ||
+				strcmp(((struct SimpleToken *)node->childs[0])->value, "==") == 0) {
+			struct SimpleToken *tok = (struct SimpleToken *)node->childs[1];
+
+			if (node->childs[1]->sem_val == 0 && !isdigit(tok->value[0])) {
+				struct sem_variable *var;
+
+				var = get_variable(sem, tok->value);
+				if (var)
+					node->childs[1]->sem_val = var;
+				else {
+					struct sem_type *type = find_node_type(sem, node->childs[2]);
+
+					printf("guessed type at %d:%d: for '%s': '%s'\n", tok->line, tok->col, tok->value, type->name);
+					var = generate_variable(sem, tok->value, type->name);
+					vector_append_value(&sem->current_scope->variables, var);
+					node->childs[1]->sem_val = var;
+				}
+			}
+		}
+	}
+	return 0;
+}
 static struct sem_scope *generate_global_scope(struct semantics *sem) {
 	struct sem_scope *result;
 
@@ -310,6 +347,8 @@ void init_semantical_analyzer(void) {
 	passes[VARIABLE_DECLARATION] = sem_sp_variable_declaration;
 	passes[FUNCTION_CALL] = sem_functioncall;
 	passes[COMPOUND_STATEMENT] = sem_compound_statement;
+	passes[OPERATOR] = sem_operator;
+	init_sem_typefinder();
 }
 
 #ifdef TEST_SEM
