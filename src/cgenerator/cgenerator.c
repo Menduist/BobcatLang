@@ -157,7 +157,16 @@ static char *mangle_func(struct cgen *cgen, struct sem_function *tomangle) {
 	if (strcmp(tomangle->name, "main") == 0)
 		tomangle->gendata = "inner_main";
 	else {
-		tomangle->gendata = tomangle->name;
+		char result[1000];
+		int length;
+		int i;
+
+		length = snprintf(result, 1000, "_F%lu%s", strlen(tomangle->name), tomangle->name);
+		for (i = 0; i < tomangle->args.count; i++) {
+			length += snprintf(result + length, 1000 - length, "%lu%s", strlen(tomangle->args.data[i]->datatype->name),
+					tomangle->args.data[i]->datatype->name);
+		}
+		tomangle->gendata = strdup(result);
 	}
 	return tomangle->gendata;
 }
@@ -254,8 +263,9 @@ static int cgen_nop(struct cgen *cgen, struct ast_node *node, int pass) {
 
 static void put_header(struct cgen *gen) {
 	fputs("#include <stdio.h>\n", gen->file);
-	fputs("void prints(char *s) {\nprintf(\"%s\", s);\n}\n\n", gen->file);
-	fputs("void printi(int i) {\nprintf(\"%d\\n\", i);\n}\n\n", gen->file);
+	fputs("typedef char * string;\n", gen->file);
+	fputs("void _F6prints6string(string s) {\nprintf(\"%s\", s);\n}\n\n", gen->file);
+	fputs("void _F6printi3int(int i) {\nprintf(\"%d\\n\", i);\n}\n\n", gen->file);
 }
 
 void compile(struct ast_node *node) {

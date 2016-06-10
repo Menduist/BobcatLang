@@ -315,13 +315,13 @@ static struct sem_scope *generate_global_scope(struct semantics *sem) {
 
 	vector_append_value(&result->types, generate_basic_type(SEM_INTEGER, "int", 4));
 	vector_append_value(&result->types, generate_basic_type(SEM_INTEGER, "char", 1));
-	vector_append_value(&result->types, generate_basic_type(SEM_INTEGER, "char *", 1));
+	vector_append_value(&result->types, generate_basic_type(SEM_INTEGER, "string", 1));
 
 	struct sem_function *print = generate_simple_function(sem, "printi", 0);
 	vector_append_value(&print->args, generate_variable(sem, "i", "int"));
 
 	print = generate_simple_function(sem, "prints", 0);
-	vector_append_value(&print->args, generate_variable(sem, "s", "char *"));
+	vector_append_value(&print->args, generate_variable(sem, "s", "string"));
 	return result;
 }
 
@@ -350,6 +350,7 @@ void init_semantical_analyzer(void) {
 	passes[FUNCTION_CALL] = sem_functioncall;
 	passes[COMPOUND_STATEMENT] = sem_compound_statement;
 	passes[OPERATOR] = sem_operator;
+
 	init_sem_typefinder();
 }
 

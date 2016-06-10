@@ -122,14 +122,14 @@ TOKEN_BLOCK_END (10): } (12)
 		Types:
 		{ TYPE "int" INTEGER (size 4) }
 		{ TYPE "char" INTEGER (size 1) }
-		{ TYPE "char *" INTEGER (size 1) }
+		{ TYPE "string" INTEGER (size 1) }
 	
 		Functions:
 		{ FUNC "printi" RETURNTYPE "(null)"
 			Args: { VAR "i" TYPE "int" }
 		}
 		{ FUNC "prints" RETURNTYPE "(null)"
-			Args: { VAR "s" TYPE "char *" }
+			Args: { VAR "s" TYPE "string" }
 		}
 		{ FUNC "testwhile" RETURNTYPE "(null)" }
 		{ FUNC "main" RETURNTYPE "(null)" }

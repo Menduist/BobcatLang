@@ -45,7 +45,7 @@ TOKEN_BLOCK_END (10): } (8)
 		Types:
 		{ TYPE "int" INTEGER (size 4) }
 		{ TYPE "char" INTEGER (size 1) }
-		{ TYPE "char *" INTEGER (size 1) }
+		{ TYPE "string" INTEGER (size 1) }
 		{ TYPE "Test" STRUCT (size 8)  { VAR "i" TYPE "int" }, { VAR "v" TYPE "int" }}
 	
 		Functions:
@@ -53,7 +53,7 @@ TOKEN_BLOCK_END (10): } (8)
 			Args: { VAR "i" TYPE "int" }
 		}
 		{ FUNC "prints" RETURNTYPE "(null)"
-			Args: { VAR "s" TYPE "char *" }
+			Args: { VAR "s" TYPE "string" }
 		}
 		{ FUNC "main" RETURNTYPE "(null)" }
 		
