@@ -73,7 +73,11 @@ static int cgen_function_declaration(struct cgen *cgen, struct ast_node *node, i
 	if (func->result_type == NULL) {
 		fputs("void ", cgen->file);
 	}
-	fputs(func->name, cgen->file);
+	if (strcmp(func->name, "main") == 0)
+		fputs("inner_main", cgen->file);
+	else
+		fputs(func->name, cgen->file);
+
 	fputs("(", cgen->file);
 	
 	for (i = 0; i < func->args.count; i++) {
@@ -86,6 +90,8 @@ static int cgen_function_declaration(struct cgen *cgen, struct ast_node *node, i
 	fputs(") ", cgen->file);
 
 	cgen_pass(cgen, node->childs[1], pass);
+	indent(cgen);
+	fputs("\n", cgen->file);
 	return 1;
 }
 
@@ -139,7 +145,11 @@ static void init_scope(struct cgen *cgen, struct sem_scope *scope) {
 			fputs(scope->functions.data[i]->result_type->name, cgen->file);
 		fputs(" ", cgen->file);
 
-		fputs(scope->functions.data[i]->name, cgen->file);
+		if (strcmp(scope->functions.data[i]->name, "main") == 0)
+			fputs("inner_main", cgen->file);
+		else
+			fputs(scope->functions.data[i]->name, cgen->file);
+
 		fputs("(", cgen->file);
 
 		for (y = 0; y < scope->functions.data[i]->args.count; y++) {
@@ -182,9 +192,28 @@ static int cgen_compound_statement(struct cgen *cgen, struct ast_node *node, int
 }
 
 static int cgen_translation_unit(struct cgen *cgen, struct ast_node *node, int pass) {
+	int i;
+
 	init_scope(cgen, node->sem_val);
+	fputs("void toplevel(void) {\n", cgen->file);
+	cgen->indentlevel++;
+
+	for (i = 0; i < node->childcount; i++) {
+		if (node->childs[i]->type != FUNCTION_DEFINITION)
+			cgen_pass(cgen, node->childs[i], pass);
+	}
+
+	fputs("}\n\n", cgen->file);
+	cgen->indentlevel--;
+
+	for (i = 0; i < node->childcount; i++) {
+		if (node->childs[i]->type == FUNCTION_DEFINITION)
+			cgen_pass(cgen, node->childs[i], pass);
+	}
+
+	fputs("int main() {\n\ttoplevel();\n\tinner_main();\n}\n\n", cgen->file);
 	(void) pass;
-	return 0;
+	return 1;
 }
 
 static int cgen_nop(struct cgen *cgen, struct ast_node *node, int pass) {
