@@ -86,7 +86,7 @@ struct sem_variable *get_variable(struct semantics *sem, char *name) {
 	return 0;
 }
 
-static struct sem_function *get_function(struct semantics *sem, char *name) {
+static struct sem_function *get_function_fname(struct semantics *sem, char *name) {
 	struct sem_scope *scope = sem->current_scope;
 	struct sem_function *result = 0;
 	int i;
@@ -100,6 +100,40 @@ static struct sem_function *get_function(struct semantics *sem, char *name) {
 				result = scope->functions.data[i];
 			}
 
+		}
+		if (result)
+			return result;
+
+		scope = scope->parent_scope;
+	}
+	return 0;
+}
+
+static struct sem_function *get_function_fargs(struct semantics *sem, char *name, struct sem_type **args, int argcount) {
+	struct sem_scope *scope = sem->current_scope;
+	struct sem_function *result = 0;
+	int ismatching;
+	int i, y;
+
+	while (scope) {
+		for (i = 0; i < scope->functions.count; i++) {
+			if (strcmp(name, scope->functions.data[i]->name) != 0)
+				continue;
+			if (argcount != scope->functions.data[i]->args.count)
+				continue;
+			ismatching = 1;
+			for (y = 0; y < argcount; y++) {
+				if (args[y] != scope->functions.data[i]->args.data[y]->datatype)
+					ismatching = 0;
+			}
+			if (!ismatching) {
+				continue;
+			}
+
+			if (result) {
+				printf("conflict\n");
+			}
+			result = scope->functions.data[i];
 		}
 		if (result)
 			return result;
@@ -184,9 +218,20 @@ static int sem_fp_function_definition(struct semantics *sem, struct ast_node *no
 	int i;
 
 	if (pass == PASS_FUNCS) {
-		node->sem_val = generate_function(sem, node);
-		node->childs[1]->sem_val = generate_scope(sem,
+		struct sem_function *func;
+		struct sem_scope *scope;
+
+		func = generate_function(sem, node);
+		node->sem_val = func;
+
+		scope = generate_scope(sem,
 				((struct SimpleToken *)node->childs[0]->childs[0])->value);
+		node->childs[1]->sem_val = scope;
+
+		for (i = 0; i < func->args.count; i++) {
+			vector_append(&scope->variables, &func->args.data[i]);
+		}
+		scope->implicit_var_count = func->args.count;
 	}
 	sem->current_scope = node->childs[1]->sem_val;
 	for (i = 0; i < node->childs[1]->childcount; i++) {
@@ -228,8 +273,15 @@ static int sem_fp_struct_definition(struct semantics *sem, struct ast_node *node
 }
 
 static int sem_functioncall(struct semantics *sem, struct ast_node *node, int pass) {
-	if (pass == PASS_IDENTIFIERS) {
-		node->sem_val = get_function(sem, ((struct SimpleToken *)node->childs[1])->value);
+	if (pass == PASS_ASSIGN) {
+		int i;
+		struct sem_type *argstypes[node->childs[2]->childcount + 1];
+
+		for (i = 0; i < node->childs[2]->childcount; i++) {
+			argstypes[i] = find_node_type(sem, node->childs[2]->childs[i]);
+		}
+		node->sem_val = get_function_fargs(sem, ((struct SimpleToken *)node->childs[1])->value,
+				argstypes, node->childs[2]->childcount);
 	}
 	sem_pass(sem, node->childs[2], pass);
 	return 1;

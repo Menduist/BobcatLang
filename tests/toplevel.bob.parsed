@@ -71,6 +71,7 @@ TOKEN_BLOCK_END (10): } (11)
 				]
 			]
 			{ SCOPE printer (parent global_scope):
+				Vars: { VAR "i" TYPE "int" }
 			}
 		]
 		{ FUNCTION "printer" }

@@ -28,7 +28,6 @@ end:
 	return 0;
 }
 
-
 static struct sem_type *finder_identifier(struct semantics *sem, struct ast_node *node) {
 	struct SimpleToken *tok = (struct SimpleToken *)node;
 	struct sem_variable *var;
@@ -42,6 +41,12 @@ static struct sem_type *finder_identifier(struct semantics *sem, struct ast_node
 	return 0;
 }
 
+static struct sem_type *finder_string_literal(struct semantics *sem, struct ast_node *node) {
+	(void) sem;
+	(void) node;
+	return get_type(sem, "string");
+}
+
 struct sem_type *find_node_type(struct semantics *sem, struct ast_node *node) {
 	return finder(sem, node);
 }
@@ -50,5 +55,6 @@ struct sem_type *find_node_type(struct semantics *sem, struct ast_node *node) {
 void init_sem_typefinder(void) {
 	memset(finders, 0, sizeof(finders));
 	finders[TOKEN_IDENTIFIER] = finder_identifier;
+	finders[TOKEN_STRING_LITERAL] = finder_string_literal;
 }
 

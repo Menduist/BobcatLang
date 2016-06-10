@@ -1,0 +1,17 @@
+func print(int i) {
+	prints("int: ")
+	printi(i)
+}
+
+func print(string c) {
+	prints("char: ")
+	prints(c)
+}
+
+func main() {
+	int i
+
+	i = 21
+	print(i)
+	print("lol\n")
+}

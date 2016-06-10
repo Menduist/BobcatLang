@@ -1,0 +1,187 @@
+TOKEN_FUNC (2): func (1)
+TOKEN_IDENTIFIER (4): print (1)
+TOKEN_PARENTHESE_START (11): ( (1)
+TOKEN_IDENTIFIER (4): int (1)
+TOKEN_IDENTIFIER (4): i (1)
+TOKEN_PARENTHESE_END (12): ) (1)
+TOKEN_BLOCK_START (9): { (1)
+TOKEN_IDENTIFIER (4): prints (2)
+TOKEN_PARENTHESE_START (11): ( (2)
+TOKEN_STRING_LITERAL (13): "int: " (2)
+TOKEN_PARENTHESE_END (12): ) (2)
+TOKEN_IDENTIFIER (4): printi (3)
+TOKEN_PARENTHESE_START (11): ( (3)
+TOKEN_IDENTIFIER (4): i (3)
+TOKEN_PARENTHESE_END (12): ) (3)
+TOKEN_BLOCK_END (10): } (4)
+TOKEN_FUNC (2): func (6)
+TOKEN_IDENTIFIER (4): print (6)
+TOKEN_PARENTHESE_START (11): ( (6)
+TOKEN_IDENTIFIER (4): string (6)
+TOKEN_IDENTIFIER (4): c (6)
+TOKEN_PARENTHESE_END (12): ) (6)
+TOKEN_BLOCK_START (9): { (6)
+TOKEN_IDENTIFIER (4): prints (7)
+TOKEN_PARENTHESE_START (11): ( (7)
+TOKEN_STRING_LITERAL (13): "char: " (7)
+TOKEN_PARENTHESE_END (12): ) (7)
+TOKEN_IDENTIFIER (4): prints (8)
+TOKEN_PARENTHESE_START (11): ( (8)
+TOKEN_IDENTIFIER (4): c (8)
+TOKEN_PARENTHESE_END (12): ) (8)
+TOKEN_BLOCK_END (10): } (9)
+TOKEN_FUNC (2): func (11)
+TOKEN_IDENTIFIER (4): main (11)
+TOKEN_PARENTHESE_START (11): ( (11)
+TOKEN_PARENTHESE_END (12): ) (11)
+TOKEN_BLOCK_START (9): { (11)
+TOKEN_IDENTIFIER (4): int (12)
+TOKEN_IDENTIFIER (4): i (12)
+TOKEN_IDENTIFIER (4): i (14)
+TOKEN_OPERATOR (5): = (14)
+TOKEN_IDENTIFIER (4): 21 (14)
+TOKEN_IDENTIFIER (4): print (15)
+TOKEN_PARENTHESE_START (11): ( (15)
+TOKEN_IDENTIFIER (4): i (15)
+TOKEN_PARENTHESE_END (12): ) (15)
+TOKEN_IDENTIFIER (4): print (16)
+TOKEN_PARENTHESE_START (11): ( (16)
+TOKEN_STRING_LITERAL (13): "lol\n" (16)
+TOKEN_PARENTHESE_END (12): ) (16)
+TOKEN_BLOCK_END (10): } (17)
+[TRANSLATION_UNIT,
+	[FUNCTION_DEFINITION,
+		[DECLARATOR,
+			[TOKEN_IDENTIFIER, 'print']
+			[VARIABLE_DECLARATION,
+				[TOKEN_IDENTIFIER, 'int']
+				[TOKEN_IDENTIFIER, 'i']
+			]
+		]
+		[COMPOUND_STATEMENT,
+			[EXPRESSION_LIST,
+				[FUNCTION_CALL,
+					[TOKEN_PARENTHESE_START, '(']
+					[TOKEN_IDENTIFIER, 'prints']
+					[FUNCTION_ARG_LIST,
+						[TOKEN_STRING_LITERAL, '"int: "']
+					]
+					{ FUNCTION "prints" }
+				]
+			]
+			[EXPRESSION_LIST,
+				[FUNCTION_CALL,
+					[TOKEN_PARENTHESE_START, '(']
+					[TOKEN_IDENTIFIER, 'printi']
+					[FUNCTION_ARG_LIST,
+						[TOKEN_IDENTIFIER, 'i' { VAR "i" TYPE "int" } ]
+					]
+					{ FUNCTION "printi" }
+				]
+			]
+			{ SCOPE print (parent global_scope):
+				Vars: { VAR "i" TYPE "int" }
+			}
+		]
+		{ FUNCTION "print" }
+	]
+	[FUNCTION_DEFINITION,
+		[DECLARATOR,
+			[TOKEN_IDENTIFIER, 'print']
+			[VARIABLE_DECLARATION,
+				[TOKEN_IDENTIFIER, 'string']
+				[TOKEN_IDENTIFIER, 'c']
+			]
+		]
+		[COMPOUND_STATEMENT,
+			[EXPRESSION_LIST,
+				[FUNCTION_CALL,
+					[TOKEN_PARENTHESE_START, '(']
+					[TOKEN_IDENTIFIER, 'prints']
+					[FUNCTION_ARG_LIST,
+						[TOKEN_STRING_LITERAL, '"char: "']
+					]
+					{ FUNCTION "prints" }
+				]
+			]
+			[EXPRESSION_LIST,
+				[FUNCTION_CALL,
+					[TOKEN_PARENTHESE_START, '(']
+					[TOKEN_IDENTIFIER, 'prints']
+					[FUNCTION_ARG_LIST,
+						[TOKEN_IDENTIFIER, 'c' { VAR "c" TYPE "string" } ]
+					]
+					{ FUNCTION "prints" }
+				]
+			]
+			{ SCOPE print (parent global_scope):
+				Vars: { VAR "c" TYPE "string" }
+			}
+		]
+		{ FUNCTION "print" }
+	]
+	[FUNCTION_DEFINITION,
+		[DECLARATOR,
+			[TOKEN_IDENTIFIER, 'main']
+		]
+		[COMPOUND_STATEMENT,
+			[VARIABLE_DECLARATION,
+				[TOKEN_IDENTIFIER, 'int']
+				[TOKEN_IDENTIFIER, 'i']
+			]
+			[EXPRESSION_LIST,
+				[OPERATOR,
+					[TOKEN_OPERATOR, '=']
+					[TOKEN_IDENTIFIER, 'i' { VAR "i" TYPE "int" } ]
+					[TOKEN_IDENTIFIER, '21']
+				]
+			]
+			[EXPRESSION_LIST,
+				[FUNCTION_CALL,
+					[TOKEN_PARENTHESE_START, '(']
+					[TOKEN_IDENTIFIER, 'print']
+					[FUNCTION_ARG_LIST,
+						[TOKEN_IDENTIFIER, 'i' { VAR "i" TYPE "int" } ]
+					]
+					{ FUNCTION "print" }
+				]
+			]
+			[EXPRESSION_LIST,
+				[FUNCTION_CALL,
+					[TOKEN_PARENTHESE_START, '(']
+					[TOKEN_IDENTIFIER, 'print']
+					[FUNCTION_ARG_LIST,
+						[TOKEN_STRING_LITERAL, '"lol\n"']
+					]
+					{ FUNCTION "print" }
+				]
+			]
+			{ SCOPE main (parent global_scope):
+				Vars: { VAR "i" TYPE "int" }
+			}
+		]
+		{ FUNCTION "main" }
+	]
+	{ SCOPE global_scope (parent (null)):
+		Types:
+		{ TYPE "int" INTEGER (size 4) }
+		{ TYPE "char" INTEGER (size 1) }
+		{ TYPE "string" INTEGER (size 1) }
+	
+		Functions:
+		{ FUNC "printi" RETURNTYPE "(null)"
+			Args: { VAR "i" TYPE "int" }
+		}
+		{ FUNC "prints" RETURNTYPE "(null)"
+			Args: { VAR "s" TYPE "string" }
+		}
+		{ FUNC "print" RETURNTYPE "(null)"
+			Args: { VAR "i" TYPE "int" }
+		}
+		{ FUNC "print" RETURNTYPE "(null)"
+			Args: { VAR "c" TYPE "string" }
+		}
+		{ FUNC "main" RETURNTYPE "(null)" }
+		
+	}
+]

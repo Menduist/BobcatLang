@@ -53,6 +53,8 @@ struct sem_scope {
 	struct sem_func_vector functions;
 	struct sem_var_vector variables;
 	struct sem_data_types_vector types;
+
+	int implicit_var_count;
 };
 
 struct semantics {

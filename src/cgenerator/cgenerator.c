@@ -200,13 +200,15 @@ static void init_scope(struct cgen *cgen, struct sem_scope *scope) {
 	for (i = 0; i < scope->variables.count; i++) {
 		mangle_var(cgen, scope->variables.data[i]);
 
+		if (i < scope->implicit_var_count)
+			continue;
 		indent(cgen);
 		fputs(scope->variables.data[i]->datatype->name, cgen->file);
 		fputs(" ", cgen->file);
 		fputs(scope->variables.data[i]->gendata, cgen->file);
 		fputs(" = 0;\n", cgen->file);
 	}
-	if (scope->variables.count > 0)
+	if (scope->variables.count > scope->implicit_var_count)
 		fputs("\n", cgen->file);
 }
 
