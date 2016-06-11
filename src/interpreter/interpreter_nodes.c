@@ -137,8 +137,13 @@ struct interpreter_data *interpret_identifier(struct interpreter *inter, struct 
 }
 
 struct interpreter_data *interpret_variable_declaration(struct interpreter *inter, struct ast_node *node) {
-	(void) inter;
-	(void) node;
+	int i;
+
+	for (i = 1; i < node->childcount; i++) {
+		if (node->childs[i]->type == OPERATOR) {
+			execute_node(inter, node->childs[i]);
+		}
+	}
 	return 0;
 }
 

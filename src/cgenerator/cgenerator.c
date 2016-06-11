@@ -256,6 +256,19 @@ static int cgen_translation_unit(struct cgen *cgen, struct ast_node *node, int p
 	return 1;
 }
 
+static int cgen_variable_declaration(struct cgen *cgen, struct ast_node *node, int pass) {
+	int i;
+
+	for (i = 1; i < node->childcount; i++) {
+		if (node->childs[i]->type == OPERATOR) {
+			indent(cgen);
+			cgen_pass(cgen, node->childs[i], pass);
+			fputs(";\n", cgen->file);
+		}
+	}
+	return 1;
+}
+
 static int cgen_nop(struct cgen *cgen, struct ast_node *node, int pass) {
 	(void) cgen;
 	(void) node;
@@ -300,7 +313,7 @@ void init_cgenerator(void) {
 	passes[TRANSLATION_UNIT] = cgen_translation_unit;
 	passes[PREFIX_OPERATOR] = cgen_prefix_operator;
 
-	passes[VARIABLE_DECLARATION] = cgen_nop;
+	passes[VARIABLE_DECLARATION] = cgen_variable_declaration;
 	passes[IF_STATEMENT] = cgen_if;
 	passes[WHILE_STATEMENT] = cgen_while;
 }

@@ -14,16 +14,16 @@ src/cgenerator/cgenerator.c
 all: $(NAME)
 
 $(NAME): $(SRCS) bobinterpreter bobparser bobcompiler
-	gcc $(SRCS) -g -D TEST_INTERPRETER -o $(NAME) -Wall -Wextra
+	gcc $(SRCS) -g -rdynamic -D TEST_INTERPRETER -o $(NAME) -Wall -Wextra
 
 bobinterpreter: $(SRCS)
-	gcc $(SRCS) -g -D TEST_INTERPRETER -o bobinterpreter -Wall -Wextra
+	gcc $(SRCS) -g -rdynamic -D TEST_INTERPRETER -o bobinterpreter -Wall -Wextra
 
 bobparser: $(SRCS)
-	gcc $(SRCS) -g -D TEST_SEM -o bobparser -Wall -Wextra
+	gcc $(SRCS) -g -rdynamic -D TEST_SEM -o bobparser -Wall -Wextra
 
 bobcompiler: $(SRCS)
-	gcc $(SRCS) -g -D TEST_CGEN -o bobcompiler -Wall -Wextra
+	gcc $(SRCS) -g -rdynamic -D TEST_CGEN -o bobcompiler -Wall -Wextra
 
 clean:
 

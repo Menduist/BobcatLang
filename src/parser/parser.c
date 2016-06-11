@@ -109,6 +109,36 @@ static struct ast_node *parse_function_arguments(struct parser *parser) {
 	return result;
 }
 
+static struct ast_node *parse_variable_multiple_declaration(struct parser *parser) {
+	struct ast_node *result;
+
+	result = new_node();
+
+	result->type = VARIABLE_DECLARATION;
+	add_child(&result, (struct ast_node *)parser->tokens++);
+
+	do {
+		if (parser->tokens->type == TOKEN_COMMA)
+			parser->tokens++;
+		if (parser->tokens->type != TOKEN_IDENTIFIER) {
+			unexcepted("identifier", parser->tokens);
+		}
+		if (parser->tokens[1].type == TOKEN_OPERATOR) {
+			struct ast_node *op = new_node();
+			op->type = OPERATOR;
+			add_child(&op, (struct ast_node *)&parser->tokens[1]);
+			add_child(&op, (struct ast_node *)parser->tokens);
+			parser->tokens += 2;
+			add_child(&op, parse_expression(parser));
+			add_child(&result, op);
+		}
+		else {
+			add_child(&result, (struct ast_node *)parser->tokens++);
+		}
+	} while (parser->tokens->type == TOKEN_COMMA);
+	return result;
+}
+
 static struct ast_node *parse_variable_declaration(struct parser *parser) {
 	struct ast_node *result;
 
@@ -117,8 +147,21 @@ static struct ast_node *parse_variable_declaration(struct parser *parser) {
 	result->type = VARIABLE_DECLARATION;
 	add_child(&result, (struct ast_node *)parser->tokens++);
 
-	if (parser->tokens->type == TOKEN_IDENTIFIER)
+	if (parser->tokens->type != TOKEN_IDENTIFIER) {
+		unexcepted("identifier", parser->tokens);
+	}
+	if (parser->tokens[1].type == TOKEN_OPERATOR) {
+		struct ast_node *op = new_node();
+		op->type = OPERATOR;
+		add_child(&op, (struct ast_node *)&parser->tokens[1]);
+		add_child(&op, (struct ast_node *)parser->tokens);
+		parser->tokens += 2;
+		add_child(&op, parse_expression(parser));
+		add_child(&result, op);
+	}
+	else {
 		add_child(&result, (struct ast_node *)parser->tokens++);
+	}
 	return result;
 }
 
@@ -352,7 +395,7 @@ static struct ast_node *parse_statement(struct parser *parser) {
 		return parse_compound_statement(parser);
 	case TOKEN_IDENTIFIER:
 		if (parser->tokens[1].type == TOKEN_IDENTIFIER)
-			return parse_variable_declaration(parser);
+			return parse_variable_multiple_declaration(parser);
 	}
 	return parse_expression_statement(parser);
 }
@@ -401,7 +444,7 @@ static struct ast_node *parse_struct_declaration(struct parser *parser) {
 	}
 	parser->tokens++;
 	while (parser->tokens->type != TOKEN_BLOCK_END && parser->tokens->type != TOKEN_NONE) {
-		add_child(&result, parse_variable_declaration(parser));
+		add_child(&result, parse_variable_multiple_declaration(parser));
 	}
 	if (parser->tokens->type != TOKEN_BLOCK_END) {
 		unexcepted("}", parser->tokens);

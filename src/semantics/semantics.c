@@ -289,14 +289,26 @@ static int sem_functioncall(struct semantics *sem, struct ast_node *node, int pa
 }
 
 static int sem_sp_variable_declaration(struct semantics *sem, struct ast_node *node, int pass) {
-	if (pass != PASS_VARS)
-		return 1;
+	int i;
+	if (pass == PASS_VARS) {
+		char *type = ((struct SimpleToken *)node->childs[0])->value;
+		char *name;
 
-	char *name = ((struct SimpleToken *)node->childs[1])->value;
-	char *type = ((struct SimpleToken *)node->childs[0])->value;
+		for (i = 1; i < node->childcount; i++) {
+			if (node->childs[i]->type == OPERATOR) {
+				name = ((struct SimpleToken *)node->childs[i]->childs[1])->value;
+			} else {
+				name = ((struct SimpleToken *)node->childs[i])->value;
+			}
 
-	struct sem_variable *var = generate_variable(sem, name, type);
-	*vector_append(&sem->current_scope->variables, 0) = var;
+			struct sem_variable *var = generate_variable(sem, name, type);
+			*vector_append(&sem->current_scope->variables, 0) = var;
+		}
+	}
+
+	for (i = 1; i < node->childcount; i++) {
+		sem_pass(sem, node->childs[i], pass);
+	}
 	return 1;
 }
 
