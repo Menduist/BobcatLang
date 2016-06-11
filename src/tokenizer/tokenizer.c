@@ -123,6 +123,7 @@ void tokenize(const char *code, struct SimpleToken *tokens) {
 		HANDLE_KEYWORD("if", 2, TOKEN_IF);
 		HANDLE_KEYWORD("else", 4, TOKEN_ELSE);
 		HANDLE_KEYWORD("while", 5, TOKEN_WHILE);
+		HANDLE_KEYWORD("return", 6, TOKEN_RETURN);
 
 #define HANDLE_OTHER(name) if ((tmp = name(code + i, tokens + tokenid)) > 0) { \
 			i += tmp; \

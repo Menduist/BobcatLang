@@ -1,0 +1,10 @@
+func int(char c) int {
+	return c
+}
+
+func main() {
+	int i
+	char c
+
+	c = int(i)
+}
