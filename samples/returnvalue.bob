@@ -2,7 +2,16 @@ func testadd(int a, int b) int {
 	int x
 
 	x = 0
-	return a + b + x
+	if x == 0
+	{
+		return a + b + x
+		prints("noo");
+	}
+	else
+	{
+		return 0
+	}
+		prints("nooo");
 }
 
 func main() {

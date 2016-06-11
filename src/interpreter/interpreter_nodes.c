@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <ctype.h>
 
+#define RETURNED (struct interpreter_data *)1
+
 struct interpreter_data *execute_node(struct interpreter *inter, struct ast_node *node);
 struct interpreter_data *call_function(struct interpreter *inter, char *funcname);
 
@@ -57,12 +59,13 @@ struct interpreter_data *interpret_function_definition(struct interpreter *inter
 	}
 
 	for (i = 0; i < node->childs[1]->childcount; i++) {
-		execute_node(inter, node->childs[1]->childs[i]);
+		if (execute_node(inter, node->childs[1]->childs[i]) == RETURNED)
+			break;
 	}
 
 	inter->scope = newscope->parent;
 	free(newscope);
-	return 0;
+	return inter->returnvalue;
 }
 
 struct interpreter_data *interpret_compound_statement(struct interpreter *inter, struct ast_node *node) {
@@ -79,7 +82,8 @@ struct interpreter_data *interpret_compound_statement(struct interpreter *inter,
 	}
 
 	for (i = 0; i < node->childcount; i++) {
-		execute_node(inter, node->childs[i]);
+		if (execute_node(inter, node->childs[i]) == RETURNED)
+			return RETURNED;
 	}
 
 	inter->scope = newscope->parent;
@@ -93,6 +97,8 @@ struct interpreter_data *interpret_expression_list(struct interpreter *inter, st
 
 	for (i = 0; i < node->childcount; i++) {
 		result = execute_node(inter, node->childs[i]);
+		if (result == RETURNED)
+			return RETURNED;
 	}
 	return result;
 }
@@ -170,6 +176,15 @@ struct interpreter_data *interpret_operator(struct interpreter *inter, struct as
 		result->data = malloc(sizeof(int));
 		*(int *)result->data = *(int *)right->data * *(int *)left->data;
 	}
+	else if(strcmp(operator, "+") == 0) {
+		struct interpreter_data *right = get_rvalue(execute_node(inter, node->childs[2]));
+		struct interpreter_data *left = get_rvalue(execute_node(inter, node->childs[1]));
+
+		result = calloc(sizeof(struct interpreter_data *), 1);
+		result->type = INTER_INT;
+		result->data = malloc(sizeof(int));
+		*(int *)result->data = *(int *)right->data + *(int *)left->data;
+	}
 	else if(strcmp(operator, "/") == 0) {
 		struct interpreter_data *right = get_rvalue(execute_node(inter, node->childs[2]));
 		struct interpreter_data *left = get_rvalue(execute_node(inter, node->childs[1]));
@@ -240,9 +255,9 @@ struct interpreter_data *interpret_if_statement(struct interpreter *inter, struc
 
 	condition = get_rvalue(execute_node(inter, node->childs[1]));
 	if (*(int *)condition->data)
-		execute_node(inter, node->childs[2]);
+		return execute_node(inter, node->childs[2]);
 	else if (node->childs[3])
-		execute_node(inter, node->childs[3]);
+		return execute_node(inter, node->childs[3]);
 	return 0;
 }
 
@@ -251,10 +266,20 @@ struct interpreter_data *interpret_while_statement(struct interpreter *inter, st
 
 	condition = get_rvalue(execute_node(inter, node->childs[1]));
 	while (*(int *)condition->data) {
-		execute_node(inter, node->childs[2]);
+		if (execute_node(inter, node->childs[2]) == RETURNED)
+			return RETURNED;
 		condition = get_rvalue(execute_node(inter, node->childs[1]));
 	}
 	return 0;
+}
+
+struct interpreter_data *interpret_return_statement(struct interpreter *inter, struct ast_node *node) {
+	if (node->childcount > 1) {
+		inter->returnvalue = get_rvalue(execute_node(inter, node->childs[1]));
+	}
+	else
+		inter->returnvalue = 0;
+	return RETURNED;
 }
 
 void init_interpreter_nodes(void) {
@@ -271,4 +296,5 @@ void init_interpreter_nodes(void) {
 	nodes_interpretor[VARIABLE_DECLARATION] = interpret_variable_declaration;
 	nodes_interpretor[IF_STATEMENT] = interpret_if_statement;
 	nodes_interpretor[WHILE_STATEMENT] = interpret_while_statement;
+	nodes_interpretor[RETURN_STATEMENT] = interpret_return_statement;
 }

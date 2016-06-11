@@ -30,6 +30,8 @@ struct interpreter {
 	struct ast_node *program;
 	struct ast_node *function_list[20];
 	struct interpreter_data *args[5];
+	struct interpreter_data *returnvalue;
+
 	struct interpreter_scope *scope;
 	struct interpreter_scope *global_scope;
 	int argcount;
