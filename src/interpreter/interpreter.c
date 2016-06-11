@@ -36,12 +36,12 @@ struct ast_node *get_function(struct interpreter *inter, char *funcname) {
 	return 0;
 }
 
-struct interpreter_data *interpret_function_print(struct interpreter *inter, struct ast_node *node);
+struct interpreter_data *interpret_function_print(struct interpreter *inter, int type);
 struct interpreter_data *call_function(struct interpreter *inter, char *funcname) {
 	struct ast_node *function;
 
 	if (strncmp(funcname, "print", 5) == 0 && strlen(funcname) > 5) {
-		return interpret_function_print(inter, 0);
+		return interpret_function_print(inter, strcmp(funcname, "printi") == 0);
 	}
 	function = get_function(inter, funcname);
 	if (function == 0) {
@@ -65,6 +65,10 @@ void register_all_functions(struct interpreter *inter) {
 			inter->function_list[y++] = inter->program->childs[i];
 		}
 	}
+	struct sem_scope *sem_scope = (struct sem_scope *)inter->program->sem_val;
+	for (i = 0; i < sem_scope->variables.count; i++) {
+		create_var(inter, sem_scope->variables.data[i]);
+	}
 }
 
 static void create_global_scope(struct interpreter *inter) {
@@ -72,14 +76,14 @@ static void create_global_scope(struct interpreter *inter) {
 	inter->scope = inter->global_scope;
 }
 
-struct interpreter_variable *get_var(struct interpreter *inter, char *name) {
+struct interpreter_variable *get_var(struct interpreter *inter, struct sem_variable *var) {
 	struct interpreter_scope *scope = inter->scope;
 	int i;
 
 	while (scope) {
 		i = 0;
-		while (scope->variables[i].name) {
-			if (strcmp(name, scope->variables[i].name) == 0)
+		while (scope->variables[i].var) {
+			if (var == scope->variables[i].var)
 				return &scope->variables[i];
 			i++;
 		}
@@ -88,32 +92,25 @@ struct interpreter_variable *get_var(struct interpreter *inter, char *name) {
 	return 0;
 }
 
-struct interpreter_variable *create_var(struct interpreter *inter, char *name, enum interpreter_data_type type) {
+struct interpreter_variable *create_var(struct interpreter *inter, struct sem_variable *var) {
 	struct interpreter_variable *result;
 	int i = 0;
 
-	while (inter->scope->variables[i].name)
+	while (inter->scope->variables[i].var)
 		i++;
-	result = inter->scope->variables + i;
-	result->type = type;
-	result->name = name;
-	switch (type) {
-		case INTER_INT:
+	result = &inter->scope->variables[i];
+	result->var = var;
+	switch (var->datatype->datatype) {
+		case SEM_INTEGER:
+		case SEM_FLOATING:
 			result->value = memalloc(int, 1);
 			break;
-		case INTER_STRING:
+		default:
 		case INTER_VAR:
 			result->value = 0;
 			break;
 	}
 	return result;
-}
-
-struct interpreter_variable *get_or_create_var(struct interpreter *inter, char *name, enum interpreter_data_type type) {
-	struct interpreter_variable *result = get_var(inter, name);
-	if (result)
-		return result;
-	return create_var(inter, name, type);
 }
 
 void execute_top_level(struct interpreter *inter) {

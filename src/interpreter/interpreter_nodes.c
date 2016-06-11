@@ -10,29 +10,6 @@ struct interpreter_data *call_function(struct interpreter *inter, char *funcname
 
 node_intepretator nodes_interpretor[NODES_END];
 
-void dump_data(enum interpreter_data_type type, void *data) {
-	static char *types[] = {
-		"INTER_INT",
-		"INTER_STRING",
-		"INTER_VAR"
-		};
-
-	printf("%s\n value: ", types[type]);
-	switch (type) {
-		case INTER_INT:
-			printf("%d\n", *(int *)data);
-			break;
-		case INTER_STRING:
-			printf("%s\n", (char *)data);
-			break;
-		case INTER_VAR:
-			printf("var '%s':\n", ((struct interpreter_variable *)data)->name);
-			dump_data(((struct interpreter_variable *)data)->type, ((struct interpreter_variable *)data)->value);
-			printf("\n");
-			break;
-	}
-}
-
 struct interpreter_data *get_rvalue(struct interpreter_data *data) {
 	if (data->type == INTER_VAR) {
 		data->type = ((struct interpreter_variable *)data->data)->type;
@@ -48,19 +25,11 @@ struct interpreter_variable *get_lvalue(struct interpreter_data *data) {
 	return 0;
 }
 
-struct interpreter_data *interpret_function_print(struct interpreter *inter, struct ast_node *node) {
-	switch (inter->args[0]->type) {
-		case INTER_STRING:
-			printf("%s", (char *)inter->args[0]->data);
-			break;
-		case INTER_INT:
-			printf("%d\n", *(int *)inter->args[0]->data);
-			break;
-		default:
-			printf("print: unhandled %d\n", inter->args[0]->type);
-			break;
-	}
-	(void) node;
+struct interpreter_data *interpret_function_print(struct interpreter *inter, int type) {
+	if (type)
+		printf("%d\n", *(int *)inter->args[0]->data);
+	else
+		printf("%s", (char *)inter->args[0]->data);
 	return 0;
 }
 
@@ -72,17 +41,42 @@ struct interpreter_data *interpret_function_definition(struct interpreter *inter
 		dump_data(inter->args[i]->type, inter->args[i]->data);
 	}
 	printf("]\n");*/
-	execute_node(inter, node->childs[1]);
-	return 0;
-}
-
-struct interpreter_data *interpret_compound_statement(struct interpreter *inter, struct ast_node *node) {
 	struct interpreter_scope *newscope = calloc(sizeof(struct interpreter_scope), 1);
+	struct sem_scope *sem_scope = node->childs[1]->sem_val;
 	int i;
 
 	newscope->parent = inter->scope;
 	newscope->creator = node;
 	inter->scope = newscope;
+
+	for (i = 0; i < sem_scope->variables.count; i++) {
+		struct interpreter_variable *var = create_var(inter, sem_scope->variables.data[i]);
+		
+		if (i < inter->argcount)
+			var->value = inter->args[i]->data;
+	}
+
+	for (i = 0; i < node->childs[1]->childcount; i++) {
+		execute_node(inter, node->childs[1]->childs[i]);
+	}
+
+	inter->scope = newscope->parent;
+	free(newscope);
+	return 0;
+}
+
+struct interpreter_data *interpret_compound_statement(struct interpreter *inter, struct ast_node *node) {
+	struct interpreter_scope *newscope = calloc(sizeof(struct interpreter_scope), 1);
+	struct sem_scope *sem_scope = node->sem_val;
+	int i;
+
+	newscope->parent = inter->scope;
+	newscope->creator = node;
+	inter->scope = newscope;
+
+	for (i = 0; i < sem_scope->variables.count; i++) {
+		create_var(inter, sem_scope->variables.data[i]);
+	}
 
 	for (i = 0; i < node->childcount; i++) {
 		execute_node(inter, node->childs[i]);
@@ -137,19 +131,15 @@ struct interpreter_data *interpret_identifier(struct interpreter *inter, struct 
 	}
 	else {
 		result->type = INTER_VAR;
-		result->data = get_or_create_var(inter, identifier, INTER_INT);
+		result->data = get_var(inter, node->sem_val);
 	}
 	return result;
 }
 
 struct interpreter_data *interpret_variable_declaration(struct interpreter *inter, struct ast_node *node) {
-	struct interpreter_data *result = calloc(sizeof(struct interpreter_data), 1);
-	char *identifier = ((struct SimpleToken *)node)->value;
-
-	result->type = INTER_VAR;
-	result->data = get_or_create_var(inter, identifier, INTER_INT);
-
-	return result;
+	(void) inter;
+	(void) node;
+	return 0;
 }
 
 struct interpreter_data *interpret_operator(struct interpreter *inter, struct ast_node *node) {

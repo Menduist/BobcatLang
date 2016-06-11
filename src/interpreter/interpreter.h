@@ -16,7 +16,7 @@ struct interpreter_data {
 
 struct interpreter_variable {
 	enum interpreter_data_type type;
-	char *name;
+	struct sem_variable *var;
 	void *value;
 };
 
@@ -35,11 +35,10 @@ struct interpreter {
 	int argcount;
 };
 
-typedef struct interpreter_data * (*node_intepretator)(struct interpreter *, struct ast_node *);
+typedef struct interpreter_data *(*node_intepretator)(struct interpreter *, struct ast_node *);
 
-struct interpreter_variable *get_var(struct interpreter *inter, char *name);
-struct interpreter_variable *create_var(struct interpreter *inter, char *name, enum interpreter_data_type type);
-struct interpreter_variable *get_or_create_var(struct interpreter *inter, char *name, enum interpreter_data_type type);
+struct interpreter_variable *get_var(struct interpreter *inter, struct sem_variable *var);
+struct interpreter_variable *create_var(struct interpreter *inter, struct sem_variable *var);
 
 void interpret(struct ast_node *program);
 #endif
