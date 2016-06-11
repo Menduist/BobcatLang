@@ -44,6 +44,8 @@ static int cgen_function_call(struct cgen *cgen, struct ast_node *node, int pass
 	fputs("(", cgen->file);
 	for (i = 0; i < node->childs[2]->childcount; i++) {
 		cgen_pass(cgen, node->childs[2]->childs[i], pass);
+		if (i + 1 != node->childs[2]->childcount)
+			fputs(", ", cgen->file);
 	}
 	fputs(")", cgen->file);
 	return 1;
@@ -73,6 +75,10 @@ static int cgen_function_declaration(struct cgen *cgen, struct ast_node *node, i
 	if (func->result_type == NULL) {
 		fputs("void ", cgen->file);
 	}
+	else {
+		fputs(func->result_type->name, cgen->file);
+		fputs(" ", cgen->file);
+	}
 	fputs(func->gendata, cgen->file);
 
 	fputs("(", cgen->file);
@@ -82,7 +88,7 @@ static int cgen_function_declaration(struct cgen *cgen, struct ast_node *node, i
 		fputs(" ", cgen->file);
 		fputs(func->args.data[i]->name, cgen->file);
 		if (i + 1 != func->args.count)
-			fputs(",", cgen->file);
+			fputs(", ", cgen->file);
 	}
 	fputs(") ", cgen->file);
 
@@ -128,6 +134,18 @@ static int cgen_while(struct cgen *cgen, struct ast_node *node, int pass) {
 	cgen->is_expression_inline = 0;
 	fputs(") ", cgen->file);
 	cgen_pass(cgen, node->childs[2], pass);
+	return 1;
+}
+
+static int cgen_return(struct cgen *cgen, struct ast_node *node, int pass) {
+	indent(cgen);
+	fputs("return ", cgen->file);
+	if (node->childcount > 1) {
+		cgen->is_expression_inline = 1;
+		cgen_pass(cgen, node->childs[1], pass);
+		cgen->is_expression_inline = 0;
+	}
+	fputs(";\n", cgen->file);
 	return 1;
 }
 
@@ -316,6 +334,7 @@ void init_cgenerator(void) {
 	passes[VARIABLE_DECLARATION] = cgen_variable_declaration;
 	passes[IF_STATEMENT] = cgen_if;
 	passes[WHILE_STATEMENT] = cgen_while;
+	passes[RETURN_STATEMENT] = cgen_return;
 }
 
 #ifdef TEST_CGEN

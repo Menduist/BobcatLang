@@ -230,6 +230,18 @@ static int is_suffix_operator(struct SimpleToken *tok) {
 	return 0;
 }
 
+static int can_be_primary(struct SimpleToken *tok) {
+	switch (tok->type) {
+		case TOKEN_IDENTIFIER:
+		case TOKEN_STRING_LITERAL:
+		case TOKEN_PARENTHESE_START:
+		case TOKEN_OPERATOR:
+			return 1;
+		default:
+			return 0;
+	}
+}
+
 static struct ast_node *parse_primary(struct parser *parser) {
 	struct ast_node *result;
 	switch (parser->tokens->type) {
@@ -365,7 +377,8 @@ static struct ast_node *parse_return_statement(struct parser *parser) {
 
 	result->type = RETURN_STATEMENT;
 	add_child(&result, (struct ast_node *)parser->tokens++);
-	add_child(&result, parse_expression(parser));
+	if (can_be_primary(parser->tokens) && parser->tokens->line == ((struct SimpleToken *)result->childs[0])->line)
+		add_child(&result, parse_expression(parser));
 	return result;
 }
 

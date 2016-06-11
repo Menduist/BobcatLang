@@ -1,0 +1,11 @@
+func testadd(int a, int b) int {
+	int x
+
+	x = 0
+	return a + b + x
+}
+
+func main() {
+	printi(testadd(4, 123))
+	return
+}

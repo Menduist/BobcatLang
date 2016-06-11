@@ -1,10 +1,10 @@
-func int(char c) int {
+func test(char c) int {
 	return c
 }
 
 func main() {
 	int i
-	char c
+	int c
 
-	c = int(i)
+	c = test(i)
 }

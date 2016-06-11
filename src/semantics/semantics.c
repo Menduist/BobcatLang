@@ -176,7 +176,9 @@ static struct sem_function *generate_function(struct semantics *sem, struct ast_
 
 	vector_init(&result->args, 2);
 	result->name = ((struct SimpleToken *)func->childs[0]->childs[0])->value;
-	result->result_type = 0;
+	if (func->childcount > 2)
+		result->result_type = get_type(sem, ((struct SimpleToken *)func->childs[2])->value);
+
 	result->creatornode = func;
 
 	for (i = 1; i < func->childs[0]->childcount; i++) {
