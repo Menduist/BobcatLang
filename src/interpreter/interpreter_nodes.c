@@ -1,3 +1,4 @@
+#include "../semantics/semantics.h"
 #include "interpreter.h"
 #include <string.h>
 #include <stdlib.h>
@@ -65,6 +66,12 @@ struct interpreter_data *interpret_function_print(struct interpreter *inter, str
 
 
 struct interpreter_data *interpret_function_definition(struct interpreter *inter, struct ast_node *node) {
+	/*printf("called %s with [", ((struct SimpleToken *)node->childs[0]->childs[0])->value);
+	int i;
+	for (i = 0; i < inter->argcount; i++) {
+		dump_data(inter->args[i]->type, inter->args[i]->data);
+	}
+	printf("]\n");*/
 	execute_node(inter, node->childs[1]);
 	return 0;
 }
@@ -72,7 +79,6 @@ struct interpreter_data *interpret_function_definition(struct interpreter *inter
 struct interpreter_data *interpret_compound_statement(struct interpreter *inter, struct ast_node *node) {
 	struct interpreter_scope *newscope = calloc(sizeof(struct interpreter_scope), 1);
 	int i;
-
 
 	newscope->parent = inter->scope;
 	newscope->creator = node;
@@ -221,13 +227,16 @@ struct interpreter_data *interpret_prefix_operator(struct interpreter *inter, st
 	return result;
 }
 
+struct interpreter_data *call_function_node(struct interpreter *inter, struct ast_node *node);
 struct interpreter_data *interpret_call_function(struct interpreter *inter, struct ast_node *node) {
 	int i = 0;
 	
 	for(; i < node->childs[2]->childcount; i++) {
 		inter->args[i] = get_rvalue(execute_node(inter, node->childs[2]->childs[i]));
 	}
-	inter->argcount = node->childcount - 1;
+	inter->argcount = node->childs[2]->childcount;
+	if (((struct sem_function *)node->sem_val)->creatornode)
+		return call_function_node(inter, ((struct sem_function *)node->sem_val)->creatornode);
 	return call_function(inter, ((struct SimpleToken *)node->childs[1])->value);
 }
 

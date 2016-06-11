@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "../utils.h"
+#include "../semantics/semantics.h"
 
 void init_interpreter_nodes(void);
 
@@ -48,6 +49,10 @@ struct interpreter_data *call_function(struct interpreter *inter, char *funcname
 		return NULL;
 	}
 	return execute_node(inter, function);
+}
+
+struct interpreter_data *call_function_node(struct interpreter *inter, struct ast_node *node) {
+	return execute_node(inter, node);
 }
 
 void register_all_functions(struct interpreter *inter) {
@@ -149,6 +154,8 @@ int main(int argc, char **argv) {
 	memset(tokens, 0, sizeof(struct SimpleToken) * 100);
 	tokenize(source, tokens);
 	node = parse(tokens);
+	init_semantical_analyzer();
+	run_semantical_analyzer(node);
 	interpret(node);
 }
 

@@ -177,6 +177,7 @@ static struct sem_function *generate_function(struct semantics *sem, struct ast_
 	vector_init(&result->args, 2);
 	result->name = ((struct SimpleToken *)func->childs[0]->childs[0])->value;
 	result->result_type = 0;
+	result->creatornode = func;
 
 	for (i = 1; i < func->childs[0]->childcount; i++) {
 		argname = ((struct SimpleToken *)func->childs[0]->childs[i]->childs[1])->value;
@@ -349,7 +350,7 @@ static int sem_operator(struct semantics *sem, struct ast_node *node, int pass) 
 				else {
 					struct sem_type *type = find_node_type(sem, node->childs[2]);
 
-					printf("guessed type at %d:%d: for '%s': '%s'\n", tok->line, tok->col, tok->value, type->name);
+					//fprintf(stderr, "guessed type at %d:%d: for '%s': '%s'\n", tok->line, tok->col, tok->value, type->name);
 					var = generate_variable(sem, tok->value, type->name);
 					vector_append_value(&sem->current_scope->variables, var);
 					node->childs[1]->sem_val = var;

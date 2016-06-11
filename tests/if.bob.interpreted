@@ -1,3 +1,5 @@
+at 4:6: unknown variable x, assuming var int
+at 29:17: unknown variable pouet, assuming var int
 21
 42
 3

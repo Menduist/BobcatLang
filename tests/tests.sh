@@ -18,6 +18,7 @@ error=0
 for path_file_to_test in ../samples/*; do
 	file_to_test=$(basename $path_file_to_test)
 	printf ${BLUE}" * testing ${file_to_test}\n"${CLEAR}
+
 	if [ -f $file_to_test.interpreted ]; then
 		../bobinterpreter ../samples/$file_to_test > /tmp/$file_to_test.interpreted
 		printf "%-15.15s: interpreter " ${file_to_test}
@@ -31,7 +32,7 @@ for path_file_to_test in ../samples/*; do
 	fi
 
 	if [ -f $file_to_test.interpreted ]; then
-		../bobcompiler ../samples/$file_to_test > /dev/null && ./a.out > /tmp/$file_to_test.interpreted
+		(../bobcompiler ../samples/$file_to_test && ./a.out) > /tmp/$file_to_test.interpreted
 		printf "%-15.15s: compiler    " ${file_to_test}
 		diff /tmp/$file_to_test.interpreted $file_to_test.interpreted
 		if [ "$?" -ne "0" ]; then
