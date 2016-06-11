@@ -15,6 +15,7 @@ static int try_tokenize_identifier(const char *code, struct SimpleToken *token) 
 		length++;
 	token->type = TOKEN_IDENTIFIER;
 	strncpy(token->value, code, (size_t) length);
+	token->value[length] = 0;
 	return length;
 }
 
@@ -75,6 +76,7 @@ static int try_tokenize_operator(const char *code, struct SimpleToken *token) {
 	if (length > 0) {
 		token->type = TOKEN_OPERATOR;
 		strncpy(token->value, code, (size_t) length);
+		token->value[length] = 0;
 	}
 	return length;
 }
@@ -106,7 +108,7 @@ void tokenize(const char *code, struct SimpleToken *tokens) {
 			i += tmp;
 			continue;
 		}
-#define SET_TOKEN(etype, size) { tokens[tokenid].type = etype; tokens[tokenid].line = line; tokens[tokenid].col = (i - linestart); strncpy(tokens[tokenid].value, code + i, size); tokenid++;}
+#define SET_TOKEN(etype, size) { tokens[tokenid].type = etype; tokens[tokenid].line = line; tokens[tokenid].col = (i - linestart); strncpy(tokens[tokenid].value, code + i, size); tokens[tokenid].value[size] = 0; tokenid++;}
 #define HANDLE_SINGLE_CHAR(val, etype) if (code[i] == val) {SET_TOKEN(etype, 1); i++; continue;}
 		HANDLE_SINGLE_CHAR('{', TOKEN_BLOCK_START);
 		HANDLE_SINGLE_CHAR('}', TOKEN_BLOCK_END);
@@ -139,6 +141,7 @@ void tokenize(const char *code, struct SimpleToken *tokens) {
 		printf("warning, unhandled %c\n", code[i]);
 		i++;
 	}
+	tokens[tokenid].type = TOKEN_NONE;
 }
 
 #ifdef TEST_TOKENIZER
