@@ -135,25 +135,3 @@ void interpret(struct ast_node *program) {
 	execute_top_level(&inter);
 	call_function(&inter, "main");
 }
-
-#ifdef TEST_INTERPRETER
-
-int main(int argc, char **argv) {
-	struct SimpleToken tokens[300];
-	char *source;
-	struct ast_node *node;
-	
-	if (argc < 2) {
-		printf("usage %s [file]\n", argv[0]);
-		return 1;
-	}
-	source = readfile(argv[1]);
-	memset(tokens, 0, sizeof(struct SimpleToken) * 100);
-	tokenize(source, tokens);
-	node = parse(tokens);
-	init_semantical_analyzer();
-	run_semantical_analyzer(node);
-	interpret(node);
-}
-
-#endif

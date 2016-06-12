@@ -3,13 +3,13 @@
 for path_file_to_generate in ${1+"$@"}; do
 	file_to_test=$(basename $path_file_to_generate)
 	echo generating $file_to_test
-	../bobinterpreter ../samples/$file_to_test > $file_to_test.interpreted
+	../bob interpret ../samples/$file_to_test > $file_to_test.output
 	if [ "$?" -ne "0" ]; then
 		echo $file_to_test interpreter failed /!\\
-		rm $file_to_test.interpreted
+		rm $file_to_test.output
 	fi
 
-	../bobparser ../samples/$file_to_test > $file_to_test.parsed
+	../bob sem ../samples/$file_to_test > $file_to_test.parsed
 	if [ "$?" -ne "0" ]; then
 		echo $file_to_test parsing failed /!\\
 		rm $file_to_test.parsed

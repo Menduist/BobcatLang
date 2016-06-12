@@ -12,6 +12,7 @@ struct cgen {
 	int is_expression_inline;
 };
 
+void init_cgenerator(void);
 void compile(struct ast_node *node);
 
 #endif

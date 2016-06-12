@@ -1,4 +1,5 @@
 #ifndef VECTOR_H
+#define VECTOR_
 
 struct internal_vector {
     void *data;

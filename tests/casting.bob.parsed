@@ -1,0 +1,73 @@
+[TRANSLATION_UNIT,
+	[FUNCTION_DEFINITION,
+		[DECLARATOR,
+			[TOKEN_IDENTIFIER, 'test']
+			[VARIABLE_DECLARATION,
+				[TOKEN_IDENTIFIER, 'char']
+				[TOKEN_IDENTIFIER, 'c']
+			]
+		]
+		[COMPOUND_STATEMENT,
+			[JUMP_STATEMENT,
+				[TOKEN_RETURN, 'return']
+				[TOKEN_IDENTIFIER, 'c' { VAR "c" TYPE "char" } ]
+			]
+			{ SCOPE test (parent global_scope):
+				Vars: { VAR "c" TYPE "char" }
+			}
+		]
+		[TOKEN_IDENTIFIER, 'int']
+		{ FUNCTION "test" }
+	]
+	[FUNCTION_DEFINITION,
+		[DECLARATOR,
+			[TOKEN_IDENTIFIER, 'main']
+		]
+		[COMPOUND_STATEMENT,
+			[VARIABLE_DECLARATION,
+				[TOKEN_IDENTIFIER, 'int']
+				[TOKEN_IDENTIFIER, 'i' { VAR "i" TYPE "int" } ]
+			]
+			[VARIABLE_DECLARATION,
+				[TOKEN_IDENTIFIER, 'int']
+				[TOKEN_IDENTIFIER, 'c' { VAR "c" TYPE "int" } ]
+			]
+			[EXPRESSION_LIST,
+				[OPERATOR,
+					[TOKEN_OPERATOR, '=']
+					[TOKEN_IDENTIFIER, 'c' { VAR "c" TYPE "int" } ]
+					[FUNCTION_CALL,
+						[TOKEN_PARENTHESE_START, '(']
+						[TOKEN_IDENTIFIER, 'test']
+						[FUNCTION_ARG_LIST,
+							[TOKEN_IDENTIFIER, 'i' { VAR "i" TYPE "int" } ]
+						]
+					]
+				]
+			]
+			{ SCOPE main (parent global_scope):
+				Vars: { VAR "i" TYPE "int" }, { VAR "c" TYPE "int" }
+			}
+		]
+		{ FUNCTION "main" }
+	]
+	{ SCOPE global_scope (parent (null)):
+		Types:
+		{ TYPE "int" INTEGER (size 4) }
+		{ TYPE "char" INTEGER (size 1) }
+		{ TYPE "string" INTEGER (size 1) }
+	
+		Functions:
+		{ FUNC "printi" RETURNTYPE "(null)"
+			Args: { VAR "i" TYPE "int" }
+		}
+		{ FUNC "prints" RETURNTYPE "(null)"
+			Args: { VAR "s" TYPE "string" }
+		}
+		{ FUNC "test" RETURNTYPE "int"
+			Args: { VAR "c" TYPE "char" }
+		}
+		{ FUNC "main" RETURNTYPE "(null)" }
+		
+	}
+]

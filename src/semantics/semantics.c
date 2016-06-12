@@ -3,6 +3,8 @@
 #include "../utils.h"
 #include <stdio.h>
 #include <ctype.h>
+#include <stdio.h>
+
 
 enum passes {
 	PASS_TYPES,
@@ -18,7 +20,7 @@ enum passes {
 
 typedef int (*node_semanticalizer)(struct semantics *, struct ast_node *, int pass);
 
-node_semanticalizer passes[NODES_END];
+static node_semanticalizer passes[NODES_END];
 
 static int sem_pass(struct semantics *sem, struct ast_node *node, int pass) {
 	int i;
@@ -421,10 +423,6 @@ void init_semantical_analyzer(void) {
 	init_sem_typefinder();
 }
 
-#ifdef TEST_SEM
-
-#include <stdio.h>
-
 static void print_var(struct sem_variable *var) {
 	printf("{ VAR \"%s\"", var->name);
 
@@ -580,24 +578,3 @@ void print_node(struct ast_node *node, int level) {
 		printf("]\n");
 	}
 }
-
-int main(int argc, char **argv) {
-	struct SimpleToken tokens[300];
-	char *source;
-	struct ast_node *node;
-	int i;
-	
-	(void) argc;
-	source = readfile(argv[1]);
-	memset(tokens, 0, sizeof(struct SimpleToken) * 300);
-	tokenize(source, tokens);
-	for (i = 0; i < 300 && tokens[i].type; i++) {
-		printf("%s (%d): %s (%d)\n", all_names[tokens[i].type], tokens[i].type, tokens[i].value, tokens[i].line);
-	}
-	node = parse(tokens);
-	init_semantical_analyzer();
-	run_semantical_analyzer(node);
-	print_node(node, 0);
-}
-
-#endif

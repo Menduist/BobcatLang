@@ -1,6 +1,7 @@
 NAME=bob
 
-SRCS=src/parser/parser.c \
+SRCS=src/bob.c \
+src/parser/parser.c \
 src/tokenizer/tokenizer.c \
 src/interpreter/interpreter_nodes.c \
 src/interpreter/interpreter.c \
@@ -13,22 +14,13 @@ src/cgenerator/cgenerator.c
 .PHONY: all fclean clean tests re
 all: $(NAME)
 
-$(NAME): $(SRCS) bobinterpreter bobparser bobcompiler
-	gcc $(SRCS) -g -rdynamic -D TEST_INTERPRETER -o $(NAME) -Wall -Wextra
-
-bobinterpreter: $(SRCS)
-	gcc $(SRCS) -g -rdynamic -D TEST_INTERPRETER -o bobinterpreter -Wall -Wextra
-
-bobparser: $(SRCS)
-	gcc $(SRCS) -g -rdynamic -D TEST_SEM -o bobparser -Wall -Wextra
-
-bobcompiler: $(SRCS)
-	gcc $(SRCS) -g -rdynamic -D TEST_CGEN -o bobcompiler -Wall -Wextra
+$(NAME): $(SRCS)
+	gcc $(SRCS) -g -rdynamic -o $(NAME) -Wall -Wextra
 
 clean:
 
 fclean: clean
-	rm -f $(NAME) bobinterpreter bobparser bobcompiler
+	rm -f $(NAME)
 
 re: fclean all
 
