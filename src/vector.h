@@ -1,4 +1,4 @@
-#ifndef VECTOR_H
+#ifndef VECTOR_
 #define VECTOR_
 
 struct internal_vector {
