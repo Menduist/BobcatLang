@@ -1,10 +1,17 @@
 func testwhile() {
 	int x
-	while (x < 5) {
-		printi(x)
+	while (x < 30) {
 		++x
+		if (x == 3)
+			continue
+		printi(x)
+		if (x == 23)
+			break
 	}
-	while (x < 5) ++x
+	while (x > 5) --x
+	printi(x)
+	while (x < 10) if (++x == 8) return
+	printi(x)
 }
 
 func main() {

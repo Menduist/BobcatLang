@@ -137,15 +137,24 @@ static int cgen_while(struct cgen *cgen, struct ast_node *node, int pass) {
 	return 1;
 }
 
-static int cgen_return(struct cgen *cgen, struct ast_node *node, int pass) {
+static int cgen_jump(struct cgen *cgen, struct ast_node *node, int pass) {
 	indent(cgen);
-	fputs("return ", cgen->file);
-	if (node->childcount > 1) {
-		cgen->is_expression_inline = 1;
-		cgen_pass(cgen, node->childs[1], pass);
-		cgen->is_expression_inline = 0;
+	switch (((struct SimpleToken *)node->childs[0])->type) {
+		case TOKEN_BREAK:
+		case TOKEN_CONTINUE:
+			fputs(((struct SimpleToken *)node->childs[0])->value, cgen->file);
+			fputs(";\n", cgen->file);
+			break;
+		case TOKEN_RETURN:
+			fputs("return ", cgen->file);
+			if (node->childcount > 1) {
+				cgen->is_expression_inline = 1;
+				cgen_pass(cgen, node->childs[1], pass);
+				cgen->is_expression_inline = 0;
+			}
+			fputs(";\n", cgen->file);
+			break;
 	}
-	fputs(";\n", cgen->file);
 	return 1;
 }
 
@@ -334,7 +343,7 @@ void init_cgenerator(void) {
 	passes[VARIABLE_DECLARATION] = cgen_variable_declaration;
 	passes[IF_STATEMENT] = cgen_if;
 	passes[WHILE_STATEMENT] = cgen_while;
-	passes[RETURN_STATEMENT] = cgen_return;
+	passes[JUMP_STATEMENT] = cgen_jump;
 }
 
 #ifdef TEST_CGEN

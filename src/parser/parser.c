@@ -372,13 +372,15 @@ static struct ast_node *parse_compound_statement(struct parser *parser) {
 	return result;
 }
 
-static struct ast_node *parse_return_statement(struct parser *parser) {
+static struct ast_node *parse_jump_statement(struct parser *parser) {
 	struct ast_node *result = new_node();
 
-	result->type = RETURN_STATEMENT;
-	add_child(&result, (struct ast_node *)parser->tokens++);
-	if (can_be_primary(parser->tokens) && parser->tokens->line == ((struct SimpleToken *)result->childs[0])->line)
-		add_child(&result, parse_expression(parser));
+	result->type = JUMP_STATEMENT;
+	add_child(&result, (struct ast_node *)parser->tokens);
+	if (parser->tokens++->type == TOKEN_RETURN) {
+		if (can_be_primary(parser->tokens) && parser->tokens->line == ((struct SimpleToken *)result->childs[0])->line)
+			add_child(&result, parse_expression(parser));
+	}
 	return result;
 }
 
@@ -416,7 +418,9 @@ static struct ast_node *parse_statement(struct parser *parser) {
 	case TOKEN_BLOCK_START:
 		return parse_compound_statement(parser);
 	case TOKEN_RETURN:
-		return parse_return_statement(parser);
+	case TOKEN_BREAK:
+	case TOKEN_CONTINUE:
+		return parse_jump_statement(parser);
 	case TOKEN_IDENTIFIER:
 		if (parser->tokens[1].type == TOKEN_IDENTIFIER)
 			return parse_variable_multiple_declaration(parser);
@@ -549,6 +553,8 @@ char *all_names[] = {
 	"TOKEN_SEMICOLON",
 	"TOKEN_EXPRESSION_END",
 	"TOKEN_RETURN",
+	"TOKEN_BREAK",
+	"TOKEN_CONTINUE",
 	"TRANSLATION_UNIT",
 	"EXTERN_DECLARATION",
 	"STRUCT_DEFINITION",
@@ -564,7 +570,7 @@ char *all_names[] = {
 	"POSTFIX_OPERATOR",
 	"IF_STATEMENT",
 	"WHILE_STATEMENT",
-	"RETURN_STATEMENT",
+	"JUMP_STATEMENT",
 	"NODES_END"
 };
 

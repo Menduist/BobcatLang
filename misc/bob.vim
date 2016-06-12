@@ -7,7 +7,7 @@ if exists("b:current_syntax")
 	finish
 	endif
 
-syn keyword basicLanguageKeywords func if while for else struct
+syn keyword basicLanguageKeywords func if while for else struct break continue return
 " syn keyword basicTypes int
 syn region	string		start=+"+ skip=+\\\\\|\\"+ end=+"+ extend
 syn region block start="{" end="}" fold transparent

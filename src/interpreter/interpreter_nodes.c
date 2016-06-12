@@ -6,11 +6,17 @@
 #include <ctype.h>
 
 #define RETURNED (struct interpreter_data *)1
+#define BREAKED (struct interpreter_data *)2
+#define CONTINUED (struct interpreter_data *)3
 
 struct interpreter_data *execute_node(struct interpreter *inter, struct ast_node *node);
 struct interpreter_data *call_function(struct interpreter *inter, char *funcname);
 
 node_intepretator nodes_interpretor[NODES_END];
+
+static int is_jumped(struct interpreter_data *p) {
+	return p != NULL && p <= CONTINUED;
+}
 
 struct interpreter_data *get_rvalue(struct interpreter_data *data) {
 	if (data->type == INTER_VAR) {
@@ -71,6 +77,7 @@ struct interpreter_data *interpret_function_definition(struct interpreter *inter
 struct interpreter_data *interpret_compound_statement(struct interpreter *inter, struct ast_node *node) {
 	struct interpreter_scope *newscope = calloc(sizeof(struct interpreter_scope), 1);
 	struct sem_scope *sem_scope = node->sem_val;
+	struct interpreter_data *r;
 	int i;
 
 	newscope->parent = inter->scope;
@@ -82,8 +89,9 @@ struct interpreter_data *interpret_compound_statement(struct interpreter *inter,
 	}
 
 	for (i = 0; i < node->childcount; i++) {
-		if (execute_node(inter, node->childs[i]) == RETURNED)
-			return RETURNED;
+		r = execute_node(inter, node->childs[i]);
+		if (is_jumped(r))
+			return r;
 	}
 
 	inter->scope = newscope->parent;
@@ -97,8 +105,8 @@ struct interpreter_data *interpret_expression_list(struct interpreter *inter, st
 
 	for (i = 0; i < node->childcount; i++) {
 		result = execute_node(inter, node->childs[i]);
-		if (result == RETURNED)
-			return RETURNED;
+		if (is_jumped(result))
+			return result;
 	}
 	return result;
 }
@@ -212,6 +220,15 @@ struct interpreter_data *interpret_operator(struct interpreter *inter, struct as
 		result->data = malloc(sizeof(int));
 		*(int *)result->data = *(int *)left->data < *(int *)right->data;
 	}
+	else if (strcmp(operator, ">") == 0) {
+		struct interpreter_data *right = get_rvalue(execute_node(inter, node->childs[2]));
+		struct interpreter_data *left = get_rvalue(execute_node(inter, node->childs[1]));
+
+		result = calloc(sizeof(struct interpreter_data), 1);
+		result->type = INTER_INT;
+		result->data = malloc(sizeof(int));
+		*(int *)result->data = *(int *)left->data > *(int *)right->data;
+	}
 	else {
 		printf("unhandled operator %s\n", operator);
 		return 0;
@@ -228,6 +245,13 @@ struct interpreter_data *interpret_prefix_operator(struct interpreter *inter, st
 		struct interpreter_variable *right_val = get_lvalue(right);
 
 		(*(int *)right_val->value)++;
+		return right;
+	}
+	else if (strcmp(operator, "--") == 0) {
+		struct interpreter_data *right = execute_node(inter, node->childs[1]);
+		struct interpreter_variable *right_val = get_lvalue(right);
+
+		(*(int *)right_val->value)--;
 		return right;
 	}
 	else {
@@ -263,23 +287,36 @@ struct interpreter_data *interpret_if_statement(struct interpreter *inter, struc
 
 struct interpreter_data *interpret_while_statement(struct interpreter *inter, struct ast_node *node) {
 	struct interpreter_data *condition;
+	struct interpreter_data *returnv;
 
 	condition = get_rvalue(execute_node(inter, node->childs[1]));
 	while (*(int *)condition->data) {
-		if (execute_node(inter, node->childs[2]) == RETURNED)
+		returnv = execute_node(inter, node->childs[2]);
+		if (returnv == RETURNED)
 			return RETURNED;
+		if (returnv == BREAKED)
+			break;
+
 		condition = get_rvalue(execute_node(inter, node->childs[1]));
 	}
 	return 0;
 }
 
-struct interpreter_data *interpret_return_statement(struct interpreter *inter, struct ast_node *node) {
+struct interpreter_data *interpret_jump_statement(struct interpreter *inter, struct ast_node *node) {
 	if (node->childcount > 1) {
 		inter->returnvalue = get_rvalue(execute_node(inter, node->childs[1]));
 	}
 	else
 		inter->returnvalue = 0;
-	return RETURNED;
+	switch (((struct SimpleToken *)node->childs[0])->type) {
+		case TOKEN_BREAK:
+			return BREAKED;
+		case TOKEN_CONTINUE:
+			return CONTINUED;
+		case TOKEN_RETURN:
+			return RETURNED;
+	}
+	return (struct interpreter_data *)-1;
 }
 
 void init_interpreter_nodes(void) {
@@ -296,5 +333,5 @@ void init_interpreter_nodes(void) {
 	nodes_interpretor[VARIABLE_DECLARATION] = interpret_variable_declaration;
 	nodes_interpretor[IF_STATEMENT] = interpret_if_statement;
 	nodes_interpretor[WHILE_STATEMENT] = interpret_while_statement;
-	nodes_interpretor[RETURN_STATEMENT] = interpret_return_statement;
+	nodes_interpretor[JUMP_STATEMENT] = interpret_jump_statement;
 }
