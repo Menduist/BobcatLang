@@ -33,9 +33,9 @@ struct ast_node {
 
 struct parser {
 	struct ast_node *root;
-	struct SimpleToken *token;
-	struct SimpleToken *peek;
-	struct SimpleToken *last_token;
+	struct simple_token *token;
+	struct simple_token *peek;
+	struct simple_token *last_token;
 	struct tokenizer tokenizer;
 };
 

@@ -177,15 +177,15 @@ static struct sem_function *generate_function(struct semantics *sem, struct ast_
 	result->type = SEM_FUNCTION;
 
 	vector_init(&result->args, 2);
-	result->name = ((struct SimpleToken *)func->childs[0]->childs[0])->value;
+	result->name = ((struct simple_token *)func->childs[0]->childs[0])->value;
 	if (func->childcount > 2)
-		result->result_type = get_type(sem, ((struct SimpleToken *)func->childs[2])->value);
+		result->result_type = get_type(sem, ((struct simple_token *)func->childs[2])->value);
 
 	result->creatornode = func;
 
 	for (i = 1; i < func->childs[0]->childcount; i++) {
-		argname = ((struct SimpleToken *)func->childs[0]->childs[i]->childs[1])->value;
-		argtype = ((struct SimpleToken *)func->childs[0]->childs[i]->childs[0])->value;
+		argname = ((struct simple_token *)func->childs[0]->childs[i]->childs[1])->value;
+		argtype = ((struct simple_token *)func->childs[0]->childs[i]->childs[0])->value;
 		*vector_append(&result->args, 0) = generate_variable(sem, argname, argtype);
 	}
 
@@ -230,7 +230,7 @@ static int sem_fp_function_definition(struct semantics *sem, struct ast_node *no
 		node->sem_val = func;
 
 		scope = generate_scope(sem,
-				((struct SimpleToken *)node->childs[0]->childs[0])->value);
+				((struct simple_token *)node->childs[0]->childs[0])->value);
 		node->childs[1]->sem_val = scope;
 
 		for (i = 0; i < func->args.count; i++) {
@@ -252,7 +252,7 @@ static int sem_fp_struct_definition(struct semantics *sem, struct ast_node *node
 
 	if (pass == PASS_TYPES) {
 		type = generate_basic_type(SEM_STRUCT,
-				((struct SimpleToken *)node->childs[0])->value, -1);
+				((struct simple_token *)node->childs[0])->value, -1);
 		vector_init(&type->fields, node->childcount);
 
 		node->sem_val = type;
@@ -264,8 +264,8 @@ static int sem_fp_struct_definition(struct semantics *sem, struct ast_node *node
 
 		for (i = 1; i < node->childcount; i++) {
 			struct sem_variable *field = generate_variable(sem,
-						((struct SimpleToken *)node->childs[i]->childs[1])->value,
-						((struct SimpleToken *)node->childs[i]->childs[0])->value
+						((struct simple_token *)node->childs[i]->childs[1])->value,
+						((struct simple_token *)node->childs[i]->childs[0])->value
 						);
 			vector_append_value(&type->fields, field);
 			if (field->datatype)
@@ -285,7 +285,7 @@ static int sem_functioncall(struct semantics *sem, struct ast_node *node, int pa
 		for (i = 0; i < node->childs[2]->childcount; i++) {
 			argstypes[i] = find_node_type(sem, node->childs[2]->childs[i]);
 		}
-		node->sem_val = get_function_fargs(sem, ((struct SimpleToken *)node->childs[1])->value,
+		node->sem_val = get_function_fargs(sem, ((struct simple_token *)node->childs[1])->value,
 				argstypes, node->childs[2]->childcount);
 	}
 	sem_pass(sem, node->childs[2], pass);
@@ -295,14 +295,14 @@ static int sem_functioncall(struct semantics *sem, struct ast_node *node, int pa
 static int sem_sp_variable_declaration(struct semantics *sem, struct ast_node *node, int pass) {
 	int i;
 	if (pass == PASS_VARS) {
-		char *type = ((struct SimpleToken *)node->childs[0])->value;
+		char *type = ((struct simple_token *)node->childs[0])->value;
 		char *name;
 
 		for (i = 1; i < node->childcount; i++) {
 			if (node->childs[i]->type == OPERATOR) {
-				name = ((struct SimpleToken *)node->childs[i]->childs[1])->value;
+				name = ((struct simple_token *)node->childs[i]->childs[1])->value;
 			} else {
-				name = ((struct SimpleToken *)node->childs[i])->value;
+				name = ((struct simple_token *)node->childs[i])->value;
 			}
 
 			struct sem_variable *var = generate_variable(sem, name, type);
@@ -317,7 +317,7 @@ static int sem_sp_variable_declaration(struct semantics *sem, struct ast_node *n
 }
 
 static int sem_identifier(struct semantics *sem, struct ast_node *node, int pass) {
-	struct SimpleToken *tok = (struct SimpleToken *)node;
+	struct simple_token *tok = (struct simple_token *)node;
 
 	if (pass == PASS_IDENTIFIERS) {
 		struct sem_variable *var = get_variable(sem, tok->value);
@@ -351,11 +351,11 @@ static int sem_compound_statement(struct semantics *sem, struct ast_node *node, 
 
 static int sem_operator(struct semantics *sem, struct ast_node *node, int pass) {
 	if (pass == PASS_VAR_INFERENCE) {
-		if (strcmp(((struct SimpleToken *)node->childs[0])->value, "=") == 0 ||
-				strcmp(((struct SimpleToken *)node->childs[0])->value, "==") == 0) {
+		if (strcmp(((struct simple_token *)node->childs[0])->value, "=") == 0 ||
+				strcmp(((struct simple_token *)node->childs[0])->value, "==") == 0) {
 			if (node->childs[1]->type != TOKEN_IDENTIFIER)
 				return 0;
-			struct SimpleToken *tok = (struct SimpleToken *)node->childs[1];
+			struct simple_token *tok = (struct simple_token *)node->childs[1];
 
 			if (node->childs[1]->sem_val == 0 && !isdigit(tok->value[0])) {
 				struct sem_variable *var;
@@ -569,7 +569,7 @@ void print_node(struct ast_node *node, int level) {
 		printf("]\n");
 	}
 	else {
-		printf("[%s, '%s'", all_names[node->type], ((struct SimpleToken *)node)->value);
+		printf("[%s, '%s'", all_names[node->type], ((struct simple_token *)node)->value);
 		if (node->sem_val) {
 			printf(" ");
 			print_sem(node->sem_val, level + 1);

@@ -40,7 +40,7 @@ translation_unit
 
 */
 
-struct SimpleToken *consume_token(struct parser *parser) {
+struct simple_token *consume_token(struct parser *parser) {
 	parser->last_token = parser->token;
 	if (parser->peek != NULL) {
 		parser->token = parser->peek;
@@ -56,7 +56,7 @@ void ignore_token(struct parser *parser) {
 	/*free(*/consume_token(parser)/*)*/;
 }
 
-struct SimpleToken *peek_token(struct parser *parser) {
+struct simple_token *peek_token(struct parser *parser) {
 	if (!parser->token)
 		parser->token = get_next_token(&parser->tokenizer);
 	if (!parser->peek)
@@ -86,7 +86,7 @@ static void add_child(struct ast_node **pnode, struct ast_node *child) {
 	*pnode = node;
 }
 
-static void unexcepted(char *excepted, struct SimpleToken *got) {
+static void unexcepted(char *excepted, struct simple_token *got) {
 	printf("Excepted %s, got '%s' at %d:%d\n", excepted, got->value, got->line, got->col);
 	print_backtrace();
 	exit(EXIT_FAILURE);
@@ -218,7 +218,7 @@ static struct ast_node *parse_prefix_operator(struct parser *parser) {
 
 static struct ast_node *parse_suffix_operator(struct parser *parser, struct ast_node *lhs) {
 	struct ast_node *result;
-	struct SimpleToken *op;
+	struct simple_token *op;
 
 	result = new_node();
 	op = consume_token(parser);
@@ -249,14 +249,14 @@ static struct ast_node *parse_suffix_operator(struct parser *parser, struct ast_
 	return result;
 }
 
-static int is_suffix_operator(struct SimpleToken *tok) {
+static int is_suffix_operator(struct simple_token *tok) {
 	if (strcmp(tok->value, "[") == 0) return 1;
 	if (strcmp(tok->value, "(") == 0) return 1;
 	if (strcmp(tok->value, ".") == 0) return 1;
 	return 0;
 }
 
-static int can_be_primary(struct SimpleToken *tok) {
+static int can_be_primary(struct simple_token *tok) {
 	switch (tok->type) {
 		case TOKEN_IDENTIFIER:
 		case TOKEN_STRING_LITERAL:
@@ -292,7 +292,7 @@ static struct ast_node *parse_primary(struct parser *parser) {
 	return result;
 }
 
-static int get_token_precedence(struct SimpleToken *tok) {
+static int get_token_precedence(struct simple_token *tok) {
 	if (tok->type != TOKEN_OPERATOR || tok->value[0] == ']')
 		return -1;
 	if (tok->value[0] == '.' || tok->value[0] == '[')
@@ -405,7 +405,7 @@ static struct ast_node *parse_jump_statement(struct parser *parser) {
 	result->type = JUMP_STATEMENT;
 	add_child(&result, (struct ast_node *)parser->token);
 	if (consume_token(parser)->type== TOKEN_RETURN) {
-		if (can_be_primary(parser->token) && parser->token->line == ((struct SimpleToken *)result->childs[0])->line)
+		if (can_be_primary(parser->token) && parser->token->line == ((struct simple_token *)result->childs[0])->line)
 			add_child(&result, parse_expression(parser));
 	}
 	return result;

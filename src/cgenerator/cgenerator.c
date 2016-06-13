@@ -64,7 +64,7 @@ static int cgen_expression_list(struct cgen *cgen, struct ast_node *node, int pa
 
 static int cgen_string_literal(struct cgen *cgen, struct ast_node *node, int pass) {
 	if (pass == PASS_ALL)
-		fputs(((struct SimpleToken*)node)->value, cgen->file);
+		fputs(((struct simple_token*)node)->value, cgen->file);
 	return 0;
 }
 
@@ -102,7 +102,7 @@ static int cgen_identifier(struct cgen *cgen, struct ast_node *node, int pass) {
 	if (node->sem_val)
 		fputs((char *)((struct sem_variable *)node->sem_val)->gendata, cgen->file);
 	else
-		fputs(((struct SimpleToken *)node)->value, cgen->file);
+		fputs(((struct simple_token *)node)->value, cgen->file);
 	(void) pass;
 	return 0;
 }
@@ -139,10 +139,10 @@ static int cgen_while(struct cgen *cgen, struct ast_node *node, int pass) {
 
 static int cgen_jump(struct cgen *cgen, struct ast_node *node, int pass) {
 	indent(cgen);
-	switch (((struct SimpleToken *)node->childs[0])->type) {
+	switch (((struct simple_token *)node->childs[0])->type) {
 		case TOKEN_BREAK:
 		case TOKEN_CONTINUE:
-			fputs(((struct SimpleToken *)node->childs[0])->value, cgen->file);
+			fputs(((struct simple_token *)node->childs[0])->value, cgen->file);
 			fputs(";\n", cgen->file);
 			break;
 		case TOKEN_RETURN:
@@ -161,14 +161,14 @@ static int cgen_jump(struct cgen *cgen, struct ast_node *node, int pass) {
 static int cgen_operator(struct cgen *cgen, struct ast_node *node, int pass) {
 	cgen_pass(cgen, node->childs[1], pass);
 	fputs(" ", cgen->file);
-	fputs(((struct SimpleToken *)node->childs[0])->value, cgen->file);
+	fputs(((struct simple_token *)node->childs[0])->value, cgen->file);
 	fputs(" ", cgen->file);
 	cgen_pass(cgen, node->childs[2], pass);
 	return 1;
 }
 
 static int cgen_prefix_operator(struct cgen *cgen, struct ast_node *node, int pass) {
-	fputs(((struct SimpleToken *)node->childs[0])->value, cgen->file);
+	fputs(((struct simple_token *)node->childs[0])->value, cgen->file);
 	(void) pass;
 	return 0;
 }

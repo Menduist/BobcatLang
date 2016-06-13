@@ -62,19 +62,17 @@ int parse_args(struct bob *bob, int argc, char **argv) {
 
 int main(int argc, char **argv) {
 	struct bob bob;
-	struct SimpleToken tokens[300];
 	struct ast_node *node;
 	
 	memset(&bob, 0, sizeof(struct bob));
 	parse_args(&bob, argc, argv);
 
 	bob.source = readfile(bob.file);
-	memset(tokens, 0, sizeof(struct SimpleToken) * 300);
 
 	init_semantical_analyzer();
 	init_cgenerator();
 	if (bob.mode == MODE_TOKENIZE) {
-		struct SimpleToken *tok;
+		struct simple_token *tok;
 		struct tokenizer tokenizer;
 		
 		init_tokenizer(&tokenizer, bob.source);

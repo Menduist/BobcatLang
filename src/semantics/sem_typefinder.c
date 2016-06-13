@@ -29,7 +29,7 @@ end:
 }
 
 static struct sem_type *finder_identifier(struct semantics *sem, struct ast_node *node) {
-	struct SimpleToken *tok = (struct SimpleToken *)node;
+	struct simple_token *tok = (struct simple_token *)node;
 	struct sem_variable *var;
 
 	if (isdigit(tok->value[0]))

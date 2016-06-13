@@ -26,7 +26,7 @@ enum TokensTypes {
 	TOKEN_LAST
 };
 
-struct SimpleToken {
+struct simple_token {
 	int type;
 	int line;
 	int col;
@@ -41,6 +41,6 @@ struct tokenizer {
 };
 
 void init_tokenizer(struct tokenizer *tok, const char *code);
-struct SimpleToken *get_next_token(struct tokenizer *tokenizer);
+struct simple_token *get_next_token(struct tokenizer *tokenizer);
 
 #endif

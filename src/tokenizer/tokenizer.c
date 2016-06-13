@@ -6,7 +6,7 @@
 #include <ctype.h>
 #include "../utils.h"
 
-static int try_tokenize_identifier(const char *code, struct SimpleToken *token) {
+static int try_tokenize_identifier(const char *code, struct simple_token *token) {
 	int length;
 
 	if (!isalnum(code[0]))
@@ -42,7 +42,7 @@ static int try_discard_comment(const char *code) {
 	return length;
 }
 
-static int try_tokenize_string(const char *code, struct SimpleToken *token) {
+static int try_tokenize_string(const char *code, struct simple_token *token) {
 	int length;
 
 	if (code[0] != '"')
@@ -64,7 +64,7 @@ inline static int is_operator(char c) {
 		c == '<' || c == '>' || c == '.' || c == '[' || c == ']';
 }
 
-static int try_tokenize_operator(const char *code, struct SimpleToken *token) {
+static int try_tokenize_operator(const char *code, struct simple_token *token) {
 	int length;
 
 	length = 0;
@@ -87,8 +87,8 @@ static int checkkeyword(const char *code, const char *keyword, int size) {
 	return strncmp(code, keyword, (size_t) size) || !isspace(code[size]);
 }
 
-struct SimpleToken *get_next_token(struct tokenizer *tokenizer) {
-	struct SimpleToken *result = memalloc(struct SimpleToken, 1);
+struct simple_token *get_next_token(struct tokenizer *tokenizer) {
+	struct simple_token *result = memalloc(struct simple_token, 1);
 	int tmp;
 
 	while (tokenizer->code[tokenizer->position] != '\0') {

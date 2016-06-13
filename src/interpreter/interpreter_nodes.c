@@ -43,7 +43,7 @@ struct interpreter_data *interpret_function_print(struct interpreter *inter, int
 
 
 struct interpreter_data *interpret_function_definition(struct interpreter *inter, struct ast_node *node) {
-	/*printf("called %s with [", ((struct SimpleToken *)node->childs[0]->childs[0])->value);
+	/*printf("called %s with [", ((struct simple_token *)node->childs[0]->childs[0])->value);
 	int i;
 	for (i = 0; i < inter->argcount; i++) {
 		dump_data(inter->args[i]->type, inter->args[i]->data);
@@ -113,7 +113,7 @@ struct interpreter_data *interpret_expression_list(struct interpreter *inter, st
 
 struct interpreter_data *interpret_string_literal(struct interpreter *inter, struct ast_node *node) {
 	struct interpreter_data *result = malloc(sizeof(struct interpreter_data));
-	char *string = strdup(((struct SimpleToken *)node)->value + 1);
+	char *string = strdup(((struct simple_token *)node)->value + 1);
 	int i;
 	int y;
 
@@ -136,7 +136,7 @@ struct interpreter_data *interpret_string_literal(struct interpreter *inter, str
 
 struct interpreter_data *interpret_identifier(struct interpreter *inter, struct ast_node *node) {
 	struct interpreter_data *result = calloc(sizeof(struct interpreter_data), 1);
-	char *identifier = ((struct SimpleToken *)node)->value;
+	char *identifier = ((struct simple_token *)node)->value;
 
 	if (isdigit(identifier[0])) {
 		result->type = INTER_INT;
@@ -162,7 +162,7 @@ struct interpreter_data *interpret_variable_declaration(struct interpreter *inte
 }
 
 struct interpreter_data *interpret_operator(struct interpreter *inter, struct ast_node *node) {
-	char *operator = ((struct SimpleToken *)node->childs[0])->value;
+	char *operator = ((struct simple_token *)node->childs[0])->value;
 	struct interpreter_data *result;
 	
 	if (strcmp(operator, "=") == 0) {
@@ -237,7 +237,7 @@ struct interpreter_data *interpret_operator(struct interpreter *inter, struct as
 }
 
 struct interpreter_data *interpret_prefix_operator(struct interpreter *inter, struct ast_node *node) {
-	char *operator = ((struct SimpleToken *)node->childs[0])->value;
+	char *operator = ((struct simple_token *)node->childs[0])->value;
 	struct interpreter_data *result;
 	
 	if (strcmp(operator, "++") == 0) {
@@ -271,7 +271,7 @@ struct interpreter_data *interpret_call_function(struct interpreter *inter, stru
 	inter->argcount = node->childs[2]->childcount;
 	if (((struct sem_function *)node->sem_val)->creatornode)
 		return call_function_node(inter, ((struct sem_function *)node->sem_val)->creatornode);
-	return call_function(inter, ((struct SimpleToken *)node->childs[1])->value);
+	return call_function(inter, ((struct simple_token *)node->childs[1])->value);
 }
 
 struct interpreter_data *interpret_if_statement(struct interpreter *inter, struct ast_node *node) {
@@ -308,7 +308,7 @@ struct interpreter_data *interpret_jump_statement(struct interpreter *inter, str
 	}
 	else
 		inter->returnvalue = 0;
-	switch (((struct SimpleToken *)node->childs[0])->type) {
+	switch (((struct simple_token *)node->childs[0])->type) {
 		case TOKEN_BREAK:
 			return BREAKED;
 		case TOKEN_CONTINUE:

@@ -25,10 +25,10 @@ struct interpreter_data *execute_node(struct interpreter *inter, struct ast_node
 
 struct ast_node *get_function(struct interpreter *inter, char *funcname) {
 	int i;
-	struct SimpleToken *tok;
+	struct simple_token *tok;
 
 	for (i = 0; inter->function_list[i]; i++) {
-		tok = (struct SimpleToken *)inter->function_list[i]->childs[0]->childs[0];
+		tok = (struct simple_token *)inter->function_list[i]->childs[0]->childs[0];
 		if (strcmp(tok->value, funcname) == 0) {
 			return inter->function_list[i];
 		}
