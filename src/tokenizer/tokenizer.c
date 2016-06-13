@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
+#include "../utils.h"
 
 static int try_tokenize_identifier(const char *code, struct SimpleToken *token) {
 	int length;
@@ -86,30 +87,37 @@ static int checkkeyword(const char *code, const char *keyword, int size) {
 	return strncmp(code, keyword, (size_t) size) || !isspace(code[size]);
 }
 
-void tokenize(const char *code, struct SimpleToken *tokens) {
-	int i, tokenid, tmp;
-	int line, linestart;
+struct SimpleToken *get_next_token(struct tokenizer *tokenizer) {
+	struct SimpleToken *result = memalloc(struct SimpleToken, 1);
+	int tmp;
 
-	i = tokenid = linestart = 0;
-	line = 1;
-	while (code[i] != '\0') {
-		if (code[i] == '\n') {
-			line++;
-			linestart = i;
-			i++;
+	while (tokenizer->code[tokenizer->position] != '\0') {
+		if (tokenizer->code[tokenizer->position] == '\n') {
+			tokenizer->line++;
+			tokenizer->linestart = tokenizer->position;
+			tokenizer->position++;
 			continue;
 		}
-		if (isspace(code[i])) {
-			i++;
+		if (isspace(tokenizer->code[tokenizer->position])) {
+			tokenizer->position++;
 			continue;
 		}
-		tmp = try_discard_comment(code + i);
+		tmp = try_discard_comment(tokenizer->code + tokenizer->position);
 		if (tmp > 0) {
-			i += tmp;
+			tokenizer->position += tmp;
 			continue;
 		}
-#define SET_TOKEN(etype, size) { tokens[tokenid].type = etype; tokens[tokenid].line = line; tokens[tokenid].col = (i - linestart); strncpy(tokens[tokenid].value, code + i, size); tokens[tokenid].value[size] = 0; tokenid++;}
-#define HANDLE_SINGLE_CHAR(val, etype) if (code[i] == val) {SET_TOKEN(etype, 1); i++; continue;}
+#define SET_TOKEN(etype, size) { result->type = etype; \
+	result->line = tokenizer->line; \
+	result->col = (tokenizer->position - tokenizer->linestart); \
+	strncpy(result->value, tokenizer->code + tokenizer->position, size); \
+	result->value[size] = 0; \
+	tokenizer->position += size; \
+	return result; }
+
+#define HANDLE_SINGLE_CHAR(val, etype) if (tokenizer->code[tokenizer->position] == val) {\
+	SET_TOKEN(etype, 1); }
+
 		HANDLE_SINGLE_CHAR('{', TOKEN_BLOCK_START);
 		HANDLE_SINGLE_CHAR('}', TOKEN_BLOCK_END);
 		HANDLE_SINGLE_CHAR('(', TOKEN_PARENTHESE_START);
@@ -117,9 +125,9 @@ void tokenize(const char *code, struct SimpleToken *tokens) {
 		HANDLE_SINGLE_CHAR(':', TOKEN_COLON);
 		HANDLE_SINGLE_CHAR(',', TOKEN_COMMA);
 		HANDLE_SINGLE_CHAR(';', TOKEN_SEMICOLON);
-#define HANDLE_KEYWORD(keyword, size, etype) if (checkkeyword(code + i, keyword, size) == 0) {\
+#define HANDLE_KEYWORD(keyword, size, etype) if (checkkeyword(tokenizer->code + tokenizer->position, keyword, size) == 0) {\
 	SET_TOKEN(etype, size); \
-	i += size; continue; }
+	}
 		HANDLE_KEYWORD("func", 4, TOKEN_FUNC);
 		HANDLE_KEYWORD("struct", 6, TOKEN_STRUCT);
 		HANDLE_KEYWORD("if", 2, TOKEN_IF);
@@ -129,50 +137,27 @@ void tokenize(const char *code, struct SimpleToken *tokens) {
 		HANDLE_KEYWORD("break", 5, TOKEN_BREAK);
 		HANDLE_KEYWORD("continue", 8, TOKEN_CONTINUE);
 
-#define HANDLE_OTHER(name) if ((tmp = name(code + i, tokens + tokenid)) > 0) { \
-			i += tmp; \
-			tokens[tokenid].line = line; tokens[tokenid].col = (i - linestart); \
-			tokenid++; \
-			continue; \
+#define HANDLE_OTHER(name) if ((tmp = name(tokenizer->code + tokenizer->position, result)) > 0) { \
+			tokenizer->position += tmp; \
+			result->line = tokenizer->line; \
+			result->col = (tokenizer->position - tokenizer->linestart); \
+			return result; \
 		}
 
 		HANDLE_OTHER(try_tokenize_string);
 		HANDLE_OTHER(try_tokenize_operator);
 		HANDLE_OTHER(try_tokenize_identifier);
 
-		printf("warning, unhandled %c\n", code[i]);
-		i++;
+		printf("warning, unhandled %c\n", tokenizer->code[tokenizer->position]);
+		tokenizer->position++;
 	}
-	tokens[tokenid].type = TOKEN_NONE;
+	result->type = TOKEN_NONE;
+	return result;
 }
 
-#ifdef TEST_TOKENIZER
-
-char *readfile(char *path) {
-	char *target;
-	FILE *source;
-	int size;
-	
-	source = fopen(path, "r");
-	fseek(source, 0, SEEK_END);
-	size = ftell(source);
-	target = malloc(sizeof(char) * (size + 1));
-	fseek(source, 0, SEEK_SET);
-	fread(target, 1, size, source);
-	target[size] = '\0';
-	return target;
+void init_tokenizer(struct tokenizer *tok, const char *code) {
+	tok->position = 0;
+	tok->code = code;
+	tok->line = 1;
+	tok->linestart = 0;
 }
-
-int main(int argc, char **argv) {
-	char *source = readfile(argv[1]);
-	struct SimpleToken tokens[100];
-	
-	tokenize(source, tokens);
-	int i;
-	for (i = 0; i < 30; i++) {
-		printf("%d: %s\n", tokens[i].type, tokens[i].value);
-	}
-	return 0;
-}
-
-#endif

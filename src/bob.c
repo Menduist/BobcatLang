@@ -64,7 +64,6 @@ int main(int argc, char **argv) {
 	struct bob bob;
 	struct SimpleToken tokens[300];
 	struct ast_node *node;
-	int i;
 	
 	memset(&bob, 0, sizeof(struct bob));
 	parse_args(&bob, argc, argv);
@@ -74,28 +73,37 @@ int main(int argc, char **argv) {
 
 	init_semantical_analyzer();
 	init_cgenerator();
-	if (bob.mode >= MODE_TOKENIZE) {
-		tokenize(bob.source, tokens);
+	if (bob.mode == MODE_TOKENIZE) {
+		struct SimpleToken *tok;
+		struct tokenizer tokenizer;
 		
-		if (bob.mode >= MODE_PARSE) {
-			node = parse(tokens);
+		init_tokenizer(&tokenizer, bob.source);
+		while (1) {
+			tok = get_next_token(&tokenizer);
+			printf("%s (%d): %s (%d)\n", all_names[tok->type], tok->type,
+					tok->value, tok->line);
+			if (tok->type == 0) {
+				free(tok);
+				break;
+			}
+			free(tok);
+		}
+	}
+	else if (bob.mode >= MODE_PARSE) {
+		node = parse(bob.source);
 
-			if (bob.mode >= MODE_SEM) {
-				run_semantical_analyzer(node);
-				
-				if (bob.mode == MODE_INTERPRET) {
-					interpret(node);
-				}
-				else if (bob.mode >= MODE_COMPILE) {
-					compile(node);
+		if (bob.mode >= MODE_SEM) {
+			run_semantical_analyzer(node);
 
-					if (bob.mode >= MODE_EXECUTE) {
-						fflush(stdout);
-						system("./a.out");
-					}
-				}
-				else {
-					print_node(node, 0);
+			if (bob.mode == MODE_INTERPRET) {
+				interpret(node);
+			}
+			else if (bob.mode >= MODE_COMPILE) {
+				compile(node);
+
+				if (bob.mode >= MODE_EXECUTE) {
+					fflush(stdout);
+					system("./a.out");
 				}
 			}
 			else {
@@ -103,12 +111,7 @@ int main(int argc, char **argv) {
 			}
 		}
 		else {
-			for (i = 0; i < 300; i++) {
-				if (!tokens[i].type)
-					break;
-				printf("%s (%d): %s (%d)\n", all_names[tokens[i].type], tokens[i].type,
-						tokens[i].value, tokens[i].line);
-			}
+			print_node(node, 0);
 		}
 	}
 

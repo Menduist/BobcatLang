@@ -34,5 +34,13 @@ struct SimpleToken {
 	char value[255];
 };
 
-void tokenize(const char *code, struct SimpleToken *tokens);
+struct tokenizer {
+	const char *code;
+	int position;
+	int line, linestart;
+};
+
+void init_tokenizer(struct tokenizer *tok, const char *code);
+struct SimpleToken *get_next_token(struct tokenizer *tokenizer);
+
 #endif
