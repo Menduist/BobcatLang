@@ -111,7 +111,9 @@ int main(int argc, char **argv) {
 		else {
 			print_node(node, 0);
 		}
+		free_ast_node(node);
 	}
+	free(bob.source);
 
 	return 0;
 }

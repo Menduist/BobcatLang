@@ -41,7 +41,9 @@ translation_unit
 */
 
 struct simple_token *consume_token(struct parser *parser) {
-	parser->last_token = parser->token;
+	struct simple_token *result = parser->token;
+
+	memcpy(&parser->last_token, parser->token, sizeof(struct simple_token));
 	if (parser->peek != NULL) {
 		parser->token = parser->peek;
 		parser->peek = 0;
@@ -49,11 +51,11 @@ struct simple_token *consume_token(struct parser *parser) {
 	else {
 		parser->token = get_next_token(&parser->tokenizer);
 	}
-	return parser->last_token;
+	return result;
 }
 
 void ignore_token(struct parser *parser) {
-	/*free(*/consume_token(parser)/*)*/;
+	free(consume_token(parser));
 }
 
 struct simple_token *peek_token(struct parser *parser) {
@@ -316,7 +318,7 @@ static struct ast_node *parse_expression_1(struct parser *parser, struct ast_nod
 	while (1) {
 		tokprec = get_token_precedence(parser->token);
 
-		if (parser->last_token->line != parser->token->line) {
+		if (parser->last_token.line != parser->token->line) {
 			return lhs;
 		}
 
@@ -556,10 +558,25 @@ struct ast_node *parse(const char *code) {
 	struct parser parser;
 
 	init_tokenizer(&parser.tokenizer, code);
-	parser.last_token = parser.token = parser.peek = 0;
+	parser.token = parser.peek = 0;
 	peek_token(&parser);
 	parse_translation_unit(&parser);
+
+	if (parser.token)
+		free(parser.token);
+	if (parser.peek)
+		free(parser.peek);
 	return parser.root;
+}
+
+void free_ast_node(struct ast_node *node) {
+	int i;
+
+	if (node->type >= TOKEN_LAST) {
+		for (i = 0; i < node->childcount; i++)
+			free_ast_node(node->childs[i]);
+	}
+	free(node);
 }
 
 char *all_names[] = {

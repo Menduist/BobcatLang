@@ -35,10 +35,11 @@ struct parser {
 	struct ast_node *root;
 	struct simple_token *token;
 	struct simple_token *peek;
-	struct simple_token *last_token;
+	struct simple_token last_token;
 	struct tokenizer tokenizer;
 };
 
+void free_ast_node(struct ast_node *node);
 struct ast_node *parse(const char *code);
 
 extern char *all_names[];

@@ -34,6 +34,7 @@ char *readfile(char *path) {
 	fseek(source, 0, SEEK_SET);
 	fread(target, 1, size, source);
 	target[size] = '\0';
+	fclose(source);
 	return target;
 }
 
