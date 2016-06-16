@@ -578,3 +578,37 @@ void print_node(struct ast_node *node, int level) {
 		printf("]\n");
 	}
 }
+
+static  void free_sem_scope(struct sem_scope *sem) {
+	int i;
+
+	for (i = 0; i < sem->functions.count; i++) {
+		vector_delete_values(&sem->functions.data[i]->args);
+		free(sem->functions.data[i]);
+	}
+	vector_delete(&sem->functions);
+
+	for (i = sem->implicit_var_count; i < sem->variables.count; i++) {
+		free(sem->variables.data[i]);
+	}
+	vector_delete(&sem->variables);
+
+	vector_delete_values(&sem->types);
+
+	free(sem);
+}
+
+void free_sem_ast_node(struct ast_node *node) {
+	int i;
+
+	if (node->type >= TOKEN_LAST) {
+		for (i = 0; i < node->childcount; i++)
+			free_sem_ast_node(node->childs[i]);
+	}
+	if (node->sem_val) {
+		if (((struct sem_scope *)node->sem_val)->type == SEM_SCOPE) {
+			free_sem_scope(node->sem_val);
+		}
+	}
+	free(node);
+}

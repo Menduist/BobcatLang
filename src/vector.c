@@ -30,3 +30,12 @@ void vector_delete(struct internal_vector *vector)
     free(vector->data);
     memset(vector, 0, sizeof(struct internal_vector));
 }
+
+void vector_delete_values(struct internal_vector *vector)
+{
+	int i;
+
+	for (i = 0; i < vector->count; i++)
+		free(((void **)vector->data)[i]);
+	vector_delete(vector);
+}

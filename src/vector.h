@@ -20,6 +20,9 @@ void *_vector_append(struct internal_vector *vec, void *data);
 //Implicit args: void vector_delete(struct internal_vector *vector);
 void vector_delete();
 
+//Implicit args: void vector_delete_values(struct internal_vector *vector);
+void vector_delete_values();
+
 DECLAREVECTOR(string, char *);
 
 #endif

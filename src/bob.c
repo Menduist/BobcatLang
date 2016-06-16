@@ -106,12 +106,13 @@ int main(int argc, char **argv) {
 			}
 			else {
 				print_node(node, 0);
+				free_sem_ast_node(node);
 			}
 		}
 		else {
 			print_node(node, 0);
+			free_ast_node(node);
 		}
-		free_ast_node(node);
 	}
 	free(bob.source);
 

@@ -77,4 +77,6 @@ void print_node(struct ast_node *node, int level);
 void init_semantical_analyzer(void);
 void init_sem_typefinder(void);
 
+void free_sem_ast_node(struct ast_node *node);
+
 #endif
