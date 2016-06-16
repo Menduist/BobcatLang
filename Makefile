@@ -3,8 +3,6 @@ NAME=bob
 SRCS=src/bob.c \
 src/parser/parser.c \
 src/tokenizer/tokenizer.c \
-src/interpreter/interpreter_nodes.c \
-src/interpreter/interpreter.c \
 src/utils.c \
 src/vector.c \
 src/semantics/semantics.c \

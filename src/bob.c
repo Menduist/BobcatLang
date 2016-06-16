@@ -2,7 +2,6 @@
 #include "utils.h"
 #include <string.h>
 #include <stdio.h>
-#include "interpreter/interpreter.h"
 #include "cgenerator/cgenerator.h"
 
 void usage(char *prog) {
@@ -12,7 +11,6 @@ void usage(char *prog) {
 	printf("  tokenizer  Tokenize the input file and print the resulint tokens\n");
 	printf("  parse      Parse the input file and print the resulint AST\n");
 	printf("  semantics  Semantic analyze the input file and print the resulint AST\n");
-	printf("  interpret  Interpret the input file\n");
 	printf("  compile    Compile the input file\n");
 	printf("  execute    Compile and execute the input file\n\n");
 
@@ -93,10 +91,7 @@ int main(int argc, char **argv) {
 		if (bob.mode >= MODE_SEM) {
 			run_semantical_analyzer(node);
 
-			if (bob.mode == MODE_INTERPRET) {
-				interpret(node);
-			}
-			else if (bob.mode >= MODE_COMPILE) {
+			if (bob.mode >= MODE_COMPILE) {
 				compile(node);
 
 				if (bob.mode >= MODE_EXECUTE) {

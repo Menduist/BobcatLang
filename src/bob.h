@@ -6,7 +6,6 @@ enum bob_compile_mode {
 	MODE_TOKENIZE,
 	MODE_PARSE,
 	MODE_SEM,
-	MODE_INTERPRET,
 	MODE_COMPILE,
 	MODE_EXECUTE,
 	MODE_END
@@ -17,7 +16,6 @@ char *bob_compile_mode_names[] = {
 	"tokenize",
 	"parse",
 	"semantical",
-	"interpret",
 	"compile",
 	"execute"
 };
