@@ -182,7 +182,7 @@ static char *mangle_var(struct cgen *cgen, struct sem_variable *tomangle) {
 static char *mangle_func(struct cgen *cgen, struct sem_function *tomangle) {
 	(void) cgen;
 	if (strcmp(tomangle->name, "main") == 0)
-		tomangle->gendata = "inner_main";
+		tomangle->gendata = strdup("inner_main");
 	else {
 		char result[1000];
 		int length;

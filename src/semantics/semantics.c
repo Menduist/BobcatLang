@@ -584,6 +584,8 @@ static  void free_sem_scope(struct sem_scope *sem) {
 
 	for (i = 0; i < sem->functions.count; i++) {
 		vector_delete_values(&sem->functions.data[i]->args);
+		if (sem->functions.data[i]->gendata)
+			free(sem->functions.data[i]->gendata);
 		free(sem->functions.data[i]);
 	}
 	vector_delete(&sem->functions);

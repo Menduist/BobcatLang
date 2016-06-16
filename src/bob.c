@@ -103,6 +103,7 @@ int main(int argc, char **argv) {
 					fflush(stdout);
 					system("./a.out");
 				}
+				free_sem_ast_node(node);
 			}
 			else {
 				print_node(node, 0);
