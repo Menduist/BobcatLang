@@ -19,7 +19,7 @@ CFLAGS= -rdynamic -Wall -Wextra -g
 all: $(NAME)
 
 $(NAME): $(OBJS)
-	g++ $(OBJS) $(CFLAGS) -o $(NAME) `llvm-config --libs --ldflags --system-libs all` -lffi
+	g++ $(OBJS) $(CFLAGS) -o $(NAME) `llvm-config --ldflags --libs` -lrt -ldl -lcurses -lpthread -lz -lm -lffi
 
 -include objs/dep
 
