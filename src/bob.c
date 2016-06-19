@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "cgenerator/cgenerator.h"
+#include "llvm/llvm.h"
 
 void usage(char *prog) {
 	printf("Usage: %s [MODE] [OPTION]... MAINFILE\n\n", prog);
@@ -11,6 +12,7 @@ void usage(char *prog) {
 	printf("  tokenizer  Tokenize the input file and print the resulint tokens\n");
 	printf("  parse      Parse the input file and print the resulint AST\n");
 	printf("  semantics  Semantic analyze the input file and print the resulint AST\n");
+	printf("  interpret  Interpret the file using llvm\n");
 	printf("  compile    Compile the input file\n");
 	printf("  execute    Compile and execute the input file\n\n");
 
@@ -91,7 +93,10 @@ int main(int argc, char **argv) {
 		if (bob.mode >= MODE_SEM) {
 			run_semantical_analyzer(node);
 
-			if (bob.mode >= MODE_COMPILE) {
+			if (bob.mode == MODE_INTER) {
+				llvm_interpret(node);
+			}
+			else if (bob.mode >= MODE_COMPILE) {
 				compile(node);
 
 				if (bob.mode >= MODE_EXECUTE) {

@@ -7,8 +7,8 @@ src/utils.c \
 src/vector.c \
 src/semantics/semantics.c \
 src/semantics/sem_typefinder.c \
-src/cgenerator/cgenerator.c
-#src/llvm/llvm.c \
+src/cgenerator/cgenerator.c \
+src/llvm/llvm.c \
 
 OBJS=$(addprefix objs/, $(SRCS:.c=.o))
 
@@ -19,9 +19,13 @@ CFLAGS= -rdynamic -Wall -Wextra
 all: $(NAME)
 
 $(NAME): $(OBJS)
-	g++ $(OBJS) $(CFLAGS) -o $(NAME)
+	g++ $(OBJS) $(CFLAGS) -o $(NAME) `llvm-config --libs --ldflags --system-libs all` 
 
 -include objs/dep
+
+objs/src/llvm/llvm.o: src/llvm/llvm.c
+	@mkdir -p $(dir $@)
+	gcc `llvm-config --cflags` $(CFLAGS) -c $< -o $@
 
 objs/%.o: %.c
 	@mkdir -p $(dir $@)
