@@ -12,14 +12,14 @@ src/llvm/llvm.c \
 
 OBJS=$(addprefix objs/, $(SRCS:.c=.o))
 
-CFLAGS= -rdynamic -Wall -Wextra
+CFLAGS= -rdynamic -Wall -Wextra -g
 
 .PHONY: all fclean clean tests re
 
 all: $(NAME)
 
 $(NAME): $(OBJS)
-	g++ $(OBJS) $(CFLAGS) -o $(NAME) `llvm-config --libs --ldflags --system-libs all` 
+	g++ $(OBJS) $(CFLAGS) -o $(NAME) `llvm-config --libs --ldflags --system-libs all` -lffi
 
 -include objs/dep
 

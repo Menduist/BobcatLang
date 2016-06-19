@@ -71,6 +71,7 @@ int main(int argc, char **argv) {
 
 	init_semantical_analyzer();
 	init_cgenerator();
+	init_llvm();
 	if (bob.mode == MODE_TOKENIZE) {
 		struct simple_token *tok;
 		struct tokenizer tokenizer;

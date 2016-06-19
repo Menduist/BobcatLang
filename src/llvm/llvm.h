@@ -6,4 +6,6 @@
 //void llvm_compile(struct ast_node *node);
 void llvm_interpret(struct ast_node *node);
 
+void init_llvm(void);
+
 #endif
