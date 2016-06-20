@@ -9,11 +9,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
+
+enum wanted_value {
+	DEFAULT,
+	LVALUE,
+	RVALUE
+};
 
 struct llvm {
 	LLVMModuleRef module;
 	LLVMBuilderRef builder;
 	LLVMValueRef main;
+	enum wanted_value wanted_value;
 };
 
 typedef LLVMValueRef (*node_llvm)(struct llvm *, struct ast_node *);
@@ -35,6 +43,40 @@ static LLVMValueRef gen_node(struct llvm *llvm, struct ast_node *node) {
 		gen_node(llvm, node->childs[i]);
 	}
 end:
+	return 0;
+}
+
+static LLVMValueRef get_lvalue(struct llvm *llvm, struct ast_node *node) {
+	enum wanted_value backup = llvm->wanted_value;
+	LLVMValueRef result;
+
+	llvm->wanted_value = LVALUE;
+	result = gen_node(llvm, node);
+	llvm->wanted_value = backup;
+	return result;
+}
+
+static LLVMValueRef get_rvalue(struct llvm *llvm, struct ast_node *node) {
+	enum wanted_value backup = llvm->wanted_value;
+	LLVMValueRef result;
+
+	llvm->wanted_value = RVALUE;
+	result = gen_node(llvm, node);
+	llvm->wanted_value = backup;
+	return result;
+}
+
+LLVMValueRef llvm_identifier(struct llvm *llvm, struct ast_node *node) {
+	if (node->sem_val) {
+		if (llvm->wanted_value == LVALUE)
+			return ((struct sem_variable *) node->sem_val)->gendata;
+		return LLVMBuildLoad(llvm->builder, ((struct sem_variable *) node->sem_val)->gendata, "loadres");
+	}
+	if (isdigit(((struct simple_token *)node)->value[0])) {
+		int val = atoi(((struct simple_token *)node)->value);
+		return LLVMConstInt(LLVMInt32Type(), val, 1);
+	}
+	printf("wtf %s\n", ((struct simple_token *)node)->value);
 	return 0;
 }
 
@@ -90,6 +132,40 @@ LLVMValueRef llvm_func_def(struct llvm *llvm, struct ast_node *node) {
 	return func;
 }
 
+LLVMValueRef llvm_operator(struct llvm *llvm, struct ast_node *node) {
+	char *op = ((struct simple_token *)node->childs[0])->value;
+
+	if (strcmp(op, "=") == 0) {
+		return LLVMBuildStore(llvm->builder, gen_node(llvm, node->childs[2]),
+				get_lvalue(llvm, node->childs[1]));
+	}
+	else if (strcmp(op, "*") == 0) {
+		return LLVMBuildMul(llvm->builder, gen_node(llvm, node->childs[1]),
+				gen_node(llvm, node->childs[2]), "mulres");
+	}
+	else if (strcmp(op, "/") == 0) {
+		return LLVMBuildSDiv(llvm->builder, gen_node(llvm, node->childs[1]),
+				gen_node(llvm, node->childs[2]), "mulres");
+	}
+	printf("unhandled operator %s\n", op);
+	return 0;
+}
+
+LLVMValueRef getprintf(struct llvm *llvm) {
+	static LLVMValueRef res = 0;
+
+	if (res)
+		return res;
+
+	LLVMTypeRef args[] = { LLVMPointerType(LLVMInt8Type(), 0) };
+	LLVMTypeRef proto = LLVMFunctionType(LLVMInt32Type(),
+			args,
+			1,
+			1);
+	res = LLVMAddFunction(llvm->module, "printf", proto);
+	return res;
+}
+
 void llvm_init_scope(struct llvm *llvm, struct sem_scope *scope) {
 	int i;
 
@@ -104,8 +180,6 @@ void llvm_init_scope(struct llvm *llvm, struct sem_scope *scope) {
 		LLVMTypeRef argsTypes[sem->args.count];
 		int y;
 
-		if (strcmp(sem->name, "prints") == 0) sem->name = "puts";
-
 		for (y = 0; y < sem->args.count; y++) {
 			argsTypes[y] = sem->args.data[y]->datatype->gendata;
 		}
@@ -117,12 +191,58 @@ void llvm_init_scope(struct llvm *llvm, struct sem_scope *scope) {
 		LLVMValueRef val = LLVMAddFunction(llvm->module, sem->name, proto);
 		sem->gendata = val;
 		if (strcmp(sem->name, "main") == 0) llvm->main = val;
+
+		LLVMValueRef prinf = getprintf(llvm);
+		if (strcmp(sem->name, "prints") == 0) {
+			LLVMBasicBlockRef block = LLVMAppendBasicBlock(val, "entry");
+			LLVMPositionBuilderAtEnd(llvm->builder, block);
+
+			LLVMValueRef params[] = { LLVMBuildGlobalStringPtr(llvm->builder, "%s\n", "printfcall"),
+				LLVMGetParam(val, 0) };
+			LLVMBuildCall(llvm->builder, prinf, params, 2, "printf");
+			LLVMBuildRetVoid(llvm->builder);
+		}
+		if (strcmp(sem->name, "printi") == 0) {
+			LLVMBasicBlockRef block = LLVMAppendBasicBlock(val, "entry");
+			LLVMPositionBuilderAtEnd(llvm->builder, block);
+
+			LLVMValueRef params[] = { LLVMBuildGlobalStringPtr(llvm->builder, "%d\n", "printfcall"),
+				LLVMGetParam(val, 0) };
+			LLVMBuildCall(llvm->builder, prinf, params, 2, "printf");
+			LLVMBuildRetVoid(llvm->builder);
+		}
+
 	}
+
+	for (i = scope->implicit_var_count; i < scope->variables.count; i++) {
+		struct sem_variable *var = scope->variables.data[i];
+
+		var->gendata = LLVMBuildAlloca(llvm->builder, var->datatype->gendata, var->name);
+	}
+}
+
+LLVMValueRef llvm_coumpound_statement(struct llvm *llvm, struct ast_node *node) {
+	int i;
+
+	llvm_init_scope(llvm, node->sem_val);
+	for (i = 0; i < node->childcount; i++)
+		gen_node(llvm, node->childs[i]);
+	return 0;
+}
+
+LLVMValueRef llvm_variable_declaration(struct llvm *llvm, struct ast_node *node) {
+	int i;
+
+	for (i = 0; i < node->childcount; i++)
+		if (node->childs[i]->type != TOKEN_IDENTIFIER)
+			gen_node(llvm, node->childs[i]);
+	return 0;
 }
 
 void llvm_interpret(struct ast_node *node) {
 	struct llvm out;
 
+	memset(&out, 0, sizeof(struct llvm));
 	out.module = LLVMModuleCreateWithName("m");
 	out.builder = LLVMCreateBuilder();
 
@@ -158,6 +278,10 @@ void init_llvm(void) {
 
 	gens[FUNCTION_DEFINITION] = llvm_func_def;
 	gens[FUNCTION_CALL] = llvm_func_call;
+	gens[COMPOUND_STATEMENT] = llvm_coumpound_statement;
+	gens[OPERATOR] = llvm_operator;
+	gens[VARIABLE_DECLARATION] = llvm_variable_declaration;
 
 	gens[TOKEN_STRING_LITERAL] = llvm_string_literal;
+	gens[TOKEN_IDENTIFIER] = llvm_identifier;
 }
