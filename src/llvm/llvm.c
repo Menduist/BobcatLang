@@ -22,6 +22,11 @@ struct llvm {
 	LLVMBuilderRef builder;
 	LLVMValueRef main;
 	enum wanted_value wanted_value;
+
+	LLVMBasicBlockRef currentBreak;
+	LLVMBasicBlockRef currentContinue;
+
+	int is_current_block_finished;
 };
 
 typedef LLVMValueRef (*node_llvm)(struct llvm *, struct ast_node *);
@@ -31,6 +36,8 @@ node_llvm gens[NODES_END];
 static LLVMValueRef gen_node(struct llvm *llvm, struct ast_node *node) {
 	LLVMValueRef ret = 0;
 	int i;
+
+	if (llvm->is_current_block_finished) return 0;
 
 	if (gens[node->type] != NULL) {
 		ret = gens[node->type](llvm, node);
@@ -128,7 +135,8 @@ LLVMValueRef llvm_func_def(struct llvm *llvm, struct ast_node *node) {
 
 	gen_node(llvm, node->childs[1]);
 
-	LLVMBuildRetVoid(llvm->builder);
+	if (llvm->is_current_block_finished == 0)
+		LLVMBuildRetVoid(llvm->builder);
 	return func;
 }
 
@@ -152,6 +160,16 @@ LLVMValueRef llvm_operator(struct llvm *llvm, struct ast_node *node) {
 				gen_node(llvm, node->childs[1]),
 				gen_node(llvm, node->childs[2]), "cmpres");
 	}
+	else if (strcmp(op, "<") == 0) {
+		return LLVMBuildICmp(llvm->builder, LLVMIntSLT,
+				gen_node(llvm, node->childs[1]),
+				gen_node(llvm, node->childs[2]), "cmpres");
+	}
+	else if (strcmp(op, ">") == 0) {
+		return LLVMBuildICmp(llvm->builder, LLVMIntSGT,
+				gen_node(llvm, node->childs[1]),
+				gen_node(llvm, node->childs[2]), "cmpres");
+	}
 	printf("unhandled operator %s\n", op);
 	return 0;
 }
@@ -170,6 +188,17 @@ LLVMValueRef llvm_prefix_operator(struct llvm *llvm, struct ast_node *node) {
 
 		return result;
 	}
+	if (strcmp(op, "--") == 0) {
+		LLVMValueRef var = get_lvalue(llvm, node->childs[1]);
+		LLVMValueRef result = LLVMBuildLoad(llvm->builder, var, "dec");
+		LLVMBuildStore(llvm->builder,
+				LLVMBuildAdd(llvm->builder,
+					result,
+					LLVMConstInt(LLVMInt32Type(), -1, 1), "deced"),
+				var);
+
+		return result;
+	}
 	printf("unhandled prefix operator %s\n", op);
 	return 0;
 }
@@ -184,6 +213,7 @@ LLVMValueRef llvm_if(struct llvm *llvm, struct ast_node *node) {
 	LLVMBasicBlockRef mergeBlock = LLVMAppendBasicBlock(currentBlock, "ifend");
 
 	LLVMBuildCondBr(llvm->builder, cond, thenBlock, elseBlock);
+	llvm->is_current_block_finished = 0;
 
 	/*
 	** Then
@@ -191,7 +221,9 @@ LLVMValueRef llvm_if(struct llvm *llvm, struct ast_node *node) {
 	LLVMPositionBuilderAtEnd(llvm->builder, thenBlock);
 	gen_node(llvm, node->childs[2]);
 
-	LLVMBuildBr(llvm->builder, mergeBlock);
+	if (llvm->is_current_block_finished == 0)
+		LLVMBuildBr(llvm->builder, mergeBlock);
+	llvm->is_current_block_finished = 0;
 
 	/*
 	** Else
@@ -199,9 +231,66 @@ LLVMValueRef llvm_if(struct llvm *llvm, struct ast_node *node) {
 	LLVMPositionBuilderAtEnd(llvm->builder, elseBlock);
 	if (node->childcount > 3)
 		gen_node(llvm, node->childs[3]);
-	LLVMBuildBr(llvm->builder, mergeBlock);
+	if (llvm->is_current_block_finished == 0)
+		LLVMBuildBr(llvm->builder, mergeBlock);
+	llvm->is_current_block_finished = 0;
 
 	LLVMPositionBuilderAtEnd(llvm->builder, mergeBlock);
+	return 0;
+}
+
+LLVMValueRef llvm_while(struct llvm *llvm, struct ast_node *node) {
+	LLVMBasicBlockRef breakBackup = llvm->currentBreak;
+	LLVMBasicBlockRef continueBackup = llvm->currentContinue;
+
+	LLVMValueRef currentBlock = LLVMGetBasicBlockParent(LLVMGetInsertBlock(llvm->builder));
+
+	LLVMBasicBlockRef condBlock = LLVMAppendBasicBlock(currentBlock, "whilecond");
+	LLVMBasicBlockRef bodyBlock = LLVMAppendBasicBlock(currentBlock, "whilebody");
+	LLVMBasicBlockRef endBlock = LLVMAppendBasicBlock(currentBlock, "whileend");
+
+	LLVMBuildBr(llvm->builder, condBlock);
+
+	/* Cond */
+	LLVMPositionBuilderAtEnd(llvm->builder, condBlock);
+	LLVMValueRef cond = gen_node(llvm, node->childs[1]);
+
+	if (llvm->is_current_block_finished == 0)
+		LLVMBuildCondBr(llvm->builder, cond, bodyBlock, endBlock);
+	llvm->is_current_block_finished = 0;
+
+	/* Body */
+	llvm->currentBreak = endBlock;
+	llvm->currentContinue = condBlock;
+
+	LLVMPositionBuilderAtEnd(llvm->builder, bodyBlock);
+	gen_node(llvm, node->childs[2]);
+	if (llvm->is_current_block_finished == 0)
+		LLVMBuildBr(llvm->builder, condBlock);
+	llvm->is_current_block_finished = 0;
+
+
+	LLVMPositionBuilderAtEnd(llvm->builder, endBlock);
+
+	llvm->currentBreak = breakBackup;
+	llvm->currentContinue = continueBackup;
+	return 0;
+}
+
+LLVMValueRef llvm_jump(struct llvm *llvm, struct ast_node *node) {
+	struct simple_token *token = (struct simple_token *)node->childs[0];
+
+	llvm->is_current_block_finished = 1;
+	switch (token->type) {
+	case TOKEN_BREAK:
+		return LLVMBuildBr(llvm->builder, llvm->currentBreak);
+	case TOKEN_CONTINUE:
+		return LLVMBuildBr(llvm->builder, llvm->currentContinue);
+	case TOKEN_RETURN:
+		if (node->childcount > 1)
+			return LLVMBuildRet(llvm->builder, gen_node(llvm, node->childs[1]));
+		return LLVMBuildRetVoid(llvm->builder);
+	}
 	return 0;
 }
 
@@ -338,6 +427,8 @@ void init_llvm(void) {
 	gens[PREFIX_OPERATOR] = llvm_prefix_operator;
 	gens[VARIABLE_DECLARATION] = llvm_variable_declaration;
 	gens[IF_STATEMENT] = llvm_if;
+	gens[WHILE_STATEMENT] = llvm_while;
+	gens[JUMP_STATEMENT] = llvm_jump;
 
 	gens[TOKEN_STRING_LITERAL] = llvm_string_literal;
 	gens[TOKEN_IDENTIFIER] = llvm_identifier;
