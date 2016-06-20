@@ -94,6 +94,7 @@ int main(int argc, char **argv) {
 		if (bob.mode >= MODE_SEM) {
 			run_semantical_analyzer(node);
 
+			fflush(stdout);
 			if (bob.mode == MODE_INTER) {
 				llvm_interpret(node);
 			}
@@ -101,7 +102,6 @@ int main(int argc, char **argv) {
 				compile(node);
 
 				if (bob.mode >= MODE_EXECUTE) {
-					fflush(stdout);
 					system("./a.out");
 				}
 				free_sem_ast_node(node);

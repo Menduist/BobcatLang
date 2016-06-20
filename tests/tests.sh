@@ -30,6 +30,17 @@ for path_file_to_test in ../samples/*; do
 			printf ${GREEN}"succeed\n"${CLEAR}
 		fi
 	fi
+	if [ -f $file_to_test.output ]; then
+		(../bob interpret ../samples/$file_to_test) > /tmp/$file_to_test.interpreted 2> /dev/null
+		printf "%-15.15s: interpreter " ${file_to_test}
+		diff /tmp/$file_to_test.interpreted $file_to_test.output
+		if [ "$?" -ne "0" ]; then
+			printf ${RED}"failed\n"${CLEAR}
+			error=1
+		else
+			printf ${GREEN}"succeed\n"${CLEAR}
+		fi
+	fi
 	if [ -f $file_to_test.parsed ]; then
 		../bob sem ../samples/$file_to_test > /tmp/$file_to_test.parsed 2> /dev/null
 		printf "%-15.15s: parsing     " ${file_to_test}
