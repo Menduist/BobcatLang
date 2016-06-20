@@ -145,11 +145,12 @@ LLVMValueRef llvm_func_def(struct llvm *llvm, struct ast_node *node) {
 	}
 	gen_node(llvm, node->childs[1]);
 
-	if (llvm->is_current_block_finished == 0)
+	if (llvm->is_current_block_finished == 0) {
 		if (sem->result_type)
 			LLVMBuildRet(llvm->builder, LLVMConstNull(sem->result_type->gendata));
 		else
 			LLVMBuildRetVoid(llvm->builder);
+	}
 
 	LLVMPositionBuilderAtEnd(llvm->builder, llvm->toplevelblock);
 	return func;
