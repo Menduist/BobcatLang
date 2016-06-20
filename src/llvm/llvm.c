@@ -21,6 +21,8 @@ struct llvm {
 	LLVMModuleRef module;
 	LLVMBuilderRef builder;
 	LLVMValueRef main;
+	LLVMValueRef toplevel;
+	LLVMBasicBlockRef toplevelblock;
 	enum wanted_value wanted_value;
 
 	LLVMBasicBlockRef currentBreak;
@@ -127,16 +129,29 @@ LLVMValueRef llvm_func_call(struct llvm *llvm, struct ast_node *node) {
 
 LLVMValueRef llvm_func_def(struct llvm *llvm, struct ast_node *node) {
 	struct sem_function *sem = node->sem_val;
+	struct sem_scope *scope = node->childs[1]->sem_val;
+	int i;
 
 	LLVMValueRef func = sem->gendata;
 
 	LLVMBasicBlockRef block = LLVMAppendBasicBlock(func, "entry");
 	LLVMPositionBuilderAtEnd(llvm->builder, block);
 
+	for (i = 0; i < scope->implicit_var_count; i++) {
+		struct sem_variable *var = scope->variables.data[i];
+
+		var->gendata = LLVMBuildAlloca(llvm->builder, var->datatype->gendata, var->name);
+		LLVMBuildStore(llvm->builder, LLVMGetParam(func, i), var->gendata);
+	}
 	gen_node(llvm, node->childs[1]);
 
 	if (llvm->is_current_block_finished == 0)
-		LLVMBuildRetVoid(llvm->builder);
+		if (sem->result_type)
+			LLVMBuildRet(llvm->builder, LLVMConstNull(sem->result_type->gendata));
+		else
+			LLVMBuildRetVoid(llvm->builder);
+
+	LLVMPositionBuilderAtEnd(llvm->builder, llvm->toplevelblock);
 	return func;
 }
 
@@ -150,6 +165,10 @@ LLVMValueRef llvm_operator(struct llvm *llvm, struct ast_node *node) {
 	else if (strcmp(op, "*") == 0) {
 		return LLVMBuildMul(llvm->builder, gen_node(llvm, node->childs[1]),
 				gen_node(llvm, node->childs[2]), "mulres");
+	}
+	else if (strcmp(op, "+") == 0) {
+		return LLVMBuildAdd(llvm->builder, gen_node(llvm, node->childs[1]),
+				gen_node(llvm, node->childs[2]), "addres");
 	}
 	else if (strcmp(op, "/") == 0) {
 		return LLVMBuildSDiv(llvm->builder, gen_node(llvm, node->childs[1]),
@@ -280,15 +299,20 @@ LLVMValueRef llvm_while(struct llvm *llvm, struct ast_node *node) {
 LLVMValueRef llvm_jump(struct llvm *llvm, struct ast_node *node) {
 	struct simple_token *token = (struct simple_token *)node->childs[0];
 
-	llvm->is_current_block_finished = 1;
 	switch (token->type) {
 	case TOKEN_BREAK:
+		llvm->is_current_block_finished = 1;
 		return LLVMBuildBr(llvm->builder, llvm->currentBreak);
 	case TOKEN_CONTINUE:
 		return LLVMBuildBr(llvm->builder, llvm->currentContinue);
+		llvm->is_current_block_finished = 1;
 	case TOKEN_RETURN:
-		if (node->childcount > 1)
-			return LLVMBuildRet(llvm->builder, gen_node(llvm, node->childs[1]));
+		if (node->childcount > 1) {
+			LLVMValueRef retval = gen_node(llvm, node->childs[1]);
+			llvm->is_current_block_finished = 1;
+			return LLVMBuildRet(llvm->builder, retval);
+		}
+		llvm->is_current_block_finished = 1;
 		return LLVMBuildRetVoid(llvm->builder);
 	}
 	return 0;
@@ -309,6 +333,15 @@ LLVMValueRef getprintf(struct llvm *llvm) {
 	return res;
 }
 
+void create_top_level(struct llvm *llvm) {
+	LLVMTypeRef proto = LLVMFunctionType(LLVMVoidType(), 0, 0, 0);                                                                                        
+	LLVMValueRef val = LLVMAddFunction(llvm->module, "toplevel", proto);
+	LLVMBasicBlockRef block = LLVMAppendBasicBlock(val, "entry");
+
+	llvm->toplevel = val;
+	llvm->toplevelblock = block;
+}
+
 void llvm_init_scope(struct llvm *llvm, struct sem_scope *scope) {
 	int i;
 
@@ -316,6 +349,13 @@ void llvm_init_scope(struct llvm *llvm, struct sem_scope *scope) {
 		if (strcmp(scope->types.data[i]->name, "char") == 0) scope->types.data[i]->gendata = LLVMInt8Type();
 		if (strcmp(scope->types.data[i]->name, "int") == 0) scope->types.data[i]->gendata = LLVMInt32Type();
 		if (strcmp(scope->types.data[i]->name, "string") == 0) scope->types.data[i]->gendata = LLVMPointerType(LLVMInt8Type(), 0);
+	}
+
+	for (i = scope->implicit_var_count; i < scope->variables.count; i++) {
+		struct sem_variable *var = scope->variables.data[i];
+
+		var->gendata = LLVMBuildAlloca(llvm->builder, var->datatype->gendata, var->name);
+		LLVMBuildStore(llvm->builder, LLVMConstInt(var->datatype->gendata, 0, 1), var->gendata);
 	}
 
 	for (i = 0; i < scope->functions.count; i++) {
@@ -356,13 +396,6 @@ void llvm_init_scope(struct llvm *llvm, struct sem_scope *scope) {
 		}
 
 	}
-
-	for (i = scope->implicit_var_count; i < scope->variables.count; i++) {
-		struct sem_variable *var = scope->variables.data[i];
-
-		var->gendata = LLVMBuildAlloca(llvm->builder, var->datatype->gendata, var->name);
-		LLVMBuildStore(llvm->builder, LLVMConstInt(var->datatype->gendata, 0, 1), var->gendata);
-	}
 }
 
 LLVMValueRef llvm_coumpound_statement(struct llvm *llvm, struct ast_node *node) {
@@ -390,17 +423,23 @@ void llvm_interpret(struct ast_node *node) {
 	out.module = LLVMModuleCreateWithName("m");
 	out.builder = LLVMCreateBuilder();
 
+	create_top_level(&out);
+	LLVMPositionBuilderAtEnd(out.builder, out.toplevelblock);
 	llvm_init_scope(&out, node->sem_val);
+
+	LLVMPositionBuilderAtEnd(out.builder, out.toplevelblock);
 	gen_node(&out, node);
+	LLVMBuildRetVoid(out.builder);
 
 	char *error = NULL;
-	LLVMVerifyModule(out.module, LLVMAbortProcessAction, &error);
+	LLVMVerifyModule(out.module, LLVMPrintMessageAction, &error);
 	LLVMDisposeMessage(error);
 
 	if (LLVMWriteBitcodeToFile(out.module, "sum.bc") != 0) {
 		fprintf(stderr, "error writing bitcode to file, skipping\n");
 	}
 
+	
 	LLVMExecutionEngineRef engine;
 	error = NULL;
 	LLVMLinkInInterpreter();
@@ -412,6 +451,7 @@ void llvm_interpret(struct ast_node *node) {
 		LLVMDisposeMessage(error);
 		exit(EXIT_FAILURE);
 	}
+	LLVMRunFunction(engine, out.toplevel, 0, 0);
 	LLVMRunFunction(engine, out.main, 0, 0);
 
 	LLVMDisposeBuilder(out.builder);
