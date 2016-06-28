@@ -305,8 +305,8 @@ LLVMValueRef llvm_jump(struct llvm *llvm, struct ast_node *node) {
 		llvm->is_current_block_finished = 1;
 		return LLVMBuildBr(llvm->builder, llvm->currentBreak);
 	case TOKEN_CONTINUE:
-		return LLVMBuildBr(llvm->builder, llvm->currentContinue);
 		llvm->is_current_block_finished = 1;
+		return LLVMBuildBr(llvm->builder, llvm->currentContinue);
 	case TOKEN_RETURN:
 		if (node->childcount > 1) {
 			LLVMValueRef retval = gen_node(llvm, node->childs[1]);
